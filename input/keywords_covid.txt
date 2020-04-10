@@ -1,0 +1,25 @@
+corona*
+covid*
+virus*
+pandem*
+epidem*
+crisis
+lockdown
+quarantin*
+isolation
+(social distancing)
+deaths
+(death toll)
+infect*
+spread*
+patient*
+hospital*
+vaccine*
+symptom*
+ventilators
+masks
+(medical suppl*)
+cdc
+(world health organization)
+chloroquine*
+hydroxychlor*
