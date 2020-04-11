@@ -45,7 +45,7 @@ iter=0
 corona_generator =  \
     api.search_submissions(q = covid_search_string,
                            limit = 10000,
-                           after = '30m',
+                           after = '20m',
                            sort = 'desc',
                            filter=['id','title','subreddit','subreddit_subscribers',
                                    'author','full_link','url','domain', 'is_self'])
