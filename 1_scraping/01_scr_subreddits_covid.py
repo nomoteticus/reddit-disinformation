@@ -7,7 +7,7 @@ from collections import Counter
 
 #rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
 #os.chdir(rootfold)
-rootfold = '../'
+with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
 
 def read_linebyline(file):
     return([line.rstrip() for line in open(file)])
@@ -27,6 +27,9 @@ existing_submissions = set([])
 try:
     ls_df0 = pd.read_csv(rootfold+"output/R_subm_subr_covid.csv")
     existing_submissions = set(ls_df0.iloc[:,4])
+    subr_ctr = Counter(ls_df0['subreddit'])
+    subr_df = pd.DataFrame.from_dict(subr_ctr, orient='index').sort_values(by = 0, ascending=False)
+    subr_df.to_csv(rootfold+"output/R_top_subr_covid.csv")  
 except:
     print('No file yet')
     
@@ -41,8 +44,8 @@ ls = []
 iter=0
 corona_generator =  \
     api.search_submissions(q = covid_search_string,
-                           limit = 100,
-                           after = '2h',
+                           limit = 10000,
+                           after = '30m',
                            sort = 'desc',
                            filter=['id','title','subreddit','subreddit_subscribers',
                                    'author','full_link','url','domain', 'is_self'])
@@ -73,5 +76,4 @@ if ls_df0.shape[0] == 0 :
                  index = False, header=True)
 else:
     ls_df.to_csv(rootfold+"output/R_subm_subr_covid.csv", 
-                 index = False, header = False, mode = 'a')  
-    
+                 index = False, header = False, mode = 'a')
