@@ -5,9 +5,9 @@ import re
 import pandas as pd
 from collections import Counter
 
-#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
+rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
 #os.chdir(rootfold)
-with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
+#with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
 
 def read_linebyline(file):
     return([line.rstrip() for line in open(file)])
@@ -39,37 +39,61 @@ covid_search_terms = read_linebyline(rootfold+'input/keywords_covid.txt')
 covid_search_string = '|'.join(covid_search_terms)
 covid_search_string
 
-
 ls = []
+err = []
 iter=0
 corona_generator =  \
     api.search_submissions(q = covid_search_string,
                            limit = 10000,
-                           after = '20m',
+                           after = '30m',
                            sort = 'desc',
                            filter=['id','title','subreddit','subreddit_subscribers',
                                    'author','full_link','url','domain', 'is_self'])
 for s in corona_generator:
     iter+=1
     try:
-        if s.subreddit_subscribers>1000 and \
+        if s.id not in existing_submissions and \
+           s.subreddit_subscribers>1000 and \
            not s.is_self and \
            not bool(re.search('reddit|redd.it|imgur|gfycat', s.domain)):
             ls.append(s)
-            if len(ls) % 1000 == 1:
-                print('%10.0d / %10.0d' % (len(ls),iter))
+            existing_submissions.append(s.id)
     except:
-        print('Error: '+ str(s))
-print(len(ls))
+        err.append(s.id)
 
+ls30m = len(ls)
 
-sls = [s.d_ for s in ls if s.id not in existing_submissions]
+if iter<10:
+    corona_generator =  \
+        api.search_submissions(q = covid_search_string,
+                               limit = 100000,
+                               after = '1d',
+                               sort = 'desc',
+                               filter=['id','title','subreddit','subreddit_subscribers',
+                                   'author','full_link','url','domain', 'is_self'])
+    for s in corona_generator:
+        iter+=1
+        try:
+            if s.id not in existing_submissions and \
+               s.subreddit_subscribers>1000 and \
+               not s.is_self and \
+               not bool(re.search('reddit|redd.it|imgur|gfycat', s.domain)):
+                   ls.append(s)
+        except:
+            err.append(s.id)
 
-Counter([s.subreddit for s in ls]).most_common()
+ls1d = len(ls)
+
+sls = [s.d_ for s in ls]
+
+with open(rootfold+'output/LOG_subm_subr_covid.txt', 'a') as logfile:
+    logfile.write('%s / Err: %7d/ Iter: %7d/ Subm: %7d (30m) ; %7d (1d) ; %9d (total) \n' % 
+                  (str(datetime.now())[:19], len(err), iter, ls30m, ls1d, ls_df0.shape[0] + ls30m + ls1d))
 
 ls_df = pd.DataFrame(sls)
-ls_df['date_added'] = datetime.now()
-ls_df['created_utc'] = conv_utcvec(ls_df['created_utc'])
+if ls_df.shape[0] > 0 :
+    ls_df['date_added'] = datetime.now()
+    ls_df['created_utc'] = conv_utcvec(ls_df['created_utc'])
 
 if ls_df0.shape[0] == 0 :
     ls_df.to_csv(rootfold+"output/R_subm_subr_covid.csv", 
