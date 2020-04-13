@@ -5,9 +5,9 @@ import re
 import pandas as pd
 from collections import Counter
 
-rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
+#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
 #os.chdir(rootfold)
-#with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
+with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
 
 def read_linebyline(file):
     return([line.rstrip() for line in open(file)])
