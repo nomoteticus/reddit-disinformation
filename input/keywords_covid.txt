@@ -7,7 +7,7 @@ crisis
 lockdown
 quarantin*
 isolation
-(social distancing)
+(social distanc*)
 deaths
 (death toll)
 infect*
