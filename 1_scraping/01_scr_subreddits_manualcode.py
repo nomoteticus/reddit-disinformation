@@ -6,66 +6,73 @@ Created on Tue Apr 14 19:42:06 2020
 
 import pandas as pd
 import numpy as np
+import re
+from collections import Counter
+from psaw import PushshiftAPI
+
+api = PushshiftAPI()
 
 rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
 #with open('cwd.txt','r') as file:    rootfold = file.read().rstrip()+'/'
 
-pd.set_option('display.max_columns', 15)
-pd.set_option('display.max_rows', 15)
-
 
 subr_classification = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
 subr_classification = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
-subr_classification['category'] = subr_classification.keep.fillna('')
-subr_classification['language'] = subr_classification.keep.fillna('')
-subr_classification['keep'] = subr_classification.keep.fillna(-1)
 
-new_indexes = []
 
-for i in subr_classification.index[:3]:
-    if str(subr_classification.loc[i,'category']) == 'nan':
-        print(subr_classification.loc[:i])
-        print('\nCategories: '+', '.join([str(el) for el in set(subr_classification.category)]))
-        category = input(i+" .Category?\n")
-        if category !='':
-            subr_classification.loc[i,'category'] = category
-        print('\n\n\n')
-        new_indexes.append(i)
-    if str(subr_classification.loc[i,'language']) == 'nan':
-        print('\Languages: en, fr, it, es, pt, cn, oth')
+subr_classification['category'] = subr_classification['category'].fillna('')
+subr_classification['language'] = subr_classification['language'].fillna('')
+subr_classification['keep'] = subr_classification['keep'].fillna(-1)
+
+
+subr_classification['new'] = 0
+subr_classification.new[subr_classification['category']==''] = 1
+
+
+subr_classification.category[[bool(re.search('politic', i.lower())) for i in subr_classification.index]] = "generic_politics"
+subr_classification.category[[bool(re.search('news', i.lower())) for i in subr_classification.index]] = "generic_news"
+subr_classification.category[[bool(re.search('corona|covid', i.lower())) for i in subr_classification.index]] = "coronavirus"
+
+### Add language
+subr_classification['language'][subr_classification['language']==''] = "en"
+
+
+### Manually classify
+
+### Save
+subr_classification.to_csv(rootfold+'input/subr_classification.csv')
+
+subr_classification = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
+subr_classification = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
+
+
+
+### Add language
+for i in subr_classification.index:
+    if str(subr_classification.loc[i,'category']) == 'local' and str(subr_classification.loc[i,'language']) == 'en':
+        for s in api.search_submissions(subreddit = i, limit = 10, after = '30d', sort = 'desc', filter=['id','title']):
+            print(s.title)
+        print(i)
+        print('\nLanguages: en, fr, it, es, pt, cn, oth\n')
         language = input(i+" .Language?\n")
         if language !='':
             subr_classification.loc[i,'language'] = language
         print('\n\n\n')
-        new_indexes.append(i)
-    if str(subr_classification.loc[i,'keep']) == 'nan':
-        print('\nKeep: 1 = yes, 0 = no')
-        keep = input(i+" .Keep scraping?\n")
-        if keep !='':
-            subr_classification.loc[i,'keep'] = int(keep)
-        print('\n\n\n')
-        new_indexes.append(i)
 
-print(subr_classification.loc[list(set(new_indexes)),['keep','category','language']])
 
-print('Finished')
+### Save
+subr_classification.to_csv(rootfold+'input/subr_classification.csv')
 
-old = 
-[
-'Coronavirus',
-'news',
-'worldnews',
-'worldpolitics',
-'worldevents',
-'NewsPorn',
-'politics',
-'uspolitics',
-'europe',
-'PoliticalDiscussion',
-'TrueReddit',
-'Positive_News',
-'offbeat',
-'inthenews'
-]
+Counter(subr_classification['category'])
 
-set(old).difference( set(subr_classification.index) )
+subr_classification['keep'] = \
+    (subr_classification['language'] == "en") & \
+        (subr_classification['avg_ncomments']<1) & \
+            (subr_classification['category'].isin(["generic_news","generic_politics","coronavirus","local","science_health"]))
+
+
+### Save
+subr_classification.to_csv(rootfold+'input/subr_classification.csv')
+
+        
+        
