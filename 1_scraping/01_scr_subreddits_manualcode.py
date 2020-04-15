@@ -67,12 +67,11 @@ Counter(subr_classification['category'])
 
 subr_classification['keep'] = \
     (subr_classification['language'] == "en") & \
-        (subr_classification['avg_ncomments']<1) & \
+        (subr_classification['avg_ncomments']>1) & \
             (subr_classification['category'].isin(["generic_news","generic_politics","coronavirus","local","science_health"]))
 
 
 ### Save
 subr_classification.to_csv(rootfold+'input/subr_classification.csv')
-
         
         
