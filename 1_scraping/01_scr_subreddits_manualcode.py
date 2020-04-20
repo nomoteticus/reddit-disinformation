@@ -12,9 +12,49 @@ from psaw import PushshiftAPI
 
 api = PushshiftAPI()
 
-rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
+
 #with open('cwd.txt','r') as file:    rootfold = file.read().rstrip()+'/'
 
+
+### Next classification
+
+rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
+
+subr_classification2 = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
+subr_classification2 = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
+
+subr_classification['category'] = subr_classification['category'].fillna('')
+subr_classification['language'] = subr_classification['language'].fillna('en')
+subr_classification['keep'] = subr_classification['keep'].fillna(-1)
+
+subr_classification.new[subr_classification['category']==''] = 1 + max(subr_classification.new.fillna(-1))
+
+Counter(subr_classification['category'])
+
+subr_classification['keep'] = \
+   (subr_classification['subscribers_K'] > 10) & \
+       (subr_classification['language'] == "en") & \
+           (subr_classification['avg_ncomments']>1) & \
+               (subr_classification['category'].\
+                 isin(["generic_news","generic_politics","coronavirus","local", "ideological",
+                       "science_health","technology","business_economics"]))
+
+Counter(subr_classification['keep'] )
+
+# old keep
+#subr_classification['keep'] = \
+#    (subr_classification['language'] == "en") & \
+#        (subr_classification['avg_ncomments']>1) & \
+#            (subr_classification['category'].isin(["generic_news","generic_politics","coronavirus","local","science_health"]))
+
+
+### Save
+subr_classification.to_csv(rootfold+'input/subr_classification.csv')
+
+
+### First classification
+"""
+rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
 
 subr_classification = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
 subr_classification = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
@@ -73,5 +113,5 @@ subr_classification['keep'] = \
 
 ### Save
 subr_classification.to_csv(rootfold+'input/subr_classification.csv')
-        
+"""   
         
