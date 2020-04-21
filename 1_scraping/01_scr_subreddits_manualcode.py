@@ -20,8 +20,8 @@ api = PushshiftAPI()
 
 rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
 
-subr_classification2 = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
-subr_classification2 = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
+subr_classification = pd.read_csv(rootfold+'input/subr_classification.csv').set_index('subreddit')
+subr_classification = subr_classification.reset_index().sort_values('subreddit').set_index('subreddit')
 
 subr_classification['category'] = subr_classification['category'].fillna('')
 subr_classification['language'] = subr_classification['language'].fillna('en')
