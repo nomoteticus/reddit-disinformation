@@ -1,0 +1,839 @@
+Number of cases:8900
+
+all_awardings
+----------
+cannot tabulate
+
+
+allow_live_comments
+----------
+(False, 8882)
+(True, 18)
+
+
+
+author
+----------
+('Lnhax_News', 137)
+('POTUS_Archivist_Bot', 96)
+('md-alamgir', 80)
+('Bailliebugs', 57)
+('[deleted]', 56)
+('SeventhConstellation', 51)
+('Foubar', 49)
+('dannylenwinn', 47)
+('bzendoo', 37)
+('OliverMarkusMalloy', 35)
+
+
+
+author_flair_css_class
+----------
+(None, 8449)
+('Glenn', 85)
+('ocmaker', 20)
+('plain', 18)
+('ideology-flair', 17)
+('BSP', 14)
+('custom-text3', 12)
+('CAN', 11)
+('no-knight', 9)
+('  reward1', 9)
+
+
+
+author_flair_richtext
+----------
+cannot tabulate
+
+
+author_flair_text
+----------
+(None, 8014)
+('Metacanadian', 61)
+('Frequent contributor', 51)
+('VIC', 21)
+('Independent 🌏 ', 14)
+('Conservative', 12)
+('MD', 12)
+('Political Atheist', 11)
+('Chinese', 11)
+('Go Corona... Corona Go', 10)
+
+
+
+author_flair_type
+----------
+('text', 8322)
+('richtext', 522)
+(nan, 56)
+
+
+
+author_fullname
+----------
+('t2_5vnfqggj', 137)
+('t2_40i0b7f3', 96)
+('t2_9hyozv4', 80)
+('t2_79yv5', 57)
+(nan, 56)
+('t2_wxczw', 51)
+('t2_tpsej', 49)
+('t2_2jq85dqx', 47)
+('t2_5ktzej2z', 37)
+('t2_41nl3z0t', 35)
+
+
+
+author_patreon_flair
+----------
+(False, 8844)
+(nan, 56)
+
+
+
+author_premium
+----------
+(False, 7836)
+(True, 1008)
+(nan, 56)
+
+
+
+awarders
+----------
+cannot tabulate
+
+
+can_mod_post
+----------
+(False, 8900)
+
+
+
+contest_mode
+----------
+(False, 8757)
+(True, 143)
+
+
+
+created_utc
+----------
+(1587463644, 3)
+(1587462696, 3)
+(1587456372, 3)
+(1587456230, 3)
+(1587449955, 3)
+(1587438567, 3)
+(1587455009, 3)
+(1587440981, 3)
+(1587456719, 3)
+(1587455791, 3)
+
+
+
+domain
+----------
+('i.redd.it', 1091)
+('youtu.be', 384)
+('youtube.com', 368)
+('twitter.com', 168)
+('news.lnhax.com', 137)
+('lifestyle-net24.blogspot.com', 80)
+('self.ottawa', 79)
+('theguardian.com', 78)
+('apnews.com', 72)
+('cbc.ca', 72)
+
+
+
+full_link
+----------
+('https://www.reddit.com/r/Michigan/comments/g5c8hx/any_gig_workerscontractors_file_for_unemployment/', 1)
+('https://www.reddit.com/r/Michigan/comments/g5bor6/pure_michigan/', 1)
+('https://www.reddit.com/r/Michigan/comments/g5bk2n/fox_17s_rebound_west_michigan_is_here_to_connect/', 1)
+('https://www.reddit.com/r/Michigan/comments/g5bhxf/autocam_medical_has_instituted_rigorous/', 1)
+('https://www.reddit.com/r/Michigan/comments/g5a1og/what_can_i_makedo_to_help_heath_care_workers_or/', 1)
+('https://www.reddit.com/r/Michigan/comments/g59w1d/help_with_unemployment_filing/', 1)
+('https://www.reddit.com/r/Michigan/comments/g59gyk/holland_would_you_like_a_new_furry_friend/', 1)
+('https://www.reddit.com/r/Michigan/comments/g59epb/does_anyone_need_anything/', 1)
+('https://www.reddit.com/r/Michigan/comments/g59aee/its_1am_and_my_neighbor_is_outside_screaming/', 1)
+('https://www.reddit.com/r/Michigan/comments/g598e9/is_everyone_alright/', 1)
+
+
+
+gildings
+----------
+cannot tabulate
+
+
+id
+----------
+('g5c8hx', 1)
+('g5bor6', 1)
+('g5bk2n', 1)
+('g5bhxf', 1)
+('g5a1og', 1)
+('g59w1d', 1)
+('g59gyk', 1)
+('g59epb', 1)
+('g59aee', 1)
+('g598e9', 1)
+
+
+
+is_crosspostable
+----------
+(True, 5865)
+(False, 3035)
+
+
+
+is_meta
+----------
+(False, 8900)
+
+
+
+is_original_content
+----------
+(False, 8883)
+(True, 17)
+
+
+
+is_reddit_media_domain
+----------
+(False, 7769)
+(True, 1131)
+
+
+
+is_robot_indexable
+----------
+(True, 5960)
+(False, 2940)
+
+
+
+is_self
+----------
+(False, 6915)
+(True, 1985)
+
+
+
+is_video
+----------
+(False, 8800)
+(True, 100)
+
+
+
+link_flair_background_color
+----------
+('', 6736)
+('#dadada', 206)
+('#ffd635', 106)
+('#94e044', 98)
+('#ffb000', 82)
+('#b8001f', 79)
+('#0079d3', 77)
+('#f3c817', 69)
+('#7193ff', 67)
+('#ff66ac', 66)
+
+
+
+link_flair_richtext
+----------
+cannot tabulate
+
+
+link_flair_text_color
+----------
+('dark', 7720)
+('light', 1180)
+
+
+
+link_flair_type
+----------
+('text', 7619)
+('richtext', 1281)
+
+
+
+locked
+----------
+(False, 8896)
+(True, 4)
+
+
+
+media_only
+----------
+(False, 8900)
+
+
+
+no_follow
+----------
+(True, 8611)
+(False, 289)
+
+
+
+num_comments
+----------
+(0, 3487)
+(2, 1149)
+(1, 1033)
+(3, 456)
+(4, 335)
+(5, 237)
+(7, 185)
+(6, 178)
+(8, 149)
+(9, 118)
+
+
+
+num_crossposts
+----------
+(0, 8882)
+(1, 16)
+(5, 1)
+(2, 1)
+
+
+
+over_18
+----------
+(False, 8886)
+(True, 14)
+
+
+
+parent_whitelist_status
+----------
+('all_ads', 6400)
+(nan, 910)
+('no_ads', 790)
+('some_ads', 500)
+('house_only', 300)
+
+
+
+permalink
+----------
+('/r/Michigan/comments/g5c8hx/any_gig_workerscontractors_file_for_unemployment/', 1)
+('/r/Michigan/comments/g5bor6/pure_michigan/', 1)
+('/r/Michigan/comments/g5bk2n/fox_17s_rebound_west_michigan_is_here_to_connect/', 1)
+('/r/Michigan/comments/g5bhxf/autocam_medical_has_instituted_rigorous/', 1)
+('/r/Michigan/comments/g5a1og/what_can_i_makedo_to_help_heath_care_workers_or/', 1)
+('/r/Michigan/comments/g59w1d/help_with_unemployment_filing/', 1)
+('/r/Michigan/comments/g59gyk/holland_would_you_like_a_new_furry_friend/', 1)
+('/r/Michigan/comments/g59epb/does_anyone_need_anything/', 1)
+('/r/Michigan/comments/g59aee/its_1am_and_my_neighbor_is_outside_screaming/', 1)
+('/r/Michigan/comments/g598e9/is_everyone_alright/', 1)
+
+
+
+pinned
+----------
+(False, 8900)
+
+
+
+pwls
+----------
+(6.0, 6400)
+(0.0, 790)
+(7.0, 500)
+(1.0, 300)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+
+removed_by_category
+----------
+(nan, 6038)
+('reddit', 1208)
+('moderator', 1079)
+('automod_filtered', 519)
+('deleted', 56)
+
+
+
+retrieved_on
+----------
+(1587462804, 4)
+(1587436632, 3)
+(1587463645, 3)
+(1587445324, 3)
+(1587462697, 3)
+(1587456235, 3)
+(1587452407, 3)
+(1587455011, 3)
+(1587463082, 3)
+(1587455792, 3)
+
+
+
+score
+----------
+(1, 8443)
+(2, 133)
+(0, 94)
+(3, 65)
+(4, 27)
+(5, 23)
+(6, 20)
+(14, 9)
+(7, 8)
+(10, 8)
+
+
+
+selftext
+----------
+('', 6948)
+('[removed]', 646)
+('[deleted]', 51)
+(nan, 5)
+('\nPlease use this thread to discuss any cases of corona virus reported in Texas.  \n\n**For unconfirmed rumors, first-person/third-person accounts or experiences, or other unverified information not covered by news media, please use the [Rumors Megathread](https://www.reddit.com/r/CoronaVirusTX/comments/fehpr1/texas_corona_virus_rumors_megathread)**  \n\n**[1Point3Acres](https://coronavirus.1point3acres.com/en)**  \n\n**[DSHS Coronavirus Tracker](https://dshs.texas.gov/news/updates.shtm#coronavirus)**  \n\n**[Worldometers.info](https://www.worldometers.info/coronavirus/country/us/)**  \n\n**[Houston Chronicle Coronavirus Case Map](https://www.houstonchronicle.com/coronavirus/article/covid-interactive-map-houston-texas-us-case-virus-15142609.php)**', 4)
+('We understand that this is a stressful time for the community! To that end, we will be hosting a daily check-in/personal thread for concerns, vents, personal questions, anecdotes, and preparation plans. Please note that all posts on these topics must be included here and will be removed from the front page.\nFor on-topic discussion of current news, please use the daily discussion thread.\nRules 2, 5 and 7 will be relaxed in this thread. Other rules still apply. Please remember to be civil.', 3)
+("Looking for ESL recruiters that aren't complete twats. If you've used one in the past or have any recommendations I'd appreciate their wechat. Thanks", 2)
+('[WeCare](https://snipon.com/wecare/) is a peer-to-peer platform that puts a personal touch on giving. Inspired by goodwill and community amid the Covid-19 pandemic, users can use the platform to give and receive emergency funds with zero commissions or administrative costs. Those who donate are able to connect their charitable act with the face and name of someone in need and make an immediate impact on people’s lives through a simple donation of any dollar amount. As the platform expands, WeCare plans to extend the service beyond the immediate needs of the Coronavirus pandemic.', 2)
+("Don't forget our Discord server for live chat: [http://discordapp.com/invite/9FKReK2](http://discordapp.com/invite/9FKReK2)\n\nOur case tracker that's updated throughout the day, and a growing list of useful resources:\n[https://www.reddit.com/r/CoronavirusDownunder/comments/fki5m5/australian_case_tracker_and_useful_links/](https://www.reddit.com/r/CoronavirusDownunder/comments/fki5m5/australian_case_tracker_and_useful_links/)", 2)
+('https://www.washingtonpost.com/opinions/2020/04/20/why-democrats-should-stop-worrying-about-bidens-low-profile/', 2)
+
+
+
+send_replies
+----------
+(True, 7267)
+(False, 1633)
+
+
+
+spoiler
+----------
+(False, 8888)
+(True, 12)
+
+
+
+stickied
+----------
+(False, 8893)
+(True, 7)
+
+
+
+subreddit
+----------
+('Michigan', 100)
+('PoliticalVideo', 100)
+('The_Mueller', 100)
+('bayarea', 100)
+('conservatives', 100)
+('florida', 100)
+('healthcare', 100)
+('skeptic', 100)
+('tech', 100)
+('usanews', 100)
+
+
+
+subreddit_id
+----------
+('t5_2qhtl', 100)
+('t5_3arin', 100)
+('t5_3n3f3', 100)
+('t5_2qjyy', 100)
+('t5_2qj2e', 100)
+('t5_2qh7q', 100)
+('t5_2qkih', 100)
+('t5_2qj8f', 100)
+('t5_2qh48', 100)
+('t5_2rf3d', 100)
+
+
+
+subreddit_subscribers
+----------
+(16298, 43)
+(157378, 34)
+(44232, 34)
+(18400, 30)
+(44231, 27)
+(13221, 24)
+(112562, 21)
+(13206, 20)
+(18399, 20)
+(13833, 19)
+
+
+
+subreddit_type
+----------
+('public', 8898)
+('restricted', 2)
+
+
+
+thumbnail
+----------
+('default', 2536)
+('self', 1936)
+('image', 97)
+('https://b.thumbs.redditmedia.com/qGTUK9gvTgt0k06_qokU7LPkGAxMLPtDbn0jGBBuDfQ.jpg', 17)
+('nsfw', 14)
+('spoiler', 10)
+('https://b.thumbs.redditmedia.com/9V7lUr4LxwP0h4-G1PixlaLJULOA_ugJulRSzaUVTTM.jpg', 10)
+('https://b.thumbs.redditmedia.com/u7q5GiTgKeZ9tDt_5RZVTSGPhfkLHgUJHnu0z2S2yBE.jpg', 9)
+('https://b.thumbs.redditmedia.com/tJOZxrOPWu0jO9sqqftl0FFpkTvMqx7Hm7V6WSl5mrg.jpg', 8)
+('https://a.thumbs.redditmedia.com/V7QO8vUZBszpsVhlXgehORsh1wXVeiCjso_cLsKtMS0.jpg', 8)
+
+
+
+title
+----------
+('Bernie Policy Series - Episode 1 - Economic Bill of Rights', 19)
+('u/icesir &amp; u/derilect uncover 2 potential advertising firms responsible for the nationwide astroturfing campaign encouraging US citizens to protest quarantine.', 11)
+('Contact Us Today For Air Conditioning Services', 10)
+('The CCP has an Asset Guiding the World’s Coronavirus Response: How China uses WHO Tedros as a Puppet', 9)
+('How can your per avoid COVID19', 9)
+('We Supply &amp; Install All Type Of Ducted Air Conditioning Sydney', 9)
+('AIR CONDITIONING SYDNEY PROVIDES LOW PRICED AIR CONDITIONERS', 9)
+('Subscription vs Barrel of Oil', 7)
+('Reports suggest many have had coronavirus with no symptoms', 7)
+('TIMELINE of FIRST Confirmed Cases by Country or Territory per Region | Dec.1, 2019 - April 16, 2020', 6)
+
+
+
+total_awards_received
+----------
+(0, 8899)
+(1, 1)
+
+
+
+treatment_tags
+----------
+cannot tabulate
+
+
+url
+----------
+('https://youtu.be/XwIMR1z9v4g', 20)
+('https://www.reddit.com/r/MassMove/comments/g3toiz/a_post_by_udr_midnight_collating_information_on/fnv8j69/?context=3&amp;depth=9', 12)
+('https://youtu.be/MADVitZT4vY', 11)
+('https://www.businessinsider.com/whole-foods-tracks-unionization-risk-with-heat-map-2020-1', 10)
+('https://cutt.ly/1tTkQEr', 9)
+('https://www.cnn.com/2020/04/20/investing/premarket-stocks-trading/index.html', 9)
+('https://nymag.com/intelligencer/2020/04/hospitals-face-a-white-house-blockade-for-coronavirus-ppe.html', 6)
+('https://youtu.be/ZCw-J1S77Dg', 6)
+('https://youtu.be/8ZcZR5f1gc0', 5)
+('https://www.sbs.com.au/language/english/audio/himalayas-visible-for-first-time-in-30-years-as-pollution-levels-in-india-drop', 5)
+
+
+
+whitelist_status
+----------
+('all_ads', 6390)
+(nan, 910)
+('no_ads', 790)
+('some_ads', 499)
+('house_only', 300)
+('promo_adult_nsfw', 11)
+
+
+
+wls
+----------
+(6.0, 6390)
+(0.0, 790)
+(7.0, 499)
+(1.0, 300)
+(3.0, 11)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+
+created
+----------
+(1587456444.0, 3)
+(1587455496.0, 3)
+(1587449172.0, 3)
+(1587449030.0, 3)
+(1587442755.0, 3)
+(1587431367.0, 3)
+(1587447809.0, 3)
+(1587433781.0, 3)
+(1587449519.0, 3)
+(1587448591.0, 3)
+
+
+
+post_hint
+----------
+(nan, 3822)
+('link', 3090)
+('image', 971)
+('rich:video', 663)
+('self', 285)
+('hosted:video', 69)
+
+
+
+preview
+----------
+cannot tabulate
+
+
+thumbnail_height
+----------
+(78.0, 923)
+(105.0, 851)
+(140.0, 768)
+(73.0, 519)
+(93.0, 466)
+(70.0, 110)
+(83.0, 77)
+(84.0, 69)
+(92.0, 39)
+(91.0, 38)
+
+
+
+thumbnail_width
+----------
+(140.0, 4862)
+(70.0, 27)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+
+author_flair_template_id
+----------
+(nan, 8237)
+('0dac386c-b8be-11e2-8805-12313b0b21ae', 52)
+('cd091d00-42c9-11ea-bd3a-0ea76bd50505', 51)
+('fc304f80-4a44-11e6-8b89-0e9ce176dd01', 37)
+('bead5c5e-60fc-11e3-9648-12313b0ae6f4', 22)
+('5fe29e7a-5bb7-11ea-b2be-0edc593f5405', 21)
+('1c7d62a6-099d-11e7-9b3c-0ee50bfd7a4c', 20)
+('95f22100-9337-11e9-b031-0e64bd76a9d4', 20)
+('509538f8-27b9-11e3-a3c8-12313d223dbc', 17)
+('a1c701c6-1d82-11e2-a5e0-12313b0ce1e2', 15)
+
+
+
+author_flair_text_color
+----------
+(nan, 7903)
+('dark', 957)
+('light', 31)
+('', 9)
+
+
+
+media
+----------
+cannot tabulate
+
+
+media_embed
+----------
+cannot tabulate
+
+
+secure_media
+----------
+cannot tabulate
+
+
+secure_media_embed
+----------
+cannot tabulate
+
+
+crosspost_parent
+----------
+(nan, 8452)
+('t3_g4bxzd', 12)
+('t3_g568x2', 5)
+('t3_g3fy0q', 5)
+('t3_g5321u', 5)
+('t3_g4oqff', 3)
+('t3_g4vmxm', 3)
+('t3_g5btbu', 3)
+('t3_g4xntf', 3)
+('t3_g4w8d7', 3)
+
+
+
+crosspost_parent_list
+----------
+cannot tabulate
+
+
+author_flair_background_color
+----------
+(nan, 8336)
+('', 335)
+('#dadada', 98)
+('#f0f3f5', 52)
+('#f3c817', 19)
+('#edeff1', 13)
+('#f9e2bf', 9)
+('#d71920', 8)
+('transparent', 6)
+('#003366', 5)
+
+
+
+banned_by
+----------
+(nan, 8895)
+('moderators', 5)
+
+
+
+link_flair_css_class
+----------
+(nan, 7207)
+('blue', 66)
+('discussion', 57)
+('general', 57)
+('news', 52)
+('oc', 42)
+('m-crm crime corruption', 40)
+('grey', 39)
+('red', 35)
+('pol', 34)
+
+
+
+link_flair_text
+----------
+(nan, 5526)
+('Discussion', 272)
+('News', 152)
+('Article', 118)
+('COVID-19', 87)
+('Coronavirus', 74)
+('Question', 71)
+('Video', 46)
+('Politics', 45)
+('US politics (domestic)', 44)
+
+
+
+suggested_sort
+----------
+(nan, 7433)
+('confidence', 1095)
+('new', 118)
+('top', 100)
+('controversial', 100)
+('random', 54)
+
+
+
+author_cakeday
+----------
+(nan, 8861)
+(True, 39)
+
+
+
+media_metadata
+----------
+cannot tabulate
+
+
+link_flair_template_id
+----------
+(nan, 5941)
+('57bae3cc-0c07-11e7-a468-0e77f312fe6e', 63)
+('386388c4-96ae-11e9-a23b-0ef2bac08966', 44)
+('0a3cd4f8-6487-11ea-9029-0ec50247d795', 43)
+('33470d56-417c-11ea-960b-0ef83080e217', 41)
+('a617ebc8-3f63-11e9-92d2-0e08047e8782', 39)
+('8719a072-5b05-11ea-84dc-0efb9403edfd', 35)
+('f343edb6-4dd1-11ea-a3c5-0ea40949a46b', 34)
+('6203d31c-5bf9-11ea-986c-0e953d30a745', 33)
+('ae79e452-9cc0-11e7-b690-0ee40dd4f03a', 31)
+
+
+
+poll_data
+----------
+cannot tabulate
+
+
+distinguished
+----------
+(nan, 8887)
+('moderator', 13)
+
+
+
+edited
+----------
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+
+discussion_type
+----------
+(nan, 8891)
+('CHAT', 9)
+
+
+
+gilded
+----------
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+

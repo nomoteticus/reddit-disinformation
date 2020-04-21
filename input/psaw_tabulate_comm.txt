@@ -1,0 +1,396 @@
+Number of cases:8900
+
+all_awardings
+----------
+cannot tabulate
+
+
+associated_award
+----------
+(None, 8900)
+
+
+
+author
+----------
+('[deleted]', 311)
+('AutoModerator', 255)
+('POTUS_Archivist_Bot', 61)
+('redithotx3', 19)
+('pittwater12', 19)
+('Apple_Slipper', 17)
+('hahainternet', 16)
+('Poor_Irishman', 16)
+('ElevatedTreeMan', 15)
+('ranjan_zehereela2014', 14)
+
+
+
+author_flair_background_color
+----------
+(None, 8066)
+('', 618)
+('#dadada', 66)
+('#f0f3f5', 44)
+('#f3c817', 21)
+('#003366', 16)
+('#edeff1', 12)
+('transparent', 11)
+('#cc3600', 11)
+('#ffd635', 8)
+
+
+
+author_flair_css_class
+----------
+(None, 8385)
+('Glenn', 70)
+('ideology-flair', 17)
+('no-knight', 14)
+('plain', 13)
+('ON', 12)
+('custom-text3', 11)
+('area', 11)
+('newuser', 11)
+('SP', 10)
+
+
+
+author_flair_richtext
+----------
+cannot tabulate
+
+
+author_flair_template_id
+----------
+(None, 8229)
+('0dac386c-b8be-11e2-8805-12313b0b21ae', 44)
+('bead5c5e-60fc-11e3-9648-12313b0ae6f4', 23)
+('49514c64-3c9b-11ea-97b8-0ec9b475bcbd', 20)
+('a1c701c6-1d82-11e2-a5e0-12313b0ce1e2', 17)
+('509538f8-27b9-11e3-a3c8-12313d223dbc', 17)
+('b5bb55a4-4cf2-11ea-a71f-0eaa6a3f3be5', 17)
+('abb8514c-4d76-11e8-bbf5-0ec706991ea4', 16)
+('2df3a526-256b-11ea-b655-0e84de89beed', 16)
+('fc304f80-4a44-11e6-8b89-0e9ce176dd01', 15)
+
+
+
+author_flair_text
+----------
+(None, 7976)
+('Metacanadian', 58)
+(':TrumpDerangementSyndrome: TDS', 20)
+('🤖 RUS', 17)
+('राम भक्त रंजन ', 14)
+(':soros: Deport succs 😤😤', 11)
+('Rookie', 11)
+('Ontario', 10)
+('Anti-Socialist, anti-Globalist.', 9)
+('Confucian', 9)
+
+
+
+author_flair_text_color
+----------
+(None, 7611)
+('dark', 1230)
+('light', 55)
+('', 4)
+
+
+
+author_flair_type
+----------
+('text', 8014)
+('richtext', 575)
+(nan, 311)
+
+
+
+author_fullname
+----------
+(nan, 311)
+('t2_6l4z3', 255)
+('t2_40i0b7f3', 61)
+('t2_yeyu2ap', 19)
+('t2_123u8rns', 19)
+('t2_2er039', 17)
+('t2_3zdkk', 16)
+('t2_5nowh', 16)
+('t2_drw7y', 15)
+('t2_eqqhj', 14)
+
+
+
+author_patreon_flair
+----------
+(False, 8589)
+(nan, 311)
+
+
+
+author_premium
+----------
+(False, 7719)
+(True, 870)
+(nan, 311)
+
+
+
+awarders
+----------
+cannot tabulate
+
+
+body
+----------
+('[removed]', 276)
+('Your post has been automatically removed because you did not include one of the required title tags.\nPlease use one of the following tags for your post:\n\n[News]\n\n[Discussion]\n\n[Personal Medical Question/ Health Advice]\n\n[Question - Insurance]\n\n[Question - Other]\n\n[Other]\n\nRemember that automoderator will only detect tags in [square brackets], not {curly braces}, &lt;pointy brackets&gt;, or (round brackets).\n\nPlease read the subreddit rules for more information.\n\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/healthcare) if you have any questions or concerns.*', 62)
+('[deleted]', 35)
+('As a reminder, this subreddit is for civil discussion.\n\n In general, be courteous to others. Attack ideas, not users. Personal insults, shill or troll accusations, hate speech, and other incivility violations can result in a permanent ban.\n\n If you see comments in violation of our rules, please report them.\n\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/PoliticalVideo) if you have any questions or concerns.*', 32)
+("\nThank you for your submission!\n\n\n\nPlease remember to read the rules and ensure your post aligns with the sub's purpose. Don't forget to use the proper flair.\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/quarantineactivities) if you have any questions or concerns.*", 30)
+("/r/Republican is a partisan subreddit.  This is a place for Republicans to discuss issues with other Republicans.\nOut of respect for this sub's main purpose, we ask that unless you identify as Republican that you refrain from commenting and [leave the vote button alone](https://www.reddit.com/r/MetaRepublican/comments/5t017a/this_sub_is_for_republicans_if_you_do_not/). Non republicans who come to our sub looking for a 'different perspective' [subvert that very perspective with their own views when they vote or comment.](http://i.imgur.com/XqL0wfR.jpg)\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/Republican) if you have any questions or concerns.*", 13)
+('Please participate in the community.  Comment and upvote to increase karma.\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/healthIT) if you have any questions or concerns.*', 13)
+('\nThis subreddit is a pro-Trump subreddit for sharing information about the 45th President Donald J Trump and the 2020 Presidential Election, as well as related materials.  While we encourage rational debate from all perspectives, we do not condone users engaging in hostilities, and expect that all participants follow the rules and remain civil at all times.\n\n[ [Reddit Policies](https://www.redditinc.com/policies/content-policy) ] - [ [Reddiquette](https://www.reddit.com/wiki/reddiquette) ] - [ [/r/Trump Rules](https://www.reddit.com/r/Trump/about/rules/) ]\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/trump) if you have any questions or concerns.*', 13)
+("Remember, be friendly! Attack the argument, not the user!\nComments violating Rules 1 or 2 will be removed at the moderators' discretion.\nPlease report rule breaking behavior and refrain from downvoting whenever possible.\n\n\n[[POTUSWatch's rules]](/r/POTUSWatch/about/rules/)\n[[Message the Mods]](/message/compose?to=/r/POTUSWatch)", 10)
+('Thank you for posting to r/CanadaCoronavirus. Please read our [rules](https://www.reddit.com/r/canadacoronavirus/about/rules).\n\nPlease remember that all posts and comments should reflect factual, truth-based discussion. The purpose of this subreddit is to share trustworthy resources and ensure Canadians are as informed and educated as possible.\n\nWe will not tolerate racism, sexism, or harassment of any kind. \n\nAny comments or posts made contrary to these values will be subject to review by the Mod team\n\n\n*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/CanadaCoronavirus) if you have any questions or concerns.*', 7)
+
+
+
+collapsed_because_crowd_control
+----------
+(None, 8900)
+
+
+
+created_utc
+----------
+(1587464415, 9)
+(1587464379, 9)
+(1587464454, 9)
+(1587464353, 7)
+(1587464531, 7)
+(1587464510, 7)
+(1587464479, 7)
+(1587464354, 7)
+(1587464429, 7)
+(1587464502, 7)
+
+
+
+gildings
+----------
+cannot tabulate
+
+
+id
+----------
+('fo2j5iq', 1)
+('fo2j4b6', 1)
+('fo2j1jx', 1)
+('fo2iqlp', 1)
+('fo2im2k', 1)
+('fo2ileg', 1)
+('fo2ibj0', 1)
+('fo2i84i', 1)
+('fo2i706', 1)
+('fo2hcoc', 1)
+
+
+
+is_submitter
+----------
+(False, 8322)
+(True, 578)
+
+
+
+link_id
+----------
+('t3_g54l9s', 95)
+('t3_g5b14x', 78)
+('t3_g4vx4g', 66)
+('t3_g53y7t', 64)
+('t3_g4y6yf', 61)
+('t3_g53kxu', 60)
+('t3_g4vkqf', 59)
+('t3_g4ock8', 59)
+('t3_g5afx4', 58)
+('t3_g519rs', 58)
+
+
+
+locked
+----------
+(False, 8845)
+(True, 55)
+
+
+
+no_follow
+----------
+(True, 8833)
+(False, 67)
+
+
+
+parent_id
+----------
+('t3_g54l9s', 33)
+('t3_g4vx4g', 28)
+('t3_g59gl1', 24)
+('t3_g5cllb', 20)
+('t3_g5afx4', 19)
+('t3_g52oai', 18)
+('t3_g4y6yf', 18)
+('t3_g5b14x', 17)
+('t3_g4ysg4', 16)
+('t3_g4vkqf', 16)
+
+
+
+permalink
+----------
+('/r/Michigan/comments/g57z6s/is_anyone_else_embarassed_by_the_protests_in/fo2j5iq/', 1)
+('/r/Michigan/comments/g57z6s/is_anyone_else_embarassed_by_the_protests_in/fo2j4b6/', 1)
+('/r/Michigan/comments/g3o2ht/susan_j_demas_dont_whitewash_the_gops_extremism/fo2j1jx/', 1)
+('/r/Michigan/comments/g518ed/60_workers_test_positive_for_covid19_at_allegan/fo2iqlp/', 1)
+('/r/Michigan/comments/g49wro/who_are_you_mysterious_metrodetroit_redditor_what/fo2im2k/', 1)
+('/r/Michigan/comments/g4gl7c/michigan_legislature_wont_extend_whitmers/fo2ileg/', 1)
+('/r/Michigan/comments/g57z6s/is_anyone_else_embarassed_by_the_protests_in/fo2ibj0/', 1)
+('/r/Michigan/comments/g4umy6/poll_michiganians_favor_whitmers_covid19_handling/fo2i84i/', 1)
+('/r/Michigan/comments/g57z6s/is_anyone_else_embarassed_by_the_protests_in/fo2i706/', 1)
+('/r/Michigan/comments/g5c8hx/any_gig_workerscontractors_file_for_unemployment/fo2hcoc/', 1)
+
+
+
+retrieved_on
+----------
+(1587464416, 11)
+(1587464326, 9)
+(1587464511, 8)
+(1587464481, 8)
+(1587464581, 8)
+(1587464465, 8)
+(1587464376, 8)
+(1587464353, 7)
+(1587464454, 7)
+(1587464532, 7)
+
+
+
+score
+----------
+(1, 8372)
+(2, 263)
+(3, 85)
+(0, 78)
+(4, 32)
+(-1, 19)
+(5, 16)
+(7, 11)
+(6, 7)
+(8, 4)
+
+
+
+send_replies
+----------
+(True, 8661)
+(False, 239)
+
+
+
+stickied
+----------
+(False, 8753)
+(True, 147)
+
+
+
+subreddit
+----------
+('Michigan', 100)
+('PoliticalVideo', 100)
+('The_Mueller', 100)
+('bayarea', 100)
+('conservatives', 100)
+('florida', 100)
+('healthcare', 100)
+('skeptic', 100)
+('tech', 100)
+('usanews', 100)
+
+
+
+subreddit_id
+----------
+('t5_2qhtl', 100)
+('t5_3arin', 100)
+('t5_3n3f3', 100)
+('t5_2qjyy', 100)
+('t5_2qj2e', 100)
+('t5_2qh7q', 100)
+('t5_2qkih', 100)
+('t5_2qj8f', 100)
+('t5_2qh48', 100)
+('t5_2rf3d', 100)
+
+
+
+total_awards_received
+----------
+(0, 8900)
+
+
+
+treatment_tags
+----------
+cannot tabulate
+
+
+created
+----------
+(1587457215.0, 9)
+(1587457179.0, 9)
+(1587457254.0, 9)
+(1587457153.0, 7)
+(1587457331.0, 7)
+(1587457310.0, 7)
+(1587457279.0, 7)
+(1587457154.0, 7)
+(1587457229.0, 7)
+(1587457302.0, 7)
+
+
+
+author_cakeday
+----------
+(nan, 8856)
+(True, 44)
+
+
+
+edited
+----------
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+(nan, 1)
+
+
+
+distinguished
+----------
+(nan, 8587)
+('moderator', 313)
+
+
+
