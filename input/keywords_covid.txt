@@ -14,7 +14,7 @@ infect*
 spread*
 patient*
 hospital*
-vaccine*
+vaccin*
 symptom*
 ventilators
 masks
