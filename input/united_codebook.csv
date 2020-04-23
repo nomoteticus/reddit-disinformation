@@ -1,0 +1,23 @@
+VAR,LEVEL,INDEX,LABEL
+subreddit,SUBREDDIT,yes,name of subreddit
+subm_id,submission,yes,id of submission (t3_…..)
+comm_id,comment,yes,id of comment (t1_…..)
+comm_body,comment,,text from comment
+comm_created,comment,,date and time comment was posted
+comm_parent_id,comment,,id of the comment this is a reply to (t3_… if direct reply to submission)
+comm_author,comment,,name of author (unique redditor)
+comm_score,comment,,score of comment (upvotes – downvotes)
+comm_collapsed,comment,,comment does not appear complete
+comm_author_class,comment,,author is also subreddit moderator?
+subm_title,submission,,title of submission
+subm_created,submission,,date and time submission was posted
+subm_url,submission,,URL of external site referenced in submission
+subm_domain,submission,,domain of URL of external site referenced in submission
+subm_author,submission,,author of submission
+subm_score,submission,,score of submission (number of upvotes; min = 0)
+subm_ncomm,submission,,number of comments of submission
+subm_flair,submission,,flair of submission (self-ascribed)
+subm_link,submission,,link of submission on Reddit
+sr_category,SUBREDDIT,,category of subreddit (own classification)
+sr_subscribers,SUBREDDIT,,number of subreddit subscribers
+sr_ncovid,SUBREDDIT,,number of COVID related submissions in subreddit
