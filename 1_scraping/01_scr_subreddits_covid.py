@@ -42,53 +42,32 @@ covid_search_string
 ls = []
 err = []
 iter=0
+
 corona_generator =  \
     api.search_submissions(q = covid_search_string,
-                           limit = 10000,
-                           after = '30m',
+                           limit = 100000,
+                           after = '1d',
                            sort = 'desc',
                            filter=['id','title','subreddit','subreddit_subscribers',
-                                   'author','full_link','url','domain', 'is_self'])
+                               'author','full_link','url','domain', 'is_self'])
 for s in corona_generator:
     iter+=1
     try:
         if s.id not in existing_submissions and \
            s.subreddit_subscribers>1000 and \
            not s.is_self and \
-           not bool(re.search('reddit|redd.it|imgur|gfycat', s.domain)):
-            ls.append(s)
-            existing_submissions.append(s.id)
+           not bool(re.search('reddit|redd.it|imgur|gfycat|google|twitter|youtu|^self\\.|^i\\.redd', s.domain)):
+               ls.append(s)
     except:
         err.append(s.id)
-
-ls30m = len(ls)
-
-if iter<10:
-    corona_generator =  \
-        api.search_submissions(q = covid_search_string,
-                               limit = 100000,
-                               after = '1d',
-                               sort = 'desc',
-                               filter=['id','title','subreddit','subreddit_subscribers',
-                                   'author','full_link','url','domain', 'is_self'])
-    for s in corona_generator:
-        iter+=1
-        try:
-            if s.id not in existing_submissions and \
-               s.subreddit_subscribers>1000 and \
-               not s.is_self and \
-               not bool(re.search('reddit|redd.it|imgur|gfycat', s.domain)):
-                   ls.append(s)
-        except:
-            err.append(s.id)
 
 ls1d = len(ls)
 
 sls = [s.d_ for s in ls]
 
-with open(rootfold+'output/LOG_subm_subr_covid.txt', 'a') as logfile:
-    logfile.write('%s / Err: %7d/ Iter: %7d/ Subm: %7d (30m) ; %7d (1d) ; %9d (total) \n' % 
-                  (str(datetime.now())[:19], len(err), iter, ls30m, ls1d, ls_df0.shape[0] + ls30m + ls1d))
+with open(rootfold+'output/subreddit_subm_LOG.txt', 'a') as logfile:
+    logfile.write('%s / Err: %7d/ Iter: %7d/ Subm: %7d (1d) ; %9d (total) \n' % 
+                  (str(datetime.now())[:19], len(err), iter, ls1d, ls_df0.shape[0] + ls1d))
 
 ls_df = pd.DataFrame(sls)
 if ls_df.shape[0] > 0 :
