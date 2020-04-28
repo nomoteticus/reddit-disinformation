@@ -9,7 +9,6 @@ import numpy as np
 import re
 from collections import Counter
 from psaw import PushshiftAPI
-
 api = PushshiftAPI()
 
 
@@ -31,13 +30,17 @@ subr_classification.new[subr_classification['category']==''] = 1 + max(subr_clas
 
 Counter(subr_classification['category'])
 
+
+### MANUALLY CLASSIFY HERE!
+
 subr_classification['keep'] = \
    (subr_classification['subscribers_K'] > 10) & \
-       (subr_classification['language'] == "en") & \
-           (subr_classification['avg_ncomments']>1) & \
-               (subr_classification['category'].\
-                 isin(["generic_news","generic_politics","coronavirus","local", "ideological",
-                       "science_health","technology","business_economics"]))
+       (subr_classification['total7d'] > 10) & \
+           (subr_classification['language'] == "en") & \
+               (subr_classification['avg_ncomments']>1) & \
+                   (subr_classification['category'].\
+                     isin(["generic_news","generic_politics","coronavirus","local", "ideological",
+                           "science_health","technology","business_economics"]))
 
 Counter(subr_classification['keep'] )
 
