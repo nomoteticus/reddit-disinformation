@@ -62,7 +62,7 @@ def extract_submissions(subr, lim, bef, aft, srt = 'desc'):
                                             'num_comments','score','removed_by_category',
                                             'selftext','link_flair_text','full_link'])             
         subm_lst = list(corona_generator)
-        SC_subm.debug('Success!')
+        #SC_subm.debug('Success!')
     except StopIteration:
         SC_subm.error('StopIterration error')
     except RuntimeError:

@@ -48,7 +48,7 @@ SUBMISSIONS
 
 MAIN.info('Started scraping new Submissions\n' )
 
-subm_files = sorted([filename for filename in os.listdir('output') if re.search('SUBM_2020_[0-9][0-9].csv',filename)], reverse = True)
+subm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('SUBM_2020_[0-9][0-9].csv',filename)], reverse = True)
 MAIN.info('Files: %s', subm_files)
 
 current_month = datetime.now().month
@@ -94,7 +94,7 @@ while len(subreddits)>0 and nrep<6:
     nrep+=1
 
 MAIN_subm.info('FINISHED scraping submissions. Repetitions: %d. New submissions: %d', 
-               nrep, subm_new_df.shape[0])
+               nrep, len(subm_new_lst))
 subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
 if len(subreddits)>0:
     MAIN_subm.warning('Subreddits not scraped: %d : %s', len(subreddits),subreddits)
