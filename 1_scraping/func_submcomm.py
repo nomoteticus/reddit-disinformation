@@ -11,8 +11,8 @@ import logging
 
 api = PushshiftAPI()
 rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
-#with open('cwd.txt','r') as file:
-#    rootfold = file.read().rstrip()+'/'
+with open('cwd.txt','r') as file:
+    rootfold = file.read().rstrip()+'/'
 
 #with open('cwd.txt','r') as file: rootfold = file.read().rstrip()+'/'
 
