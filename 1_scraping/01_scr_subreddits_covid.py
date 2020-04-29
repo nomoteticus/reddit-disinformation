@@ -65,7 +65,7 @@ ls1d = len(ls)
 
 sls = [s.d_ for s in ls]
 
-with open(rootfold+'output/subreddit_subm_LOG.txt', 'a') as logfile:
+with open(rootfold+'logs/subreddit_subm_LOG.txt', 'a') as logfile:
     logfile.write('%s / Err: %7d/ Iter: %7d/ Subm: %7d (1d) ; %9d (total) \n' % 
                   (str(datetime.now())[:19], len(err), iter, ls1d, ls_df0.shape[0] + ls1d))
 
