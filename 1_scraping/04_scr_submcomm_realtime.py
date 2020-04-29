@@ -28,7 +28,7 @@ MAIN_comm = logging.getLogger('MAIN.comm')
 
 
 ###
-MAIN.info('Started syntax to extract new submissions and comments\n')
+MAIN.info('Started syntax to extract new submissions and comments')
 ### 
 
 """
@@ -46,7 +46,7 @@ SUBMISSIONS
 """
 
 
-MAIN.info('Started scraping new Submissions\n' )
+MAIN.info('Started scraping new Submissions' )
 
 subm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('SUBM_2020_[0-9][0-9].csv',filename)], reverse = True)
 MAIN.info('Files: %s', subm_files)
@@ -89,7 +89,7 @@ while len(subreddits)>0 and nrep<6:
         subm_lst = sc.extract_submissions(subr = subr, srt="asc", lim = 1000000,
                                           bef = "1d", aft = str(diff_days+3)+"d")
         subm_new_lst+=subm_lst
-        MAIN_subm.info('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
+        MAIN_subm.debug('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
         subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
     nrep+=1
 
@@ -102,7 +102,7 @@ if len(subreddits)>0:
 
 ### Process and write to file
 
-if subm_new_df.shape[0]>0:
+if len(subm_new_lst)>0:
     subm_new_df = pd.DataFrame([s.d_ for s in subm_new_lst])
     subm_new_df['id'] = 't3_' + subm_new_df['id']
     subm_new_df['created_utc'] = subm_new_df['created_utc'].apply(sc.conv_utc)
