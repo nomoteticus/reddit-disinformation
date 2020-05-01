@@ -15,8 +15,8 @@ from psaw import PushshiftAPI
 
 api = PushshiftAPI()
 
-sdf_past = pd.read_csv(rootfold+"output/R_subm_subr_covid_past.csv")
-sdf_present = pd.read_csv(rootfold+"output/R_subm_subr_covid.csv")
+sdf_past = pd.read_csv(rootfold+"output/R_subm_subr_covid_past.csv", lineterminator = '\n')
+sdf_present = pd.read_csv(rootfold+"output/R_subm_subr_covid.csv", lineterminator = '\n')
 print(sdf_present.shape)
 
 sdf_all = pd.concat([sdf_past,
