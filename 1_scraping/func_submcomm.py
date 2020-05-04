@@ -96,7 +96,7 @@ def get_submission_ids(submission_df, exclude = set()):
 
 def add_to_old_df(new_df, old_df, sort_var, index_var = 'id'):
     return(new_df.set_index('id').\
-                combine_first(current_df.set_index('id')).\
+                combine_first(old_df.set_index('id')).\
                     reset_index().sort_values(sort_var, ascending=False))
             
 @timeout_decorator.timeout(60,timeout_exception=StopIteration)
