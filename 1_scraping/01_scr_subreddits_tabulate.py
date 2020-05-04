@@ -3,21 +3,39 @@ Created on Mon Apr 13 18:37:15 2020
 
 @author: j0hndoe
 """
-#rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
-with open('cwd.txt','r') as file:
-    rootfold = file.read().rstrip()+'/'
+rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
+rootfold = %pwd
+rootfold = rootfold+'/'
+#with open('cwd.txt','r') as file:
+#    rootfold = file.read().rstrip()+'/'
 
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from collections import Counter
 from psaw import PushshiftAPI
+import logging
+import time
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+logging.basicConfig(
+    level=logging.CRITICAL,
+    format="%(asctime)s %(name)10s [%(levelname)6s ] %(message)s",
+    datefmt='%y-%m-%d %H:%M:%S',
+    handlers=[
+        logging.FileHandler(rootfold+"logs/subr_tabulated.log"),
+        logging.StreamHandler()
+    ])
+LOG = logging.getLogger('SC')
+LOG.setLevel(logging.DEBUG)
 
 api = PushshiftAPI()
 
 sdf_past = pd.read_csv(rootfold+"output/R_subm_subr_covid_past.csv", lineterminator = '\n')
 sdf_present = pd.read_csv(rootfold+"output/R_subm_subr_covid.csv", lineterminator = '\n')
-print(sdf_present.shape)
+
+LOG.info('Started tabulating new subreddits:')
 
 sdf_all = pd.concat([sdf_past,
                     sdf_present[~sdf_present['id'].isin(set(sdf_past['id']))]]).\
@@ -30,6 +48,10 @@ sdf_all['month_day'] = ['%02d-%02d' % (d.month, d.day) for d in pd.to_datetime(s
 subr_per_day = sdf_all[['id','subreddit','month_day']].groupby(['subreddit','month_day']).count().query('id>1')
 subr_per_day = subr_per_day.unstack(level =1).fillna(0)
 subr_per_day.columns = subr_per_day.columns.get_level_values(1)
+subr_per_day = subr_per_day.reindex(sorted(subr_per_day.columns), axis =1)
+
+LOG.info('Last 3 days: %s', list(subr_per_day.columns[-3:]) )
+
 subr_per_day['total'] = subr_per_day.sum(axis = 1)/(subr_per_day.shape[1])
 subr_per_day['total7d'] = subr_per_day.iloc[:,-8:-1].sum(axis = 1)/(subr_per_day.iloc[:,-8:-1].shape[1])
 
@@ -48,6 +70,7 @@ for subr in subr_per_day_top.index:
                        sort = 'desc',
                        filter=['subreddit','subreddit_subscribers','num_comments','removed_by_category']):
         l.append(s.d_)
+        time.sleep(2)
     df = pd.DataFrame(l)
     if 'removed_by_category' in df.columns:
         subr_meta.append((df.subreddit[0], 
@@ -59,7 +82,8 @@ for subr in subr_per_day_top.index:
                   df.subreddit_subscribers[0], 
                   df.num_comments.mean(),
                   0))
-    print('Finished: ' + subr)
+    #print('Finished: ' + subr)
+LOG.info('Done extracting metadata. # Subreddits: %d', len(subr_per_day_top.index))
 
 ### Edit metadata
 subr_meta_df = pd.DataFrame(subr_meta, columns = ['subreddit','subscribers','ncomments','removed_by_category']).set_index('subreddit')
@@ -81,11 +105,19 @@ subr_per_day_top_meta = subr_classification.\
 
 ### Save updated list of subreddits
 subr_per_day_top_meta.to_csv(rootfold+'output/subr_per_day_top_meta.csv')
+LOG.info('Wrote subr_per_day_top_meta.csv. Shape %s', subr_per_day_top_meta.shape )
+
 subr_per_day_top.to_csv(rootfold+'output/subr_per_day.csv')
+LOG.info('Wrote subr_per_day.csv. Shape %s', subr_per_day_top.shape )
 
 ### Select uncategorized indexes
 categ_new_entries = set(subr_per_day_top_meta[subr_per_day_top_meta.category.isna()].index).difference(subr_classification.index)
 
+
 ### Add uncategorized subreddits to list of categories
 if len(categ_new_entries)>0:
-    subr_per_day_top_meta.loc[categ_new_entries].to_csv(rootfold+'input/subr_classification.csv', mode ='a', header = False)
+    new_subm_df = subr_per_day_top_meta.loc[categ_new_entries]
+    new_subm_df.to_csv(rootfold+'input/subr_classification.csv', mode ='a', header = False)
+    LOG.info('Wrote subr_classification.csv. Shape %s', new_subm_df.shape )
+
+LOG.info('DONE! \n\n')
