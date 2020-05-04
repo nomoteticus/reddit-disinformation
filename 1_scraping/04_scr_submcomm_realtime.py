@@ -62,21 +62,18 @@ if current_month_file_subm in subm_files:
     subm_current_df.created_utc = pd.to_datetime(subm_current_df.created_utc)
     ### calculate difference from last scraping day
     max_day = pd.to_datetime(subm_current_df.created_utc).max()
-    diff_days = (datetime.now() - max_day).days
-    # NOT DONE remove last 2 days
-    # subm_current_df[subm_current_df.created_utc <= (max_day - timedelta(days=2))]
-    existing_submissions = set(subm_current_df.id)
     MAIN.info('Last submission file: %s', current_month_file_subm)
-
 else:
     previous_month_file_subm = 'SUBM_2020_%02d.csv' % (datetime.now().month-1)
     previous_month_file_comm = previous_month_file_subm.replace('SUBM','COMM')    
     subm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_subm, lineterminator='\n')
     subm_current_df = pd.DataFrame({},columns = subm_previous_df.columns)
-    diff_days = 0
-    existing_submissions = []
+    ### calculate difference from last scraping day
+    max_day = pd.to_datetime(subm_previous_df.created_utc).max()
+    MAIN.info('Last submission file: %s', previous_month_file_subm)
     MAIN.info('Added new submission file: %s', current_month_file_subm)
-    del(subm_previous_df)
+
+diff_days = (datetime.now() - max_day).days
 MAIN.info('Days since last submission scraped: %d', diff_days)
 
 
@@ -132,7 +129,7 @@ if len(subm_new_lst)>0:
         MAIN_subm.info('WROTE %d submissions to file: %s', subm_pre_df.shape[0], previous_month_file_subm)
         del(subm_unite_df, subm_previous_df)
     else:
-        MAIN_subm.warning('No new submissions to add')
+        MAIN_subm.warning('No new submissions to add for previous month')
 else:
     MAIN_subm.warning('No new submissions to add')
 
@@ -209,6 +206,7 @@ if subm_new_df.shape[0]>0:
     comm_pre_df = comm_new_df[comm_new_df['link_id'].isin(set(subm_pre_df['id']))]
     comm_new_df = comm_new_df[comm_new_df['link_id'].isin(set(subm_new_df['id']))]
 
+    ### Add comments to current month dataframe
     if comm_new_df.shape[0]>0:
         comm_unite_df = sc.add_to_old_df(comm_new_df, comm_current_df, sort_var = 'created')
         comm_unite_df.to_csv(rootfold+'output/'+current_month_file_comm, index = False)
@@ -216,11 +214,14 @@ if subm_new_df.shape[0]>0:
         del(comm_unite_df, comm_current_df)
     else:
         MAIN_comm.info('No new comments to add')
+    ### Add comments to previous month dataframe
     if comm_pre_df.shape[0]>0:
         comm_unite_df = sc.add_to_old_df(comm_pre_df, comm_previous_df, sort_var = 'created')
         comm_unite_df.to_csv(rootfold+'output/'+previous_month_file_comm, index = False)
         MAIN_comm.info('WROTE %d comments to file: %s', comm_pre_df.shape[0], previous_month_file_comm)
         del(comm_unite_df, comm_previous_df)
+    else:
+        MAIN_comm.info('No new comments to add in previous month')
 
 else:
     MAIN_comm.info('No new comments to add')
