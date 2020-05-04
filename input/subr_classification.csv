@@ -17,6 +17,7 @@ China,True,local,en,148,17.1,28.9,30.0,17.0,19.0,24.1,22.3,1.0
 China_Flu,True,coronavirus,en,111,14.7,30.6,202.0,154.0,104.0,225.5,169.1,1.0
 China_Flu_Uncensored,False,coronavirus,en,3,2.0,2.1,27.0,61.0,9.0,5.5,15.6,3.0
 Conservative,True,ideological,en,320,21.6,45.1,88.0,52.0,49.0,71.5,86.6,1.0
+CoronaVirusInfo,False,coronavirus,en,2,1.0,9.5,4.0,15.0,0.0,7.6,10.6,4.0
 CoronaVirusTX,True,coronavirus,en,12,14.1,23.4,12.0,5.0,0.0,17.5,10.3,1.0
 CoronaVirus_2019_nCoV,True,coronavirus,en,13,1.5,6.1,21.0,13.0,9.0,48.4,21.6,1.0
 Coronavirus,True,coronavirus,en,1933,69.7,65.6,1331.0,807.0,555.0,1725.6,1146.0,0.0
@@ -27,6 +28,7 @@ CoronavirusDownunder,True,coronavirus,en,13,16.0,20.5,27.0,10.0,5.0,20.9,19.3,1.
 CoronavirusFOS,False,coronavirus,en,5,5.5,8.6,24.0,13.0,11.0,33.0,19.9,1.0
 CoronavirusMemes,True,coronavirus,en,82,3.2,21.1,14.0,9.0,8.0,30.5,14.4,1.0
 CoronavirusMichigan,False,coronavirus,en,3,14.8,7.4,12.0,9.0,13.0,7.8,10.3,2.0
+CoronavirusMidwest,False,coronavirus,en,4,4.0,19.1,2.0,0.0,0.0,6.2,16.9,4.0
 CoronavirusNewYork,False,coronavirus,en,6,5.3,8.1,24.0,11.0,6.0,16.6,19.9,1.0
 CoronavirusRecession,True,coronavirus,en,55,13.6,24.4,24.0,15.0,15.0,12.7,16.3,1.0
 CoronavirusUK,True,coronavirus,en,21,23.2,30.6,34.0,32.0,30.0,33.7,37.1,1.0
@@ -40,6 +42,7 @@ DrainTheSwamp,True,ideological,en,16,5.2,26.7,16.0,11.0,12.0,20.5,19.1,1.0
 Economics,True,business_economics,en,780,33.7,51.4,18.0,8.0,11.0,28.8,15.1,1.0
 EnoughTrumpSpam,True,ideological,en,97,6.2,18.6,9.0,15.0,15.0,9.8,11.4,3.0
 EverythingScience,True,science_health,en,220,14.7,17.4,9.0,7.0,5.0,10.8,12.7,1.0
+ExplorePakistan,True,local,en,11,1.7,90.0,19.0,17.0,0.0,1.6,10.1,4.0
 Filmmakers,False,entertainment,en,915,3.9,27.6,17.0,8.0,8.0,6.0,11.0,3.0
 FloridaCoronavirus,False,coronavirus,en,3,9.2,6.1,12.0,11.0,2.0,15.3,15.1,1.0
 FreeKarma4U,False,generic,en,93,14.2,30.2,16.0,12.0,9.0,24.3,13.0,1.0
@@ -89,7 +92,7 @@ USNEWS,True,generic_news,en,17,2.6,31.1,13.0,6.0,3.0,12.3,10.7,1.0
 UpliftingNews,True,generic_news,en,15668,53.8,65.0,37.0,31.0,24.0,47.1,45.0,1.0
 WayOfTheBern,True,ideological,en,77,11.2,6.2,22.0,28.0,6.0,31.7,23.6,1.0
 YouTube_startups,False,business_economics,en,45,0.2,12.6,17.0,5.0,4.0,10.9,11.1,1.0
-apple,False,entertainment,en,1429,36.1,79.1,14.0,17.0,8.0,5.2,10.1,3.0
+apple,True,technology,en,1429,36.1,79.1,14.0,17.0,8.0,5.2,10.1,3.0
 appletv,False,entertainment,en,78,5.8,90.7,14.0,17.0,13.0,1.9,13.0,3.0
 argentina,False,local,es,155,35.0,42.8,13.0,16.0,4.0,17.8,13.3,1.0
 atheism,True,ideological,en,2563,31.8,33.1,26.0,13.0,7.0,18.5,14.3,1.0
@@ -99,6 +102,7 @@ badgovnofreedom,False,ideological,en,4,0.2,79.8,15.0,6.0,9.0,15.5,19.9,1.0
 bayarea,True,local,en,172,29.5,24.7,10.0,15.0,20.0,9.5,11.1,2.0
 brasil,False,local,es,340,18.3,25.7,31.0,17.0,6.0,28.5,24.6,1.0
 brasilivre,False,local,pt,57,14.7,7.4,22.0,11.0,6.0,20.8,15.1,1.0
+brasilnoticias,False,local,pt,1,1.6,0.0,28.0,37.0,0.0,1.2,10.4,4.0
 breakingnews,False,generic_news,en,1,0.0,98.3,47.0,33.0,6.0,35.0,37.0,1.0
 business,True,business_economics,en,541,8.0,88.5,13.0,9.0,13.0,16.2,17.6,1.0
 canada,True,local,en,639,71.2,45.4,51.0,24.0,27.0,52.4,46.7,1.0
@@ -118,8 +122,11 @@ entertainment,False,entertainment,en,1436,39.2,89.0,15.0,16.0,8.0,19.9,18.3,1.0
 environment,True,science_health,en,664,6.0,14.3,11.0,11.0,10.0,10.7,11.9,1.0
 esist,True,ideological,en,125,9.6,20.8,13.0,12.0,10.0,9.1,10.1,3.0
 europe,True,local,en,2339,47.1,46.4,43.0,36.0,28.0,68.6,52.6,1.0
+europeanunion,False,local,en,10,0.7,4.4,0.0,33.0,15.0,4.8,10.7,4.0
 florida,True,local,en,70,16.0,12.2,10.0,13.0,13.0,8.8,11.7,2.0
+formula1,False,entertainment,en,890,23.2,46.3,0.0,2.0,4.0,7.0,19.4,4.0
 france,False,local,fr,339,30.3,19.2,29.0,15.0,16.0,34.9,27.4,1.0
+fucktheccp,False,ideological,en,3,3.1,3.1,11.0,11.0,8.0,3.1,10.4,4.0
 funny,False,entertainment,en,29820,29.4,77.3,104.0,27.0,24.0,104.0,71.1,1.0
 gaming,False,entertainment,en,25818,14.2,68.3,20.0,2.0,4.0,17.7,15.0,1.0
 google,True,technology,en,925,2.2,82.8,16.0,21.0,17.0,3.5,15.1,3.0
@@ -127,6 +134,7 @@ healthIT,True,science_health,en,12,7.8,90.4,12.0,4.0,9.0,10.5,10.1,1.0
 healthcare,True,science_health,en,44,3.0,85.2,11.0,15.0,17.0,9.9,14.0,2.0
 hiphop,False,entertainment,en,60,1.1,73.7,20.0,22.0,11.0,6.4,17.7,1.0
 hiphopheads,False,entertainment,en,1887,20.4,59.1,13.0,7.0,15.0,10.1,11.3,2.0
+hockey,False,entertainment,en,975,37.2,26.2,3.0,2.0,0.0,4.4,10.3,4.0
 iamatotalpieceofshit,False,entertainment,en,957,52.3,48.7,13.0,8.0,0.0,12.5,8.6,1.0
 india,True,local,en,317,34.3,56.6,118.0,88.0,70.0,81.8,96.6,1.0
 indianews,True,local,en,49,3.2,10.9,32.0,23.0,18.0,21.7,27.0,1.0
@@ -135,12 +143,14 @@ ireland,True,local,en,268,24.0,19.7,17.0,11.0,3.0,16.4,12.3,1.0
 italy,False,local,it,192,72.2,40.4,3.0,8.0,4.0,10.3,7.3,1.0
 japan,True,local,en,235,16.3,37.6,6.0,19.0,5.0,7.1,10.6,3.0
 kotakuinaction2,False,entertainment,en,15,28.2,6.2,12.0,8.0,17.0,8.2,12.0,3.0
+ksi,False,entertainment,en,564,0.8,45.2,12.0,18.0,7.0,5.1,10.4,4.0
 listentothis,False,entertainment,en,15720,1.6,74.2,16.0,11.0,18.0,10.0,14.4,2.0
 maryland,True,local,en,47,17.2,26.0,20.0,14.0,0.0,5.8,15.7,1.0
 medical_news,False,science_health,en,5,0.1,3.2,24.0,10.0,13.0,12.7,16.0,1.0
 medicine,False,science_health,en,295,39.8,65.6,3.0,4.0,3.0,10.0,7.4,1.0
 memes,False,entertainment,en,9502,6.5,50.0,10.0,10.0,3.0,15.3,10.9,1.0
 metacanada,True,local,en,35,14.9,15.9,11.0,12.0,3.0,11.9,11.3,1.0
+microsoft,True,technology,en,105,2.6,81.1,21.0,18.0,0.0,2.5,10.3,4.0
 movies,False,entertainment,en,22663,72.7,83.3,4.0,11.0,13.0,31.4,12.0,1.0
 nCoV,False,coronavirus,en,8,0.7,18.1,32.0,34.0,11.0,38.2,21.9,1.0
 nba,False,entertainment,en,3201,52.3,45.7,2.0,0.0,4.0,20.0,4.0,1.0
@@ -181,8 +191,10 @@ todayilearned,False,generic,en,22523,98.8,66.8,30.0,23.0,12.0,29.3,26.6,1.0
 toronto,True,local,en,194,43.3,38.1,13.0,4.0,6.0,13.5,11.1,1.0
 trashy,False,entertainment,en,1969,51.1,43.9,12.0,2.0,3.0,10.1,6.3,1.0
 trump,True,ideological,en,38,15.3,32.9,13.0,13.0,10.0,25.2,20.9,1.0
+uknews,False,local,en,8,2.1,32.2,3.0,0.0,0.0,3.8,13.1,4.0
 ukpolitics,True,local,en,247,81.9,23.8,59.0,48.0,24.0,34.9,46.1,1.0
 unitedkingdom,True,local,en,288,55.2,43.0,56.0,49.0,29.0,37.1,46.0,1.0
+unitedstatesofindia,False,local,en,1,12.4,9.2,9.0,12.0,0.0,2.3,11.1,4.0
 usanews,True,generic_news,en,13,1.2,37.0,11.0,19.0,10.0,9.4,11.3,2.0
 uspolitics,True,generic_politics,en,18,3.7,31.2,15.0,9.0,2.0,14.2,12.4,1.0
 vancouver,True,local,en,175,28.7,33.1,13.0,10.0,3.0,18.1,16.0,1.0
@@ -190,15 +202,3 @@ videos,False,entertainment,en,22604,15.0,78.5,216.0,130.0,82.0,191.4,176.1,1.0
 wallstreetbets,False,business_economics,en,1096,309.5,81.7,10.0,6.0,6.0,24.3,9.9,1.0
 worldnews,True,generic_news,en,23704,57.6,83.3,521.0,406.0,295.0,533.1,493.6,1.0
 worldpolitics,True,generic_politics,en,1204,15.6,13.8,116.0,78.0,77.0,115.3,125.3,1.0
-unitedstatesofindia,,,,1,12.4,9.2,9.0,12.0,0.0,2.3,11.1
-ExplorePakistan,,,,11,1.7,90.0,19.0,17.0,0.0,1.6,10.1
-brasilnoticias,,,,1,1.6,0.0,28.0,37.0,0.0,1.2,10.4
-microsoft,,,,105,2.6,81.1,21.0,18.0,0.0,2.5,10.3
-ksi,,,,564,0.8,45.2,12.0,18.0,7.0,5.1,10.4
-fucktheccp,,,,3,3.1,3.1,11.0,11.0,8.0,3.1,10.4
-europeanunion,,,,10,0.7,4.4,0.0,33.0,15.0,4.8,10.7
-uknews,,,,8,2.1,32.2,3.0,0.0,0.0,3.8,13.1
-CoronavirusMidwest,,,,4,4.0,19.1,2.0,0.0,0.0,6.2,16.9
-hockey,,,,975,37.2,26.2,3.0,2.0,0.0,4.4,10.3
-formula1,,,,890,23.2,46.3,0.0,2.0,4.0,7.0,19.4
-CoronaVirusInfo,,,,2,1.0,9.5,4.0,15.0,0.0,7.6,10.6
