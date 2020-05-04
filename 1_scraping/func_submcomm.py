@@ -76,10 +76,11 @@ def chunk_generator(LST,size):
     return (LST[i:i+size] for i in range(len(LST))[::size])
 
 def process_com_df(com_df, keep_columns_comm):
-    com_df = com_df[keep_columns_comm].reset_index().sort_values(['link_id','created']).groupby('link_id').head(1000)
-    com_df['created'] = com_df['created'].apply(conv_utc)
-    com_df['body'] = com_df['body'].apply(remove_spaces)
-    com_df['id'] = 't1_'+com_df['id']
+    if com_df.shape[0]>0:
+        com_df = com_df[keep_columns_comm].reset_index().sort_values(['link_id','created']).groupby('link_id').head(1000)
+        com_df['created'] = com_df['created'].apply(conv_utc)
+        com_df['body'] = com_df['body'].apply(remove_spaces)
+        com_df['id'] = 't1_'+com_df['id']
     return(com_df)
 
 def get_submission_ids(submission_df, exclude = set()):
@@ -93,6 +94,11 @@ def get_submission_ids(submission_df, exclude = set()):
     subm_ids = pd.Series(subm_ids)
     return(subm_ids[~subm_ids.isin(exclude)])
 
+def add_to_old_df(new_df, old_df, sort_var, index_var = 'id'):
+    return(new_df.set_index('id').\
+                combine_first(current_df.set_index('id')).\
+                    reset_index().sort_values(sort_var, ascending=False))
+            
 @timeout_decorator.timeout(60,timeout_exception=StopIteration)
 def scrape_chunk(id_chunk, keep_columns_comm, subm_limit):
     time.sleep(3)
