@@ -3,11 +3,11 @@ Created on Mon Apr 13 18:37:15 2020
 
 @author: j0hndoe
 """
-rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
-rootfold = %pwd
-rootfold = rootfold+'/'
-#with open('cwd.txt','r') as file:
-#    rootfold = file.read().rstrip()+'/'
+#rootfold = '/home/j0hndoe/Dropbox/Python/reddit/Coronavirus/'
+#rootfold = %pwd
+#rootfold = rootfold+'/'
+with open('cwd.txt','r') as file:
+    rootfold = file.read().rstrip()+'/'
 
 import pandas as pd
 import numpy as np
@@ -16,6 +16,7 @@ from collections import Counter
 from psaw import PushshiftAPI
 import logging
 import time
+import timeout_decorator
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -27,7 +28,7 @@ logging.basicConfig(
         logging.FileHandler(rootfold+"logs/subr_tabulated.log"),
         logging.StreamHandler()
     ])
-LOG = logging.getLogger('SC')
+LOG = logging.getLogger('SUBR_TAB')
 LOG.setLevel(logging.DEBUG)
 
 api = PushshiftAPI()
@@ -60,30 +61,43 @@ subr_per_day['total7d'] = subr_per_day.iloc[:,-8:-1].sum(axis = 1)/(subr_per_day
 condition_keep = np.logical_or(subr_per_day['total']>10, subr_per_day['total7d']>10)
 subr_per_day_top = subr_per_day[condition_keep].sort_values('total7d', ascending = False)
 
+
+@timeout_decorator.timeout(30)
+def extr_submissions(subr):
+    try:
+        L = list(api.search_submissions(subreddit = subr,
+                           limit = 1000,
+                           after = '30d',
+                           sort = 'desc',
+                           filter=['subreddit','subreddit_subscribers','num_comments','removed_by_category']))
+        LOG.debug('Finished: %s',subr)
+    except:
+        L = []
+        LOG.error('Error:    %s',subr)
+    
+
 ### extract metadata for each subreddit
 subr_meta = []
-for subr in subr_per_day_top.index:
-    l = []
-    for s in api.search_submissions(subreddit = subr,
-                       limit = 1000,
-                       after = '30d',
-                       sort = 'desc',
-                       filter=['subreddit','subreddit_subscribers','num_comments','removed_by_category']):
-        l.append(s.d_)
+subr_tocheck = subr_per_day_top.index
+
+nrep=1
+while len(subr_tocheck)>0 and nrep<=5
+    for subr in subr_tocheck:
         time.sleep(2)
-    df = pd.DataFrame(l)
-    if 'removed_by_category' in df.columns:
-        subr_meta.append((df.subreddit[0], 
-                          df.subreddit_subscribers[0], 
-                          df.num_comments[df.removed_by_category.isna()].mean(),
-                          (~df.removed_by_category.isna()).mean()))
-    else:
-        subr_meta.append((df.subreddit[0], 
-                  df.subreddit_subscribers[0], 
-                  df.num_comments.mean(),
-                  0))
-    #print('Finished: ' + subr)
-LOG.info('Done extracting metadata. # Subreddits: %d', len(subr_per_day_top.index))
+        l = [s.d_ for s in extr_submissions(subr)]
+        df = pd.DataFrame(l)
+        if 'removed_by_category' in df.columns:
+            subr_meta.append((df.subreddit[0], 
+                              df.subreddit_subscribers[0], 
+                              df.num_comments[df.removed_by_category.isna()].mean(),
+                              (~df.removed_by_category.isna()).mean()))
+        else:
+            subr_meta.append((df.subreddit[0], 
+                      df.subreddit_subscribers[0], 
+                      df.num_comments.mean(),
+                      0))
+    nrep+=1
+LOG.info('Done extracting metadata. #Repetitions: %d # Subreddits: %d', nrep, len(subr_per_day_top.index))
 
 ### Edit metadata
 subr_meta_df = pd.DataFrame(subr_meta, columns = ['subreddit','subscribers','ncomments','removed_by_category']).set_index('subreddit')
