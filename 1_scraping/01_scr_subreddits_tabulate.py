@@ -74,14 +74,16 @@ def extr_submissions(subr):
     except:
         L = []
         LOG.error('Error:    %s',subr)
+    return L
     
 
 ### extract metadata for each subreddit
 subr_meta = []
+subr_done = []
 subr_tocheck = subr_per_day_top.index
 
 nrep=1
-while len(subr_tocheck)>0 and nrep<=5
+while len(subr_tocheck)>0 and nrep<=5:
     for subr in subr_tocheck:
         time.sleep(2)
         l = [s.d_ for s in extr_submissions(subr)]
@@ -91,11 +93,13 @@ while len(subr_tocheck)>0 and nrep<=5
                               df.subreddit_subscribers[0], 
                               df.num_comments[df.removed_by_category.isna()].mean(),
                               (~df.removed_by_category.isna()).mean()))
+            subr_done.append(subr)
         else:
             subr_meta.append((df.subreddit[0], 
                       df.subreddit_subscribers[0], 
                       df.num_comments.mean(),
                       0))
+    subr_tocheck = set(subr_tocheck).difference(set(subr_done))
     nrep+=1
 LOG.info('Done extracting metadata. #Repetitions: %d # Subreddits: %d', nrep, len(subr_per_day_top.index))
 
