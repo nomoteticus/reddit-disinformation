@@ -20,7 +20,7 @@ for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
 logging.basicConfig(
     level=logging.CRITICAL,
-    format="%(asctime)s %(name)10s [%(levelname)6s ] %(message)s",
+    format="%(asctime)s %(name)10s [%(levelname)8s ] %(message)s",
     datefmt='%y-%m-%d %H:%M:%S',
     handlers=[
         logging.FileHandler(rootfold+"logs/subm_comm_realtime.log"),
