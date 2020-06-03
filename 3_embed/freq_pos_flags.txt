@@ -1,0 +1,1183 @@
+60529 sentences extracted / 350001 containing REGEX
+
+Flag types matched 
+
+svo       17605
+sva       12918
+o         10978
+ao         8550
+svao       4815
+stvao      3271
+vo         2044
+stvo       1801
+ivo        1213
+vao         380
+naao        336
+yvo         257
+ivsva       161
+ivsvao      125
+yvao         94
+ivsvo        71
+svsv         57
+ivao         38
+svsav        22
+svna         14
+svna2         2
+Name: matchtype, dtype: int64
+
+
+ALL MATCHES
+-----------
+
+svo (17605 hits)
+----------
+it may also be /r/noshitsherlock or clickbait that belongs in /r/saved    1411
+this is bullshit.                                                          518
+that's bullshit.                                                           234
+it's bullshit.                                                             224
+it's all bullshit.                                                          97
+this is such bullshit.                                                      94
+this is propaganda.                                                         82
+this is bullshit                                                            68
+it's propaganda.                                                            59
+this article is bullshit.                                                   52
+this is complete bullshit.                                                  50
+this is misinformation.                                                     49
+this is fucking bullshit.                                                   48
+this is clickbait.                                                          41
+this is bs.                                                                 40
+that's some bullshit.                                                       38
+it's bullshit                                                               38
+this is some bullshit.                                                      35
+that's bullshit                                                             33
+this is all bullshit.                                                       33
+this is total bullshit.                                                     32
+it's complete bullshit.                                                     31
+this is bullshit!                                                           29
+this is absolute bullshit.                                                  29
+this is pure propaganda.                                                    25
+it's clickbait.                                                             25
+this is utter bullshit.                                                     23
+that is bullshit.                                                           21
+it is bullshit.                                                             20
+this is propaganda                                                          19
+it's utter bullshit.                                                        19
+it's such bullshit.                                                         19
+it's fucking bullshit.                                                      18
+it's total bullshit.                                                        18
+this is chinese propaganda.                                                 18
+that's total bullshit.                                                      16
+it's all bullshit                                                           15
+but this is bullshit.                                                       15
+this is a bullshit article.                                                 15
+because it's bullshit.                                                      15
+that's such bullshit.                                                       14
+that's bs.                                                                  14
+this headline is bullshit.                                                  14
+this website is chinese pla propaganda!!!                                   13
+this sounds like bullshit.                                                  13
+it's bs.                                                                    13
+that's fucking bullshit.                                                    13
+this is disinformation.                                                     12
+the headline is clickbait.                                                  12
+this is clickbait bullshit.                                                 12
+Name: sent, dtype: int64
+
+
+
+sva (12918 hits)
+----------
+it may also be /r/noshitsherlock or clickbait that belongs in /r/saved    1411
+this is false.                                                             230
+the title is misleading.                                                   190
+this is misleading.                                                        173
+this news source is unreliable.                                            172
+title is misleading.                                                       169
+businessinsider.com news source is unreliable.                             167
+dailymail.co.uk news source is unreliable.                                 120
+the headline is misleading.                                                117
+this title is misleading.                                                   83
+that's false.                                                               75
+this is fake.                                                               61
+it's fake.                                                                  59
+this headline is misleading.                                                56
+headline is misleading.                                                     53
+that is false.                                                              47
+this is completely false.                                                   42
+this is clickbait.                                                          41
+it may be literal fake news, gossip-focused, overly biased, a student       40
+apple.news news source is unreliable.                                       38
+zerohedge.com news source is unreliable.                                    37
+the title is a bit misleading.                                              32
+title is a bit misleading.                                                  31
+this is inaccurate.                                                         30
+this article is misleading.                                                 30
+it's misleading.                                                            30
+the headline is a bit misleading.                                           29
+this is very misleading.                                                    29
+it's all fake.                                                              29
+it's clickbait.                                                             25
+this is patently false.                                                     25
+this is a bit misleading.                                                   25
+the title is very misleading.                                               22
+the article is misleading.                                                  22
+this is just false.                                                         22
+this is extremely misleading.                                               21
+this is fake                                                                21
+it's fake                                                                   20
+this is blatantly false.                                                    19
+this headline is very misleading.                                           19
+theepochtimes.com news source is unreliable.                                19
+rt.com news source is unreliable.                                           18
+title is misleading                                                         17
+your title is misleading.                                                   17
+the title is a little misleading.                                           17
+the headline is very misleading.                                            16
+this is so misleading.                                                      16
+this title is very misleading.                                              15
+it's false.                                                                 15
+that's just false.                                                          14
+Name: sent, dtype: int64
+
+
+
+o (10978 hits)
+----------
+bullshit.                                                     370
+- spreading misinformation                                    142
+bullshit                                                      138
+the title of the article is sensationalized or misleading.    132
+such bullshit.                                                109
+false.                                                        107
+fucking bullshit.                                             102
+total bullshit.                                                98
+bullshit bullshit                                              80
+bs                                                             75
+absolute bullshit.                                             75
+what bullshit.                                                 64
+utter bullshit.                                                54
+complete bullshit.                                             49
+fake                                                           42
+propaganda.                                                    42
+oh bullshit.                                                   41
+clickbait                                                      41
+false                                                          39
+very misleading.                                               36
+such bullshit                                                  35
+=false)                                                        32
+chinese propaganda                                             32
+clickbait.                                                     32
+its bullshit.                                                  31
+chinese propaganda.                                            29
+pure propaganda.                                               28
+completely false.                                              27
+propaganda                                                     25
+fucking bullshit                                               24
+bullshit!                                                      24
+clickbait bullshit.                                            22
+fake.                                                          22
+russian propaganda.                                            22
+*bullshit                                                      21
+no bullshit.                                                   21
+pure bullshit.                                                 21
+more bullshit.                                                 20
+absolutely false.                                              20
+ccp propaganda.                                                20
+russian propaganda                                             19
+more propaganda.                                               18
+not fake.                                                      18
+ccp propaganda                                                 17
+snippet&amp;q=52%20percent&amp;f=false)                        16
+total bullshit                                                 16
+such bs.                                                       15
+totally false.                                                 15
+misleading.                                                    15
+all bullshit.                                                  14
+Name: sent, dtype: int64
+
+
+
+ao (8550 hits)
+----------
+fake news.                                                                1200
+likewise, editorialized headlines, whether by the submitter or the new    1196
+fake news                                                                  904
+fake news!                                                                 322
+fake news?                                                                  74
+misleading title.                                                           66
+very misleading title.                                                      46
+fake news...                                                                42
+more fake news.                                                             42
+very misleading headline.                                                   30
+what a bullshit article.                                                    30
+literally fake news.                                                        28
+what a misleading title.                                                    28
+fake news!!!                                                                25
+*fake news                                                                  22
+misleading headline.                                                        21
+editorialized headline                                                      20
+fake news!!                                                                 19
+what a bullshit headline.                                                   19
+clickbait title.                                                            18
+misleading title                                                            17
+fake news!"                                                                 16
+fake news....                                                               15
+more fake news                                                              13
+what a misleading headline.                                                 13
+fake link                                                                   12
+extremely misleading title.                                                 12
+fake news russian propaganda site.                                          12
+concentration camps - fake news                                             11
+"fake news!"                                                                11
+misleading headline                                                         11
+not fake news.                                                              11
+slightly misleading title.                                                  11
+its fake news.                                                              11
+fake news!”                                                                 11
+fake news,                                                                  11
+literal fake news.                                                          11
+fake news                                                                   10
+bullshit article.                                                           10
+super misleading title.                                                     10
+super misleading headline.                                                  10
+literally fake news                                                         10
+lol fake news                                                                9
+fake news.....                                                               9
+"fake news!                                                                  9
+fake news.                                                                   9
+fake news lol                                                                9
+fake news and misinformation: [0:10](                                        9
+- fake news and misinformation and inability to take responsibility.         9
+pretty misleading headline.                                                  8
+Name: sent, dtype: int64
+
+
+
+svao (4815 hits)
+----------
+this is fake news.                                                        251
+well, it's fake news hiding behind the "satire" label.                    118
+this is fake news                                                          66
+it's fake news.                                                            52
+it may be literal fake news, gossip-focused, overly biased, a student      40
+this is a misleading headline.                                             39
+this is literally fake news.                                               36
+that's fake news.                                                          34
+this is a misleading title.                                                32
+this is fake news!                                                         19
+it's fake news                                                             16
+it's all fake news.                                                        16
+this is a very misleading title.                                           15
+this is a bullshit article.                                                15
+it is fake news.                                                           15
+this must be fake news.                                                    15
+it is a clickbaity misleading headline read the full quote.                14
+this article is fake news.                                                 11
+this is false information.                                                 11
+this is a clickbait title.                                                 11
+this may be straight-up, literally fake news; or it could be from a so     11
+it's a misleading headline.                                                10
+that's fake news                                                            9
+it's a misleading title.                                                    8
+it's all fake news!                                                         7
+this is the definition of fake news.                                        7
+this is a clickbait headline.                                               7
+that's a misleading title.                                                  7
+this is all fake news.                                                      7
+this has to be fake news.                                                   7
+this is obviously fake news.                                                7
+that was fake news.                                                         6
+this is a misleading article.                                               6
+that is fake news.                                                          6
+this is a bullshit headline.                                                6
+that's a very misleading title.                                             6
+that's a misleading headline.                                               6
+this is a very misleading headline.                                         6
+this headline is fake news.                                                 5
+it's a clickbait title.                                                     5
+human-to-human transmission was already confirmed on jan. 20 (one day       5
+this is totally fake news.                                                  5
+this is a very misleading article.                                          5
+this is literal fake news.                                                  5
+this is fake news from the daily mail (a tabloid):                          5
+the article is fake news written by an author using a pseudonym.            5
+it's a fake news website.                                                   4
+this is such a misleading title.                                            4
+this is bullshit news.                                                      4
+it's a right wing propaganda site.                                          4
+Name: sent, dtype: int64
+
+
+
+stvao (3271 hits)
+----------
+please do not post false/misleading information                           2699
+please do not post false/misleading information.                            74
+stop spreading fake news.                                                   38
+stop spreading false information.                                           14
+stop spreading fake news                                                    11
+don't spread false information.                                              7
+don't spread fake news.                                                      6
+why do you keep posting an approved russian propaganda site on a berni       6
+please stop spreading fake news.                                             5
+don't spread fake news                                                       5
+stop posting fake news.                                                      4
+don't spread false news from a ve3ry bad news station like cnn.              4
+quit spreading fake news.                                                    4
+stop spreading fake news!                                                    4
+stop falling for misleading headlines.                                       4
+please don't spread false information.                                       4
+stop the spread of false information.                                        4
+stop spreading false information                                             4
+please stop spreading false information.                                     4
+please look things up and don't buy into clickbait titles, or an awful       3
+stop falling for fake news.                                                  3
+stop spreading false info.                                                   2
+stop posting misleading information from fox news.                           2
+please stop spreading fake news                                              2
+so why do you spread fear and fake news with a misleading information        2
+do some research next time before spewing bullshit and using fake news       2
+can you people please stop posting misleading independent articles to        2
+do not post editorialized titles to articles.                                2
+that is not what happened and mexican industry is very big, we earn mo       2
+please don't spread fake news.                                               2
+‘stop spreading misinformation' ‘fake news fake news'                        2
+dont spread false information.                                               2
+do not post editorialized titles for linked articles.                        2
+stop posting absolutely false information from awful sources that lack       2
+please do not spread false information.                                      2
+do not spread false information.                                             2
+reddit friend, do not make spreading of false informations this is cou       2
+stop falling for fake news headlines on reddit.                              2
+dont spread fake news.                                                       2
+but maybe don't post such an unreliable bias news site.                      2
+how do i flag this post as fake news?                                        2
+please think about what you say and dont spread false information.           1
+stop falling for clickbait articles.                                         1
+when will these western media houses stop spreading fake news.               1
+please dont spread false information.                                        1
+stop spreading bullshit false information                                    1
+stop with spreading false information.                                       1
+dont spread news from unverified sources.                                    1
+stop spreading false information, idiots.                                    1
+one thing i don't understand: why do they spread fake news as they kno       1
+Name: sent, dtype: int64
+
+
+
+vo (2044 hits)
+----------
+sounds like bullshit.                                                     45
+i smell bullshit.                                                         35
+sounds like bullshit to me.                                               23
+i smell bullshit                                                          19
+sounds like bullshit                                                      18
+this sounds like bullshit.                                                13
+sounds like bullshit to me                                                11
+smells like bullshit.                                                     10
+smells like propaganda.                                                    8
+smells like bullshit to me.                                                8
+that sounds like bullshit.                                                 8
+this sounds like bullshit to me.                                           6
+this sounds like propaganda.                                               6
+sounds like propaganda to me.                                              6
+sounds like propaganda                                                     6
+sounds like propaganda.                                                    6
+sounds like bs to me.                                                      5
+we look down upon tabloid journalism, clickbait material and sensation     5
+sounds like bs                                                             4
+this smells like bullshit.                                                 4
+seems like bullshit.                                                       4
+sounds like chinese propaganda                                             4
+this sounds like complete bullshit.                                        4
+smells like bullshit                                                       4
+sounds like communist propaganda                                           3
+sounds like chinese propaganda but okay                                    3
+this smells like complete bullshit.                                        3
+look at this bullshit.                                                     3
+sounds like communist propaganda but ok.                                   3
+that being said, all these death reports sound like iranian propaganda     3
+this sounds like total bullshit.                                           3
+this seems like bullshit.                                                  3
+this sounds like some bullshit.                                            3
+sounds like communist propaganda but ok                                    3
+this smells like bullshit                                                  3
+seems like bullshit to me.                                                 3
+looks like you fell for propaganda propaganda propaganda                   3
+sounds like bs.                                                            3
+everything on cnn smells like bullshit because it is bullshit.             2
+we feel this is total bs and laugh at the fact that all of a sudden bo     2
+this gathering ban looks like bullshit when there's bullshit exception     2
+this seems like bullshit                                                   2
+sounds like russian propaganda.                                            2
+i smell bs                                                                 2
+everything sounds like communist propaganda to you though.                 2
+feels like propaganda.                                                     2
+i smell bullshit!                                                          2
+the top comments sound like propaganda                                     2
+this smells like russian propaganda.                                       2
+if it looks like bullshit and quacks like bullshit..                       2
+Name: sent, dtype: int64
+
+
+
+stvo (1801 hits)
+----------
+stop spreading misinformation.                                            129
+don't spread misinformation.                                               42
+stop spreading bullshit.                                                   42
+please stop spreading misinformation.                                      40
+do not spread misinformation or encourage drama                            27
+please don't spread misinformation.                                        24
+stop spreading misinformation                                              22
+stop spreading disinformation.                                             17
+don't fall for propaganda or let yourself be used.                         12
+stop spreading this bullshit.                                              10
+don't fall for the propaganda.                                             10
+don't spread misinformation                                                10
+stop buying chinese propaganda.                                             9
+stop spreading propaganda.                                                  8
+ps-stop buying chinese propaganda.                                          7
+quit spreading misinformation.                                              7
+please do not spread misinformation.                                        7
+stop spreading bullshit                                                     6
+stop spreading this misinformation.                                         6
+don't buy into the bullshit.                                                5
+stop buying into the bullshit.                                              5
+do not spread misinformation.                                               5
+stop spreading misinformation!                                              5
+stop posting this bullshit.                                                 4
+stop spreading bs.                                                          4
+don't spread bullshit.                                                      4
+don't fall for this bullshit.                                               4
+stop spreading lies and misinformation.                                     4
+don't fall for the bullshit.                                                4
+stop spreading falsehoods.                                                  4
+quit spreading misinformation                                               3
+don't buy their bullshit.                                                   3
+why do you keep posting an approved russian propaganda site on a berni      3
+stop spreading chinese propaganda.                                          3
+all of tech should do its part to stop the spread of misinformation, e      3
+please don't spread this misinformation.                                    3
+please stop spreading this misinformation.                                  3
+don't buy into this bullshit.                                               3
+stop spewing bullshit.                                                      3
+quit spreading bullshit.                                                    3
+don't spread misinformation please.                                         3
+stop spreading propaganda                                                   3
+stop spreading misinformation!!!                                            3
+don't buy the bullshit.                                                     3
+please refrain from spreading misinformation.                               3
+don't fall for ccp's propaganda.                                            3
+don't buy the propaganda.                                                   3
+i don't want to spread misinformation                                       3
+please stop spreading this bullshit.                                        3
+please stop spreading disinformation.                                       3
+Name: sent, dtype: int64
+
+
+
+ivo (1213 hits)
+----------
+i call bullshit.                                                          361
+i call bullshit                                                            56
+i'm calling bullshit.                                                      43
+i call bs.                                                                 33
+i call bullshit!                                                           19
+i call bullshit on this.                                                   19
+i call bullshit on that.                                                   13
+i call bs                                                                  11
+i'm calling bullshit                                                       10
+but i call bullshit.                                                        8
+i'm calling bs.                                                             6
+i'm calling bullshit on this.                                               5
+i am calling bullshit.                                                      5
+i call bullshit...                                                          5
+i call bullshit on this one.                                                5
+so i call bullshit.                                                         4
+i call absolute bullshit.                                                   4
+yeah i'm calling bullshit.                                                  3
+nope, i'm calling bs on this one without more info: &gt; sars-cov-2 rn      3
+i'm calling bullshit on that.                                               3
+i personally call this bullshit.                                            3
+yeah, i'm calling bullshit.                                                 3
+yeah i call bullshit.                                                       3
+sorry, i call bullshit.                                                     3
+or i call bullshit.                                                         3
+we can call out the bullshit lies that spew from politicians and ceo's      3
+i call bullshit on this one                                                 3
+so i'm calling bullshit.                                                    3
+i call bs on this article.                                                  2
+i call complete bullshit.                                                   2
+i call bullshit on your bullshit.                                           2
+i call total bullshit on this.                                              2
+i call bs on this.                                                          2
+otherwise i call bullshit.                                                  2
+and i call bs                                                               2
+i mean, i call bullshit.                                                    2
+so i call bullshit                                                          2
+, i call bullshit                                                           2
+i call bullshit....                                                         2
+i call it bullshit.                                                         2
+i'm calling bullshit on this one.                                           2
+i call bullshit ccp propaganda.                                             2
+i'm calling bullshit on this article.                                       2
+i call bullshit on that one.                                                2
+i'm calling bs on this.                                                     2
+i call bullshit on this article.                                            2
+i'm calling bullshit here.                                                  2
+i call bs on this                                                           2
+i'm calling your bullshit.                                                  2
+i call bs clickbait                                                         2
+Name: sent, dtype: int64
+
+
+
+vao (380 hits)
+----------
+sounds like fake news.                                                    11
+sounds like fake news to me.                                               5
+we look down upon tabloid journalism, clickbait material and sensation     5
+looks like fake news to me.                                                5
+seems like fake news to me.                                                4
+looks to be a click bait fake news article, judging by that french art     4
+seems like a misleading headline.                                          3
+this sounds like fake news.                                                3
+people claiming her story lacks credibility seem to be relying mostly      2
+sounds like a typical fake news media site.                                2
+it looks like a russian fake news site with all the sex stuff.             2
+i smell fake news.                                                         2
+seems like a clickbait article.                                            2
+then recovers doesnt sound like a good clickbait title for an article,     2
+seems like fake news.                                                      2
+this seems like fake news...                                               2
+looks like fake news                                                       2
+smells like fake news.                                                     2
+sounds like fake news to me!                                               2
+oh look more of this fake news from the propaganda site that keeps get     2
+yeah this seems like a fake news site.                                     2
+this piece seems more like propaganda than a news article.                 2
+smells like fake news                                                      2
+sounds like a fake news anonymous source.                                  2
+it would seem a pretty elaborate example of fake news, can you back up     2
+this seems like fake news.                                                 2
+this is real news cnn, you're looking for fake news fox news.              2
+this looks like fake news.                                                 2
+looks like a stunt or fake news.                                           2
+looks like a fake news headline to me!                                     2
+yeah, seems like bs from an unknown fake news site.                        2
+sounds like someone prefers fake news above actual news 🤔                  2
+seems to be a misleading post headline.                                    2
+this sounds like fighting fake news with fake news.                        2
+kinda looks like a propaganda website masquerading as a science websit     2
+wow...this feels like a fake news headline you'd see in plague inc.        2
+to me it looks like a clickbait article and a bad one at that: 1.          1
+oh look yet another clickbait news piece which has been proven to be t     1
+i dunno, seems like fake news.                                             1
+sounds almost a bit of a clickbait of an article.                          1
+actually it sounds like the media bullshited a fake news story to make     1
+this seems like a fake news swampyard                                      1
+“doctored” sounds a lot like rebranded “fake news”                         1
+this seems like such a clickbait article                                   1
+the world looks to the white house for fake news.                          1
+this kind of reporting seems like fake news.                               1
+that seems to be a purposefully misleading title.                          1
+that sounds like fake news 👌                                               1
+oh look a misleading title!                                                1
+but ..i smell fake news ...                                                1
+Name: sent, dtype: int64
+
+
+
+naao (336 hits)
+----------
+it could also be from a site that's so steeped in opinion or clickbait    206
+youtube may not always be a reliable source, especially [unverified or     62
+this post has been removed because the title is sensationalized and/or     23
+your submission has been automatically removed as blogspot.com is not       3
+i can't find a credible source on this, business insider always posts       2
+alaraby isn't a reliable source, the whole story is likely fake.            1
+aljazeera isn't really a reliable source when it comes to egypt, both       1
+this is most likely fake news, there is no credible source proving so       1
+politicsusa is not a credible source at all (i'm trying to avoid sayin      1
+not true, misleading title either by ignorance or done purposely to sp      1
+rt is not a reliable source as it is a propaganda outlet for the russi      1
+absolute fake news with no reliable source.                                 1
+daily mail is not credible and has been a constant source of misinform      1
+the point was explicitly show that it was misinformation, of course it      1
+"it could also be from a site that's so steeped in opinion or clickbai      1
+also parents - believes random fake whatsapp with no credible source.       1
+seems like his popular vote win did in fact bring out people as promis      1
+xinhua is not a reliable source of information, it's 100 % propaganda       1
+project veritas is not a credible source, misleading at best.               1
+you may argue that rumors on sns aren't credible source of information      1
+this is misinformation and dave meltzer is not a credible source.           1
+stop spreading false info, blogto is not a reliable source.                 1
+this is not true and post headline is misleading.                           1
+so they're still telling people not to worry about being tested becaus      1
+the wwf is not a reliable source either, because they're concerned wit      1
+also, this is a source steeped in clickbait and opinion and no longer       1
+&gt; in any other fucking galaxy, a "fugitive himself wanted for makin      1
+yeah, its not fake... that's a real article.                                1
+rt is a known russian propaganda site and not a credible source of new      1
+in any other fucking galaxy, a "fugitive himself wanted for making fal      1
+i know alot of people (mostly boomers) that couldn't distinguish a rea      1
+fox is not a real news source, it's an extreme right-wing propaganda m      1
+it just seems like propaganda to be honest, they don't seem to be a cr      1
+there doesn't seem to be a reliable source outside of stepping back an      1
+they are not really a credible source, they have published literal fak      1
+a "news" with no reliable source, apparently redditors couldn't tell w      1
+i'm not saying it's 100% false or anything, but the daily mail isn't e      1
+it's an opinion piece and should be not used as a credible source for       1
+taiwannews is not a reliable news source they routinely sensationalize      1
+they provided the curveball source that was used to fake the casus bel      1
+it's not even the real title, op just decided to give some potentially      1
+this is a very misleading title intended to show that lawyer still doe      1
+i wouldn't say this guy is a reliable source, but he isn't a *complete      1
+i can't think of a less reliable source given the endless stream of li      1
+donald trump may not always be a reliable source, especially [unverifi      1
+Name: sent, dtype: int64
+
+
+
+yvo (257 hits)
+----------
+why are you spreading misinformation?                                     14
+you are spreading misinformation.                                         14
+you're spreading misinformation.                                          12
+you are spreading misinformation                                           4
+why are you spreading disinformation?                                      3
+how about you post this without the bullshit clickbait title               2
+dude, you spreading misinformation /u                                      2
+you are spreading misinformation on a topic about misinformation!          2
+why are you spreading chinese government propaganda?                       2
+are you seriously posting this propaganda bullshit from china daily??      2
+you are spewing propaganda.                                                2
+why are you spreading bullshit?                                            2
+like you don't know this, you still post this fake-ass bullshit every      2
+you're spreading propaganda.                                               2
+for a propaganda debunker you sure post a ton of propaganda....            1
+so you don't actually know what the hell you are talking about, and in     1
+otherwise you're spreading disinformation"                                 1
+you are spreading propaganda!                                              1
+i've seen your posts and comments, you basically spread chinese propag     1
+why do you post conservative propaganda?                                   1
+why are you spreading this stupid irresponsible lying bullshit?            1
+you post this bullshit fatality rate everyday which makes no sense.        1
+yeah you are spewing bullshit.                                             1
+are you seriously posting russian state propaganda pieces?                 1
+otherwise you are just spreading propaganda like the people that you s     1
+you've been spreading lies and bs for more than a month now.               1
+if you post some bs that's obviously fake i'm calling you out              1
+when you don't provide the context, you're spreading disinformation.       1
+you are literally spreading actual nazi propaganda for fucks sake.         1
+so, when you keep shit like this on the white list, mods, you're actua     1
+instead you spread disinformation                                          1
+you have literally posted disgusting russian propaganda regarding the      1
+op, why are you posting state-sponsored russian propaganda?                1
+you are spreading the misinformation.                                      1
+you're spreading misleading disinformation by framing things like this     1
+you're spreading racist bullshit and you really don't even have a leg      1
+: why are you posting propaganda?                                          1
+the flu isn't deadlier, you're spreading misinformation.                   1
+you are just spreading propaganda at this point.                           1
+why are you posting this right-wing leaning bullshit here?                 1
+it's funny, you two have in common, you both spread the same shitty bu     1
+you are spreading pro-lockdown propaganda.                                 1
+why are you posting bullshit year old articles?                            1
+you're spreading the bullshit.                                             1
+you post factually incorrect propaganda daily i guess in your ass          1
+you post nothing but communist bullshit and rant and rave about the ci     1
+maybe you are just spreading bullshit your daddy told you??                1
+you're spreading bs                                                        1
+you can spread disinformation and hide the truth from isolated inciden     1
+when you don't, you spew bullshit like this article.                       1
+Name: sent, dtype: int64
+
+
+
+ivsva (161 hits)
+----------
+i think the title is misleading.                                          9
+i think the title is a bit misleading.                                    5
+i think the headline is misleading.                                       3
+i feel this article is a bit misleading as the data used for the artic    2
+i think the article is misleading.                                        2
+i think this headline is misleading.                                      2
+i think this article is misleading.                                       2
+i know this post about 2020-id is conspirationist bullshit, but i woul    2
+i thought the title was misleading or clickbait... until i read the ar    2
+and i think the title is a little misleading.                             1
+and since i'm too lazy to research the issue, i'll never know whether     1
+however, i think the article is pretty misleading.                        1
+i think the article is a bit misleading.                                  1
+i think the article is somewhat misleading.                               1
+i think this article might just be alarmist clickbait.                    1
+i somehow think this headline is bullshit.                                1
+yeah, i think the title is misleading, you could post about the 3778 t    1
+i think this article may be slightly misleading.                          1
+i think this title is a little misleading.                                1
+i think op's title is pretty misleading.                                  1
+i suspect this article is pure bullshit.                                  1
+i feel that the article is a bit misleading.                              1
+i'd say the headline is misleading, but not clickbait.                    1
+i think the news article is kinda misleading......                        1
+can we just say this source is bullshit?                                  1
+i thought the title was bullshit, but reading the article, this has to    1
+after reading i think this headline is a little misleading because the    1
+i think the title is grossly misleading, misleading enough i will repo    1
+i think the title of the article is misleading.                           1
+i do think the title is a bit misleading                                  1
+i feel this title is misleading.                                          1
+although i would not vote for trump under any circumstances, i think t    1
+i'd say any right leaning sub is dictator propaganda.                     1
+plus i think this title is quite misleading.                              1
+because we know this article is bullshit.                                 1
+so i think op's title is wrong / misleading, etc.                         1
+i think the title is slightly misleading.                                 1
+but i think the article is a bit misleading as well as the twitter quo    1
+i think the headline might be bullshit.                                   1
+i think the headline and article is misleading.                           1
+i think this article is inaccurate.                                       1
+quite frankly, i think this headline is very misleading.                  1
+i thought this sub said scmp is fake and ccp mouth piece and shouldn't    1
+for the record, i think the title is misleading and don't believe we'r    1
+i think the title is a little misleading as to the intentions of the a    1
+i thought the washington post was fake news.                              1
+as much as i dislike religion, i think that the headline of the articl    1
+i think your title is a bit misleading.                                   1
+i thought this title would be misleading, but it is 100% accurate to t    1
+and i think the article is pure bullshit.                                 1
+Name: sent, dtype: int64
+
+
+
+ivsvao (125 hits)
+----------
+i think this is fake news.                                                4
+so i'm gonna guess this is a fake news article at least more info is k    3
+i thought this was a fake news article being spread by 4chan              2
+i think it's fake news                                                    2
+i thought this was fake news...                                           1
+since there are not \~60 million chinese dead, we can safely say this     1
+i thought the title was bullshit, but reading the article, this has to    1
+; "i never said that, that's fake news."                                  1
+i knew this was a classic reddit clickbait title.                         1
+i think this is a bs fake article from india.                             1
+do we know it is fake news though?                                        1
+i know it's a clickbait title, but if the biggest struggle you have in    1
+yes, we all know it's fake news, just like hrc's emails, but between t    1
+i think it's because he's providing false and misleading information t    1
+well judging by the ridiculous title and the link to a salon entertain    1
+i'm guessing this is a sensational misleading headline based on who's     1
+i suspect it is a combination of fake news and                            1
+i think that is fake news.                                                1
+i thought, surely, this was a misleading click-bait headline.             1
+i thought this is fake news!                                              1
+i think this is a very misleading article.                                1
+damn, i thought this was an editorialized title...                        1
+i feel like this is also a fake news....                                  1
+i think it's fake news.                                                   1
+as a fellow taiwanese i can say this is some bs news.                     1
+i thought this was a misleading thumbnail post                            1
+i thought for sure it must be a misleading title.                         1
+i think this is fake news as 80% of americans don't all vote.             1
+i thought it was a fake april fools' article.                             1
+i think it's fake news .                                                  1
+i guess this is fake news too.                                            1
+am i the only one think this is a fake news or rumor？                     1
+not trying to be ironic here - i really think this is fake news.          1
+i thought it was a fake article.                                          1
+i think that's fake news                                                  1
+and i was going to say this is a misleading title,                        1
+gee i thought it was 1000, more fake news                                 1
+i thought when this came out that it was fake news.                       1
+i think this title is misleading - nowhere in the article                 1
+i feel it is a slightly misleading headline by the abc: isn't vetting     1
+even i know this is fake news.                                            1
+i think hogan just said that was false information today 4/7.             1
+but i thought this was a fake news virus, soon to be zero cases, going    1
+i think that's fake news spread by trump and his apologists.              1
+and i thought it was fake news                                            1
+i thought the washington post was fake news.                              1
+i knew it was bs by the clickbait headline                                1
+i think it's probably fake news.                                          1
+the article also cites several studies that found a public option woul    1
+so i think this is fake news.                                             1
+Name: sent, dtype: int64
+
+
+
+yvao (94 hits)
+----------
+you're spreading fake news.                                               5
+you are spreading fake news.                                              4
+you are spreading false information.                                      3
+you're spreading false information.                                       3
+why are you spreading fake news?                                          3
+how dare you post fake news about big mike?                               2
+you posted an article from a fake news site.                              2
+why would you post a fake news article                                    2
+so why do you spread fear and fake news with a misleading information     2
+why are you posting fake news and misleading our subscribers with your    2
+so why do you spread false info?                                          1
+you're spreading false information and should be ashamed.                 1
+you are spreading fake information by grossly misreading what they sai    1
+why would you post the mormon propaganda news service here?               1
+so, you posted an article with editorialized title (against the rule n    1
+why are you spreading fake news and lies?                                 1
+no, you're spreading false information.                                   1
+then why did you post the chinese propaganda source instead of just qu    1
+hell you're just spreading false info....                                 1
+you're then just spreading false info and causing panic.                  1
+why are you posting fake news now!?                                       1
+you posting fake news right now                                           1
+if you are spreading fake news, no matter if it is fox or cnn, it need    1
+why would you post such blatantly false information?                      1
+you've spread fake news and indulged a smear being promoted by the far    1
+you're spreading fake information.                                        1
+but you are spreading false information by saying that.                   1
+why is it always you posting bad or misleading articles?                  1
+and now you're spreading this misleading information as if you're the     1
+if you aren't going to educate yourself on something, the you are just    1
+if you spread false information in a society with such a large populat    1
+why do you post garbage from this propaganda site?                        1
+so why would you post something with inaccurate data/information?         1
+the internet doesn‘t mean you can spread biased false information and     1
+you are spreading false news, at least about thailand.                    1
+&gt; winnie the flu you posted the same gif in the unverified videos p    1
+why are you spreading fake news for.                                      1
+you're spreading false information and fear.                              1
+so why are you posting fake news                                          1
+first sentence in and you're already spreading false information.         1
+as in, you are spreading factually false information by saying that on    1
+so you are spreading fake news from a race baiting propaganda sewer of    1
+why are you spreading this blatantly fake news.                           1
+or you're intentionally spreading false information.                      1
+more like wow, you're spreading fake news because it fits your agenda.    1
+now you're actually just spreading fake news.                             1
+wow, you've posted this same fake post multiple times...                  1
+you are spreading false information about the hundreds of non resident    1
+you're spreading despicable fake news, fuck off.                          1
+you're spreading false information on purpose.                            1
+Name: sent, dtype: int64
+
+
+
+ivsvo (71 hits)
+----------
+source of picture even indicate some from indonesia for image with mas    2
+for the front image, it's seafood, it's really “wet” based on these, i    2
+i know this is more dnc propaganda to imply that evil texans are tryin    1
+oh, i thought this was all propaganda and fake news???                    1
+lmao i thought the title was clickbait, but they actually all are spre    1
+i thought the title was misleading or clickbait... until i read the ar    1
+i guess this is all the bernie propaganda outlets have left now that t    1
+i think this is a propaganda outlet of some sort where factual evidenc    1
+i fucking knew this was propaganda!                                       1
+i personally think this is all propaganda bullshit because the gag ord    1
+i am portuguese and i have to say this is propaganda.                     1
+i knew this was a classic reddit clickbait title.                         1
+i think this is propaganda the cia has literally had it in for trump f    1
+i thought i read this was chinese propaganda                              1
+but for all i know this is some more propaganda crap too                  1
+i think that's misinformation                                             1
+i know this is clickbait, but lets assume this situation was 100% true    1
+i think this is just iranian propaganda in general.                       1
+i think this is bloomberg propaganda, who is really a republican.         1
+i'd thought that was only ccp propaganda                                  1
+i thought this was just clickbait, but it's real, be warned he's *clim    1
+as soon as i read tucker carlson i knew this was modern propaganda.       1
+i'm guessing this was a pure propaganda.                                  1
+well i know this is disinformation because in my opinion 9/11 was a 10    1
+well, we know that is a falsehood.                                        1
+i guess anything that contradicts the american narrative is propaganda    1
+i thought this was clickbait.                                             1
+but i think this is probably propaganda, just like so many other thing    1
+i think this whole article is propaganda.                                 1
+i think these articles are propaganda trying to take the heat off of c    1
+i know this is a chinese propaganda sub, but china is lying about it's    1
+i think thats why so many people are salty over it and calling propaga    1
+i seriously suspected that this was a russia disinformation campaign w    1
+i guess that's the power of propaganda.                                   1
+i'm minded to think this is just the indy doing clickbait with aboslut    1
+i suspect this is russian propaganda and trump is in sync with it.        1
+i'm guessing this is part of a chinese disinformation campaign.           1
+i personally think this is misinformation that this government is putt    1
+why do i feel this is xi propaganda?                                      1
+i was thinking too that this was just a propaganda by chinese governme    1
+i guess that's what makes good propaganda                                 1
+i think this is just component of every governments propaganda toolkit    1
+i guess that's what decades of propaganda will buy you.                   1
+as i know that this is all a bunch of bullshit propaganda aimed at sta    1
+i have to say this might be a propaganda ploy, after the pentagon admi    1
+i'd say any right leaning sub is dictator propaganda.                     1
+i think this is a propaganda move, but it's still one for deescalation    1
+even i know this is a bullshit liberal fabrication                        1
+i think this is unconfirmed clickbait.                                    1
+given they were flying drones over the protests and seeing mention tha    1
+Name: sent, dtype: int64
+
+
+
+svsv (57 hits)
+----------
+this is what propaganda looks like.                                       9
+this is how misinformation spreads.                                       2
+it's a shame to see misinformation being promoted by those in charge e    1
+when you dont know about stuff "stop speaking about it", this is how m    1
+kids, this is what propaganda looks like.                                 1
+so this is what bullshit looks like.                                      1
+it's amazing how quick the propaganda spreads.                            1
+this is what misinformation looks like guys.                              1
+this is what chinese propaganda looks like..                              1
+this is what [insert country] propaganda looks like.                      1
+this is how misinformation spreads around so quick                        1
+this is what political bullshit looks like.                               1
+this is how modern propaganda is spread.                                  1
+people believe in them because they have a cognitive bias towards beli    1
+this is how misinformation spreads, and credibility for our scientists    1
+for americans: this is what own regime propaganda sounds like 🤣           1
+it's amazing how misinformation can spread with just someone using a s    1
+this is what propaganda looks like when the readership just isn't that    1
+this is what propaganda looks like                                        1
+this is how russian propaganda looks like folks.                          1
+this is what propaganda looks like folks, and it's a real time lesson     1
+until confirmed, this is what disinformation smells like.                 1
+and this is how disinformation spreads.                                   1
+this is what propaganda looks like: /r/xes_are_ying                       1
+this is how misinformation spread.                                        1
+this is what trash-tier propaganda looks like, folks.                     1
+keep your wits about you, this is what propaganda looks like              1
+because this is how misinformation can spread                             1
+it's crazy watching the propaganda propagate.                             1
+and this is how misinformation is spread                                  1
+this is what russian disinformation looks like.                           1
+this is how dumb misinformation spreads.                                  1
+that's what quantum bullshit looks like.                                  1
+it's painful to watch the disinformation being spread when i'm on the     1
+this is how misinformation and rumors spread.                             1
+this is what nationalist propaganda looks like.                           1
+it is amazing how much disinformation is being spread on foreign socia    1
+that's what propaganda looks like.                                        1
+this is how misinformation gets spread.                                   1
+this is how paid gay propaganda looks like.                               1
+this is what misinformation looks like.                                   1
+this is exactly how propaganda spreads.                                   1
+it's about time somebody debunks the propaganda being posted in this s    1
+this is what white nationalist propaganda looks like in the wild.         1
+this is how misinformation is spread.                                     1
+so that's what propaganda looks like.                                     1
+it's crazy how much misinformation and propaganda is spewed on this su    1
+let's keep the medical conjecture by non qualified to a minimum please    1
+Name: sent, dtype: int64
+
+
+
+ivao (38 hits)
+----------
+i call fake news.                                                         4
+i am calling a fake link.                                                 2
+i call fake news                                                          2
+27th feb and there is no mention of a pandemic, i'm calling fake news.    2
+since there's no name about who's the person doing the reporting, i ca    1
+nah man, i call fake news.                                                1
+i call bs fake news right now.                                            1
+i'm calling fake news.                                                    1
+if it's released on bloomberg.com can we call the site fake news?         1
+you call it wrongly attributed, i call it fake news.                      1
+okay, so i called the smoke alarm fake news and the house burned down,    1
+i call bullshit fake news.                                                1
+i'll call fake news                                                       1
+can we please call it inaccurate news                                     1
+i call propaganda shenanigans on this post.                               1
+i call this fake news                                                     1
+i'm calling this fake news.                                               1
+can we call it fake news?                                                 1
+i'm calling fake news until it's confirmed.                               1
+i'm also calling fake news or misunderstanding on this one.               1
+nah i'm calling fake news on you!                                         1
+i call fake/russian news                                                  1
+i call fake news, theirs                                                  1
+i call fake news!                                                         1
+hence why we call the media fake news.                                    1
+i call it fake news.                                                      1
+i would call this fake news.                                              1
+so the previous post about masks being diverted was merely showing wha    1
+you know usually i call them fake news but in this case it's not fake     1
+we now live in the era of "everything i say is true unless you can pro    1
+but i call fake news here.                                                1
+can we call this fake news and get on with our denial fest?               1
+Name: sent, dtype: int64
+
+
+
+svsav (22 hits)
+----------
+this is how fake news spreads                                             1
+this is how false information spreads.                                    1
+it's ridicilous how much misleading information is spread on the inter    1
+this is how fake news is propagated.                                      1
+but see, this is how fake news is spread.                                 1
+this is what fake news truly looks like.                                  1
+this is what fake news looks like.                                        1
+this is what fake news looks like and a bold face lie as well. "          1
+this is what real "fake news" looks like.                                 1
+it's sad to see how fake news spread around and get so many upvotes.      1
+that's how false information spreads.                                     1
+funding to the cdc has not been decreased, this is fake news being spr    1
+it's ironic how you are spreading fake news by claiming that alt news     1
+this is what fake news look like.                                         1
+0.0012% this is how fake news is spread                                   1
+so this is what fake news looks like.                                     1
+this is how fake news spreads.                                            1
+also this is propaganda at its finest the headline makes it seem like     1
+this is what modern fake news looks like.                                 1
+this is how “fake news” gets spread.                                      1
+and this is how fake news spreads.                                        1
+it's amazing how quickly propaganda links spread on reddit.               1
+Name: sent, dtype: int64
+
+
+
+svna (14 hits)
+----------
+your post title is not true.                                              1
+your post title isn't true.                                               1
+the headline is not exactly true.                                         1
+the source though isn't very credible.                                    1
+the news site is not even credible and did not publish his full statem    1
+this news source isn't not very reliable to report factual news.          1
+far right news site is not reliable or accurate.                          1
+the source isn't even reliable from what i can tell in the article.       1
+and... the headline is not true.                                          1
+eh huffington post isn't the most reliable.                               1
+this article isn't even real.                                             1
+the source is not credible enough for posting on r                        1
+so this article is about not entirely credible news being published in    1
+this “da news” site is not credible.                                      1
+Name: sent, dtype: int64
+
+
+
+svna2 (2 hits)
+----------
+this article just doesn't seem credible in the least           1
+uh, yeah, that site doesn't look very reliable, but thanks.    1
+Name: sent, dtype: int64
+
+
+
+
+Posts that used to be flagged but are no longer flagged
+----------------------------------------------------
+allsents2[(allsents2.flag==1) & (allsents2.flag2==0)].sent.value_counts()[:50]
+
+Your post has been removed because it has a sensationalized, editorialized, or biased headline and is therefore in violation of [Submission Rule #4](     76
+Quit your bullshit.                                                                                                                                       21
+’s bullshit.                                                                                                                                              21
+Stop with this bullshit.                                                                                                                                  13
+Stop with the bullshit.                                                                                                                                   12
+Stop the bullshit.                                                                                                                                        10
+Stop your fake news OP                                                                                                                                     7
+Click bait bullshit.                                                                                                                                       6
+It’s not fake news.                                                                                                                                        5
+Any post with "Trump" or "Fox News" in the title is getting reported for clickbait or trolling unless the post is reporting on the elimination of thos     5
+Stop your fake news.                                                                                                                                       5
+Stop this bullshit.                                                                                                                                        5
+bs.                                                                                                                                                        5
+Reported for misinformation.                                                                                                                               5
+This is fucking bullshit                                                                                                                                   5
+As someone born in an Italian hospital on the one floor which our Air Force happened to be in charge of because my American parents were stationed ove     4
+Quit the bullshit.                                                                                                                                         4
+It’s not fake news,                                                                                                                                        4
+It’s not bullshit.                                                                                                                                         4
+’s bullshit                                                                                                                                                4
+Stop this bullshit post wording to create fear for clicks.                                                                                                 4
+Stop perpetuating this bullshit.                                                                                                                           4
+’s fake news.                                                                                                                                              4
+Stop with the political bullshit.                                                                                                                          4
+Reported for clickbait.                                                                                                                                    4
+Stop with the propaganda.                                                                                                                                  4
+&gt; So if your criticize the WHO for their handling - it is disinformation?                                                                               4
+Your post/comment has been removed for misinformation that has been refuted by multiple peer reviewed studies or journals, or was designed to intentio     3
+I think this is bullshit.                                                                                                                                  3
+Reported for misinformation                                                                                                                                3
+[Removed for misinformation]                                                                                                                               3
+PR bullshit.                                                                                                                                               3
+Stop your bullshit.                                                                                                                                        3
+Oh bullshit                                                                                                                                                3
+There’s so much misinformation out there.                                                                                                                  3
+It’s not fake news                                                                                                                                         3
+Straight up propaganda.                                                                                                                                    3
+False information was reported by Figaro newspaper and quickly circulated through the media.                                                               3
+They should stop this misinformation campaign immediately and quit trying to disenfranchise Iowa voters.”                                                  3
+Stop the propaganda.                                                                                                                                       3
+Stop with the misinformation.                                                                                                                              3
+Removed for editorialized title.                                                                                                                           3
+Quit your bullshit                                                                                                                                         3
+Stop with the disinformation.                                                                                                                              3
+Reported for fake news.                                                                                                                                    3
+Reported for clickbait                                                                                                                                     2
+Mueller is done with our bullshit.                                                                                                                         2
+the article is reporting fake news.                                                                                                                        2
+Quit the your bullshit.                                                                                                                                    2
+Stop with the leftist propaganda.                                                                                                                          2
+Name: sent, dtype: int64
+
+Posts that are still not flagged
+--------------------------------
+
+allsents2[(allsents2.flag==0) & (allsents2.flag2==0)].sent.value_counts()[:50]
+
+Unverified twitter/youtube accounts, facebook pages, or just general unverified personal accounts are not acceptable.                                     43844
+Users often report submissions from this site and ask us to ban it for sensationalized articles.                                                           5337
+If you do find evidence that this article or its title are false or misleading, contact the moderators who will review it                                  5337
+*comments will be removed if they are disrespectful, off-topic, or spread misinformation                                                                   2300
+Our community will not be used to spread misinformation during this important time.                                                                        1521
+Is blatant misinformation or rumors that could cause a panic.                                                                                              1521
+Hello everyone, we would just like to remind all users that posting misinformation will result in removal from this community.                             1397
+Your submission has been automatically removed because it violates our [headline rules](                                                                    733
+Due to the nature of this topic, users spreading misinformation or breaking r/Toronto rules will be subject to severe mod actions,                          713
+Your post was removed for one of the following reasons: - Spreading misinformation                                                                          426
+Your [submission](was automatically removed because it linked to a website that is especially unreliable and that may promote disinformation.               295
+- Double check when using the automatic suggestion as sometimes it is inaccurate and a post may be removed even though it is what Reddit suggested.         258
+This may be straight-up, _literally_ fake news; or it could be from a source that has had problems before with misrepresenting things, content theft,       193
+An editorialized, sensationalized, misleading, or factually-inaccurate title will result in a post's removal."                                              185
+Please read [our headline rules](and consider reposting with a more appropriate title.                                                                      178
+It has a sensationalized, editorialized, or biased headline.                                                                                                159
+Please do not submit links from unreliable, extremely biased, or farcical websites.                                                                         152
+Your post or comment has been removed for being unreliable.                                                                                                 141
+Your negative parade of bullshit is tiresome and transparent.                                                                                               138
+Your [comment](was automatically removed because it referred to a coronavirus-related subreddit which has been quarantined by the reddit admins, who h      130
+medium.com is a blogpost website containing unverified, non-peer-reviewed and opinionated articles (see [Rule 2](                                           124
+- The latest information from the WHO with regards to this outbreak globally can be found here: Do not post false health information/advice or advise        81
+State-sponsored propaganda is not acceptable on /r/politics.                                                                                                 70
+What a load of bullshit.                                                                                                                                     69
+Please note that some websites change their article titles and this may be a false-positive.                                                                 67
+List of unverified twitter handles that can be posted directly: List here --- If you want to know more, reply to this message and a mod will help you        59
+[lying](                                                                                                                                                     59
+blogspot.com is a blogpost website containing unverified, non-peer-reviewed and opinionated articles (see [Rule 2](                                          55
+Your post has been removed because the title of the article is sensationalized or misleading.                                                                53
+Your post seems to contain original research, analysis, or first hand or editorialized video or images.                                                      50
+The strain of anti-intellectualism has been a constant thread winding its way through our political and cultural life, nurtured by the false notion th       49
+* [without using sensationalized headlines](/r/dataisbeautiful/wiki/rules/rule7).                                                                            49
+Editorialized, provocative, inaccurate, sensationalist, and/or misleading titles may result in the removal of the post.                                      48
+These paid posters can post news, comments, gossip, disinformation on some online platforms such as Weibo, WeChat and Taobao, China's eBay-like platfo       47
+Your post or comment has been removed for being low quality or unreliable.                                                                                   47
+They may utilize strong loaded words (wording that attempts to influence an audience by using appeal to emotion or stereotypes), publish misleading re       41
+This is further enhanced by the rampant propaganda to increase the Party’s reputation among citizens.                                                        36
+Your [comment](was automatically removed because it linked to a website that is especially unreliable and that may promote disinformation.                   34
+[The Rise of the Weaponized AI Propaganda Machine](                                                                                                          33
+Then they tried to coerce Turkey to honor the deal through fake news.                                                                                        32
+Some sources in this category may be untrustworthy.                                                                                                          31
+linkedin.com is a blogpost website containing unverified, non-peer-reviewed and opinionated articles (see [Rule 2](                                          31
+false positives/false negatives.                                                                                                                             29
+OeD6Z#selection-247.270-247.437) \- Tara Reade &gt; ["One of the most troubling and puzzling trends in our American discourse has been the ramping up        28
+How is it misleading?                                                                                                                                        28
+Congratulations for being tricked by fake news.                                                                                                              28
+Posts, comments, or links with titles that have been sensationalized or editorialized will be removed.                                                       27
+in your submission which has been categorized as low quality and/or unreliable.                                                                              27
+You drive away anyone remotely persuadable by posting links from these bullshit, biased fake "news" sites, and reinforce your bubble wherein absolutel       27
+BS.                                                                                                                                                          27
+Name: sent, dtype: int64
