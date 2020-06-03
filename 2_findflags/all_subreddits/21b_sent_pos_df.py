@@ -50,7 +50,7 @@ for comm_file in comm_files[-2:]:
     comm_generator = pd.read_csv(rootfold+'/output/'+comm_file, chunksize=100000)
     for chunk_id, COMM in enumerate(comm_generator):
         COMM = COMM[['subreddit','link_id','id','parent_id','body']]
-        COMM.body = COMM.body.astype(str)
+        COMM.body = COMM.body.astype(str).str.lower()
         COMM = COMM[COMM.body.str.contains(fpm.regex_flag)]
         #remaining_comments = set(COMM.id).difference(existing_comments) #[c for c in COMM.id if c not in set(existing_comments)]
         remaining_comments = set(COMM.id) - set(existing_comments)

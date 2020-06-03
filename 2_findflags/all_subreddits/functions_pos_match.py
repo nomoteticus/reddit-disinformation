@@ -20,11 +20,16 @@ def extract_pos(text, df=False):
 ### I. Build vocabulary
 ##
 
+# questionable, sketchy, not reliable, click-baity, debunk(ed)
+# doubt it's real
+
 class pos:
     nouns = ['NOUN','PROPN']
+    adjs = ['ADJ']
 
 class deps:
     root = ["ROOT"]
+    predicates = ["ROOT","xcomp"]
     subjects = ["nsubj","nsubjpass"]
     objects = ["dobj","pobj","attr","acomp","oprd","conj","compound","nsubjpass"]
     attributes =  ['amod'] + objects
@@ -41,14 +46,16 @@ class voc:
         fpers = ['i','me','we']
         secpers = ['you']
         ###
-        this = ['it','this','that']        
+        this = ['it','this','that','here']        
     class pred:
         be = ['be']
         feel = ['look','sound','feel','seem','smell','stink']
-        think = ['guess','call','think','beleive','say','know','feel']
-        stop = ['stop','quit','do']
+        think = ['guess','think','beleive','say','know','feel','suspect']
+        beleive = ['beleive','fall','buy']
+        call = ['call']
+        stop = ['stop','quit','refrain','do']
         report = ['flag','report','remove']
-        spread = ['spread','propagate','spew','distribute','promote','post']
+        spread = ['spread','propagate','spew','distribute','promote','post','submit']
     class obj:
         news = ['news','information','info'] 
         disinfo = ['disinformation','misinformation','malinformation']
@@ -58,11 +65,11 @@ class voc:
         propaganda = ['propaganda']
     class attr:
         false = ['fake','false','bogus','fabricated', 'manipulated','manipulative','inaccurate']
-        misleading = ['misleading','mislead','editorialized','clickbait','sensationalized']
+        misleading = ['misleading','mislead','editorialized','editorialize','clickbait','sensationalized','sensationalize','sensationalist']
         unreliable = ['untrustworthy','unreliable','unverified']
         bs = ['bullshit','bs']
         propaganda = ['propaganda']
-        real = ['real','true']
+        real = ['real','true','correct']
         reliable = ['reliable','verified','credible']
     class neg:
         neg = ['not','no']
@@ -82,26 +89,28 @@ NONEGWC  = [{"LEMMA":{"NOT_IN":v.neg.neg},"OP":"?"}]
 ##
 
 # This is disinformation. Article seems like propaganda.
+# Article has to be propaganda
 pattern_svo  = \
    [{"DEP":{"IN":deps.subjects}, "OP":"+",
      "LOWER":{"IN":v.subj.this + v.subj.article + v.subj.title + v.subj.source}}, 
     *NONEGWC*5,
-    {"DEP":"ROOT", 
+    {"DEP":{"IN": deps.predicates},
      "LEMMA":{"IN":v.pred.be + v.pred.feel}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.bs + v.obj.falsehood}}]
 
 # This is a misleading title. Article souds like fake news.
+# This has to be fake news.
 pattern_svao  = \
    [{"DEP":{"IN":deps.subjects}, "OP":"+",
      "LOWER":{"IN":v.subj.this + v.subj.article + v.subj.title + v.subj.source}}, 
     *NONEGWC*5,
-    {"DEP":"ROOT", 
+    {"DEP":{"IN": deps.predicates}, 
      "LEMMA":{"IN":v.pred.be + v.pred.feel}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.attributes}, "OP":"+",
-     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda }},
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs }},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.obj.news + v.subj.article + v.subj.source + v.subj.title}}]
@@ -109,14 +118,15 @@ pattern_svao  = \
 # Disinformation! Bullshit!
 pattern_o  = \
    [#*NONEGWC*3,
-    {"DEP":"ROOT", "POS":{"IN": pos.nouns}, "OP":"+",
-     "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.bs + v.obj.falsehood}}]
+    {"DEP":"ROOT", "POS":{"IN": pos.nouns + pos.adjs},
+     "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.bs + v.obj.falsehood + \
+                   v.attr.false + v.attr.misleading}}]
 
 # Fake news!
 pattern_ao  = \
    [#*NONEGWC*3,
     {"DEP":{"IN":deps.attributes}, "OP":"+",
-     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda }},
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs}},
     *NONEGWC*5,
     {"DEP":"ROOT", "POS":{"IN": pos.nouns}, "OP":"+",
      "LEMMA":{"IN":v.obj.news + v.subj.article + v.subj.source + v.subj.title}}]
@@ -124,13 +134,14 @@ pattern_ao  = \
 # Source is unreliable. Title seems false.
 pattern_sva = \
    [{"DEP":{"IN":deps.subjects}, "OP":"+",
-     "LOWER":{"IN":v.subj.article + v.subj.title + v.subj.source}}, 
+     "LOWER":{"IN":v.subj.article + v.subj.title + v.subj.source + v.subj.this}}, 
     *NONEGWC*5,
-    {"DEP":"ROOT", 
+    {"DEP":{"IN": deps.predicates},
      "LEMMA":{"IN":v.pred.be + v.pred.feel}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.attr.false + v.attr.unreliable + v.attr.misleading}}]
+
 
 # Source is not reliable.
 pattern_svna = \
@@ -147,25 +158,37 @@ pattern_svna = \
      "LEMMA":{"IN":v.attr.real + v.attr.reliable}}]
 
 # Article does not feel real.
+# Source may not be reliable.
 pattern_svna2 = \
-   [{"DEP":{"IN":deps.subjects}, "OP":"+",
+   [{"DEP":{"IN":deps.subjects},
      "LOWER":{"IN":v.subj.article + v.subj.title + v.subj.source}}, 
     *WC*5,
     {"DEP":{"IN":deps.neg}, 
      "LEMMA":{"IN":v.neg.neg}},
-    *WC*2,
+    *WC*3,
     {"DEP":"ROOT", 
-     "LEMMA":{"IN":v.pred.feel + v.pred.feel}},
-    *WC*2,
+     "LEMMA":{"IN":v.pred.feel + v.pred.be}},
+    *WC*3,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.attr.real + v.attr.reliable}}]
 
+# Not a reliable source.
+pattern_naao = \
+   [{"DEP":{"IN":deps.neg}, 
+     "LEMMA":{"IN":v.neg.neg}},
+    *NONEGWC*5,
+    {"DEP":{"IN":deps.attributes},
+     "LEMMA":{"IN":v.attr.real + v.attr.reliable}},
+    *WC*5,
+    {"DEP":{"IN":deps.objects + ["ROOT"]}, 
+     "LOWER":{"IN":v.subj.article + v.subj.title + v.subj.source}}]
+
 # I think this is propaganda.
-pattern_svsvo = \
+pattern_ivsvo = \
    [{"DEP":{"IN":deps.subjects},
      "LOWER":{"IN":v.subj.fpers}}, 
     *NONEGWC*3,
-    {"DEP":"ROOT", 
+    {"DEP":{"IN": deps.predicates},
      "LEMMA":{"IN":v.pred.think}},
     *NONEGWC*3,
     {"DEP":"nsubj", "OP":"+",
@@ -175,14 +198,14 @@ pattern_svsvo = \
      "LEMMA":{"IN":v.pred.be + v.pred.feel}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
-     "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.bs + v.obj.falsehood}}]
+     "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.falsehood}}]
 
 # I beleive this is fake news.
-pattern_svsvao = \
+pattern_ivsvao = \
    [{"DEP":{"IN":deps.subjects},
      "LOWER":{"IN":v.subj.fpers}}, 
     *NONEGWC*3,
-    {"DEP":"ROOT", 
+    {"DEP":{"IN": deps.predicates},
      "LEMMA":{"IN":v.pred.think}},
     *NONEGWC*3,
     {"DEP":"nsubj", "OP":"+",
@@ -192,11 +215,53 @@ pattern_svsvao = \
      "LEMMA":{"IN":v.pred.be + v.pred.feel}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.attributes}, "OP":"+",
-     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda }},
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.obj.news + v.subj.article + v.subj.source + v.subj.title}}]
 
+# I think title is misleading
+pattern_ivsva = \
+   [{"DEP":{"IN":deps.subjects},
+     "LOWER":{"IN":v.subj.fpers}}, 
+    *NONEGWC*3,
+    {"DEP":"ROOT", 
+     "LEMMA":{"IN":v.pred.think}},
+    *NONEGWC*3,
+    {"DEP":"nsubj", "OP":"+",
+     "LOWER":{"IN":v.subj.article + v.subj.title + v.subj.source}}, 
+    *NONEGWC*5,
+    {"DEP":"ccomp", 
+     "LEMMA":{"IN":v.pred.be + v.pred.feel}},
+    *NONEGWC*5,
+    {"DEP":{"IN":deps.attributes}, "OP":"+",
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs}}]
+
+
+# I call bullshit
+pattern_ivo = \
+   [{"DEP":{"IN":deps.subjects},
+     "LOWER":{"IN":v.subj.fpers}}, 
+    *NONEGWC*3,
+    {"DEP":"ROOT", 
+     "LEMMA":{"IN":v.pred.call}},
+    *NONEGWC*3,
+    {"DEP":{"IN":deps.objects}, "OP":"+",
+     "LEMMA":{"IN":v.obj.bs + v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.falsehood}}]
+
+# I call fake news
+pattern_ivao = \
+   [{"DEP":{"IN":deps.subjects},
+     "LOWER":{"IN":v.subj.fpers}}, 
+    *NONEGWC*3,
+    {"DEP":"ROOT", 
+     "LEMMA":{"IN":v.pred.call}},
+    *NONEGWC*3,
+    {"DEP":{"IN":deps.attributes}, "OP":"+",
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda }},
+    *NONEGWC*3,
+        {"DEP":{"IN":deps.objects}, "OP":"+",
+         "LEMMA":{"IN":v.obj.news + v.subj.article + v.subj.source + v.subj.title}}]
     
 # Looks like disinformation.
 pattern_vo = \
@@ -217,12 +282,11 @@ pattern_vao = \
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":v.obj.news + v.subj.article + v.subj.source + v.subj.title}}]
 
-
 # You are propagating disinformation.
 pattern_yvo = \
    [{"DEP":{"IN":deps.subjects}, 
      "LOWER":{"IN":voc.subj.secpers}}, 
-    *WC*3,
+    *NONEGWC*3,
     {"DEP":"ROOT", 
      "LEMMA":{"IN":voc.pred.spread}},
     *NONEGWC*5,
@@ -233,7 +297,7 @@ pattern_yvo = \
 pattern_yvao = \
    [{"DEP":{"IN":deps.subjects}, 
      "LOWER":{"IN":voc.subj.secpers}}, 
-    *WC,
+    *NONEGWC*3,
     {"DEP":"ROOT", 
      "LEMMA":{"IN":voc.pred.spread }},
     *NONEGWC*5,
@@ -243,24 +307,66 @@ pattern_yvao = \
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":voc.obj.news + voc.subj.article + voc.subj.source + voc.subj.title}}]
 
-# Stop the disinformation! 
+# Stop spreading the disinformation! 
+# Don't fall for / spread propaganda
+# Reported for spreading propaganda
 pattern_stvo = \
-   [{"DEP":"ROOT", "POS":"VERB",
-     "LEMMA":{"IN":voc.pred.stop+voc.pred.report}},
+   [{"DEP":{"IN":["ROOT","aux"]}, "POS":{"IN":["VERB","AUX","PROPN"]},
+     "LOWER":{"IN":voc.pred.stop+voc.pred.report}},
+    *WC*5,
+    {"LEMMA":{"IN":voc.pred.spread + voc.pred.beleive}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":voc.obj.disinfo + voc.obj.clickbait + voc.obj.propaganda + voc.obj.bs + voc.obj.falsehood}}]
 
-# Stop spreading falsehoods.
+# Stop spreading false news!
 pattern_stvao = \
-   [{"DEP":"ROOT", "POS":"VERB",
-     "LEMMA":{"IN":voc.pred.stop+voc.pred.report}},
+   [{"DEP":{"IN":["ROOT","aux"]}, "POS":{"IN":["VERB","AUX","PROPN"]},
+     "LOWER":{"IN":voc.pred.stop+voc.pred.report}},
+    *WC*5,
+    {"LEMMA":{"IN":voc.pred.spread + voc.pred.beleive}},
     *NONEGWC*5,
     {"DEP":{"IN":deps.attributes}, 
      "LEMMA":{"IN":voc.attr.false + voc.attr.misleading + voc.attr.unreliable + voc.attr.propaganda }},
     *NONEGWC*5,
     {"DEP":{"IN":deps.objects}, "OP":"+",
      "LEMMA":{"IN":voc.obj.news + voc.subj.article + voc.subj.source + voc.subj.title}}]
+
+# This is how disinformation spreads.
+pattern_svsv  = \
+   [{"DEP":{"IN":deps.subjects}, "OP":"+",
+     "LOWER":{"IN":v.subj.this}}, 
+    *NONEGWC*3,
+    {"DEP":{"IN": deps.predicates},
+     "LEMMA":{"IN":v.pred.be}},
+    *NONEGWC*5,
+    {"DEP":{"IN":deps.subjects}, "OP":"+",
+     "LEMMA":{"IN":v.obj.disinfo + v.obj.clickbait + v.obj.propaganda + v.obj.bs + v.obj.falsehood}},
+    *NONEGWC*3,
+    {"DEP":"ccomp",
+     "LEMMA":{"IN":v.pred.spread + v.pred.feel}}    
+    ]
+
+# This is what fake news feels like.
+pattern_svsav  = \
+   [{"DEP":{"IN":deps.subjects}, "OP":"+",
+     "LOWER":{"IN":v.subj.this}}, 
+    *NONEGWC*3,
+    {"DEP":{"IN": deps.predicates},
+     "LEMMA":{"IN":v.pred.be}},
+    *NONEGWC*5,
+    {"DEP":{"IN":deps.attributes}, "OP":"+",
+     "LEMMA":{"IN":v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs }},
+    *NONEGWC*5,
+    {"DEP":{"IN":deps.subjects}, "OP":"+",
+     "LEMMA":{"IN":voc.obj.news + voc.subj.article + voc.subj.source + voc.subj.title }},
+    *NONEGWC*3,
+    {"DEP":"ccomp",
+     "LEMMA":{"IN":v.pred.spread + v.pred.feel}}    
+    ]
+
+
+### Not implemented
 
 # Propaganda reported
 pattern_ost = \
@@ -306,22 +412,30 @@ structurematcher.add("ao",None,pattern_ao)
 structurematcher.add("vo",None,pattern_vo)
 structurematcher.add("vao",None,pattern_vao)
 # I think this/article is FN/D.
-structurematcher.add("svsvo",None,pattern_svsvo)
-structurematcher.add("svsvao",None,pattern_svsvao)
+structurematcher.add("ivsvo",None, pattern_ivsvo)
+structurematcher.add("ivsvao",None, pattern_ivsvao)
+structurematcher.add("ivsva",None, pattern_ivsva)
+# I call BS/FN
+structurematcher.add("ivo",None,pattern_ivo)
+structurematcher.add("ivao",None,pattern_ivao)
 # Article seems fake.
 structurematcher.add("sva",None,pattern_sva)
 # Article is not true/real.
 structurematcher.add("svna", None, pattern_svna)
 structurematcher.add("svna2", None, pattern_svna2)
+structurematcher.add("naao", None, pattern_naao)
 #You spread FN/D
 structurematcher.add("yvo",None,pattern_yvo)
 structurematcher.add("yvao",None,pattern_yvao)
 #Stop spreading FN/DISINFO.            
 structurematcher.add("stvo",None,pattern_stvo)
 structurematcher.add("stvao",None,pattern_stvao)
+#This is how FN/PROP spreads / feels like.
+structurematcher.add("svsv",None,pattern_svsv)
+structurematcher.add("svsav",None,pattern_svsav)
 #FN reported.
-structurematcher.add("ost",None,pattern_ost)
-structurematcher.add("aost",None,pattern_aost)
+#structurematcher.add("ost",None,pattern_ost)
+#structurematcher.add("aost",None,pattern_aost)
 
 
 objects = v.obj.disinfo + v.obj.clickbait + v.obj.falsehood + v.obj.propaganda + v.obj.bs
@@ -333,17 +447,19 @@ attributes = v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propa
 
 isflagmatcher = Matcher(nlp.vocab)
 isflagmatcher.add("flag",None, pattern_svo, pattern_svao, pattern_o, pattern_ao, pattern_vo, pattern_vao,
-                               pattern_svsvo, pattern_svsvao,
-                               pattern_sva, pattern_svna, pattern_svna2,
+                               pattern_ivsvo, pattern_ivsvao, pattern_ivo, pattern_ivao, pattern_ivsva,
+                               pattern_sva, pattern_svna, pattern_svna2, pattern_naao,
                                pattern_yvo, pattern_yvao, 
-                               pattern_stvo,pattern_stvao, pattern_ost,pattern_aost)
+                               pattern_stvo, pattern_stvao, pattern_svsv, pattern_svsav)
+#, pattern_ost,pattern_aost)
 
 flagtypematcher = Matcher(nlp.vocab)
 flagtypematcher.add("flag",None, pattern_svo, pattern_svao, pattern_o, pattern_ao, pattern_vo, pattern_vao,
-                               pattern_svsvo, pattern_svsvao,
-                               pattern_sva, pattern_svna, pattern_svna2,
-                               pattern_yvo, pattern_yvao, 
-                               pattern_stvo,pattern_stvao, pattern_ost,pattern_aost)
+                                 pattern_ivsvo, pattern_ivsvao, pattern_ivo, pattern_ivao, pattern_ivsva,
+                                 pattern_sva, pattern_svna, pattern_svna2, pattern_naao,
+                                 pattern_yvo, pattern_yvao, 
+                                 pattern_stvo, pattern_stvao, pattern_svsv, pattern_svsav)
+#, pattern_ost,pattern_aost)
 flagtypematcher.add("disinformation",None, [{"LOWER":{"IN":v.obj.disinfo}}])
 flagtypematcher.add("fakenews",None, 
                     [{"LOWER":{"IN":v.obj.falsehood+v.attr.false}}])
@@ -352,11 +468,14 @@ flagtypematcher.add("misleading",None, [{"LOWER":{"IN":v.attr.misleading+v.obj.c
 flagtypematcher.add("unreliable",None, [{"LOWER":{"IN":v.attr.unreliable}}])
 flagtypematcher.add("propaganda",None, [{"LOWER":{"IN":v.obj.propaganda}}])
 
+def structurematched(span):
+    return [nlp.vocab.strings[match_id] for match_id, start, end in structurematcher(span.as_doc())]
 def flagtypematched(span):
     return [nlp.vocab.strings[match_id] for match_id, start, end in flagtypematcher(span.as_doc())]
 def isflagmatched(span):
     return len(isflagmatcher(span.as_doc()))>0
 
+Span.set_extension("structurematched", getter=structurematched, force=True)
 Span.set_extension("flagtypematched", getter=flagtypematched, force=True)
 Span.set_extension("isflagmatched", getter=isflagmatched, force=True)
 
