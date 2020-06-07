@@ -87,18 +87,19 @@ while len(subr_tocheck)>0 and nrep<=5:
     for subr in subr_tocheck:
         time.sleep(2)
         l = [s.d_ for s in extr_submissions(subr)]
-        df = pd.DataFrame(l)
-        if 'removed_by_category' in df.columns:
-            subr_meta.append((df.subreddit[0], 
-                              df.subreddit_subscribers[0], 
-                              df.num_comments[df.removed_by_category.isna()].mean(),
-                              (~df.removed_by_category.isna()).mean()))
-            subr_done.append(subr)
-        else:
-            subr_meta.append((df.subreddit[0], 
-                      df.subreddit_subscribers[0], 
-                      df.num_comments.mean(),
-                      0))
+        if len(l)>0:
+            df = pd.DataFrame(l)
+            if 'removed_by_category' in df.columns:
+                subr_meta.append((df.subreddit[0], 
+                                  df.subreddit_subscribers[0], 
+                                  df.num_comments[df.removed_by_category.isna()].mean(),
+                                  (~df.removed_by_category.isna()).mean()))
+                subr_done.append(subr)
+            else:
+                subr_meta.append((df.subreddit[0], 
+                          df.subreddit_subscribers[0], 
+                          df.num_comments.mean(),
+                          0))
     subr_tocheck = set(subr_tocheck).difference(set(subr_done))
     nrep+=1
 LOG.info('Done extracting metadata. #Repetitions: %d # Subreddits: %d', nrep, len(subr_per_day_top.index))
