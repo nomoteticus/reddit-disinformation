@@ -36,13 +36,14 @@ match_files = sorted(re.findall('MATCH_2020_[0-9][0-9].csv', ' '.join(os.listdir
 LOG.debug('COMM_files: %s', comm_files)
 LOG.debug('MATCH_files: %s', match_files)
 
-for comm_file in comm_files[-2:]:
+for comm_file in comm_files:#[-2:]:
     match_file = re.sub('COMM','MATCH',comm_file)
     LOG.info('Started comm file: %s',comm_file)
     if match_file not in match_files:
         total_sent = 0
         sent_df = pd.DataFrame([], columns = ['comm_id','sent_id','sent']+patterns)
         sent_df.to_csv(rootfold+'/output/'+match_file, index = False)
+        existing_comments = []
     else:
         sent_df = pd.read_csv(rootfold+'/output/'+match_file)
         existing_comments = sent_df.comm_id
@@ -89,5 +90,5 @@ for comm_file in comm_files[-2:]:
             break
         if not sent_df.empty:
             sent_df.to_csv(rootfold+'/output/'+match_file, index = False)
-            LOG.info('Saved comm file: %s',comm_file)
+            LOG.info('Saved match file: %s',match_file)
     LOG.info('Finished comm file: %s',comm_file)

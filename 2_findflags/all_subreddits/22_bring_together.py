@@ -28,7 +28,7 @@ covid_regex =  ['china_flu'] + [re.sub("[\\*\\(\\)]","",'\\b' +w.rstrip()) \
                 for w in open(rootfold+'/input/keywords_covid.txt','r')] 
                 
 covid_regex = re.compile('|'.join(covid_regex))
-fake_regex = re.compile('\\b(dis|mis|mal)info|\\bpropagand|\\bconspira|\\bfalseh|\\bfake (news|info)')
+fake_regex = re.compile('\\b(dis|mis|mal)info|\\bpropagand|\\bconspira|\\bfalse|\\bfake (news|info)')
 #re.findall(fake_regex, 'this flake news is fake disinfrormation')
 
 ### Set defaults for filtering / grouping 
