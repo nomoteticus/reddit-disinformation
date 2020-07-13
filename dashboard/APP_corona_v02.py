@@ -4,6 +4,8 @@
 
 #https://plotly.com/javascript/configuration-options/
 
+#python ~/Documents/git/reddit-disinformation/dashboard/APP_corona_v02.py
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
