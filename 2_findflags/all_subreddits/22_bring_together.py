@@ -56,11 +56,12 @@ col_comm_keep = ['subreddit','parent_id','link_id','id','score','body','author']
 
 #groupby_subr = ['subreddit','subm_covid','month','week','day']
 groupby_subr = ['subreddit_cat','subreddit','subm_covid','month','week','day']
-groupby_subr_week = ['subreddit','subm_covid','week']
+#groupby_subr_week = ['subreddit','subm_covid','week']
+groupby_subr_week = ['subreddit_cat','subreddit','subm_covid','week']
 ##
-groupby_subm = groupby_subr + ['subm_id','subm_title']
-groupby_sent = ['subreddit', 'subm_id', 'comm_id','sent_id']
+groupby_subm = groupby_subr + ['subm_id','subm_title']#,'subm_link', 'link_url','subm_removed']
 groupby_comm = groupby_subm + ['comm_id','comm_body']
+groupby_sent = ['subreddit', 'subm_id', 'comm_id','sent_id']
 
 groupby_subm_week = groupby_subr_week + ['subm_id','subm_title']
 groupby_auth_week = groupby_subr_week + ['subm_author']
@@ -73,7 +74,9 @@ count_vars = ['n_subm_all', 'n_subm_kept']
 
 ### Functions tp process subm/subr/ 
 
-def process_SUBM(SS, col_subm_keep):
+SS.set_index('subreddit').join(SR_ALL_sh.set_index('subreddit'), how = 'left')
+
+def process_SUBM(SS, SR, col_subm_keep):
     SS['alltexts'] = SS[['title','subreddit','selftext']].fillna('').assign(comb = lambda df: df.title + df.subreddit + df.selftext).comb.astype('str')
     SS['subm_covid'] = SS['alltexts'].str.lower().str.contains(fpm.covid_regex)
     SS['subm_fake'] = SS['alltexts'].str.lower().str.contains(fpm.fake_regex)
@@ -82,11 +85,12 @@ def process_SUBM(SS, col_subm_keep):
     SS['month'] = SS.created_utc.dt.month
     SS['week'] = SS.created_utc.dt.week
     SS['day'] = pd.to_datetime(SS.created_utc).dt.date
-    SS = SS[col_subm_keep].\
-         rename(columns = {'id':'subm_id','title':'subm_title','author':'subm_author',
-                           'full_link':'subm_link','url':'link_url','domain':'link_domain',
-                           'removed_by_category':'subm_removed', 'num_comments':'subm_ncomments'})
-    return SS
+    return SS[col_subm_keep].\
+             rename(columns = {'id':'subm_id','title':'subm_title','author':'subm_author',
+                               'full_link':'subm_link','url':'link_url','domain':'link_domain',
+                               'removed_by_category':'subm_removed', 'num_comments':'subm_ncomments'}).\
+             set_index('subreddit').join(SR.set_index('subreddit'), how = 'left').\
+             reset_index()
 
 def agg_SUBM(SS, grvars):
     SS.day = SS.day.astype('str')
@@ -122,6 +126,8 @@ def removemin(DF, col, min_val):
 
 
 SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv')
+SR_ALL_sh = SR_ALL[['subreddit','category']].\
+        rename(columns = {'category':'subreddit_cat'})
 SR = SR_ALL.query('keep')[['subreddit','category']].\
         rename(columns = {'category':'subreddit_cat'})
 
@@ -130,7 +136,7 @@ try:
     UNITED = pd.read_csv(rootfold+'/output/UNITED_FLAG.csv', lineterminator='\n').\
                 set_index(groupby_sent)
     AGG_SS = pd.read_csv(rootfold+'/output/UNITED_SUBM.csv', lineterminator='\n').\
-                set_index(groupby_subr_week)
+                set_index(groupby_subr_week_cat)
     AGG_AA = pd.read_csv(rootfold+'/output/UNITED_AUTH.csv', lineterminator='\n').\
                 set_index(groupby_auth_week)
     AGG_DD = pd.read_csv(rootfold+'/output/UNITED_DOM.csv', lineterminator='\n').\
@@ -158,12 +164,12 @@ for subm_file, comm_file, match_file in SCM_generator:
     SS = pd.read_csv(rootfold+'/output/'+subm_file, lineterminator='\n', parse_dates=['created_utc'])
     SS = SS[SS.created_utc.dt.week > max_week-2]
     if not SS.empty:
-        SS = process_SUBM(SS, col_subm_keep)
+        SS = process_SUBM(SS, SR_ALL_sh, col_subm_keep)
         ##
         CC = pd.read_csv(rootfold+'/output/'+comm_file, lineterminator='\n')
         CC = process_COMM(CC, col_comm_keep)
         LOGU.debug('Opened: %s & %s', subm_file, comm_file)
-        LOGU.info('Updating weeks: %s',list(SS.week.value_counts().index))
+        LOGU.info('Updating weeks: %s',list(sorted(SS.week.value_counts().index)))
         ##
         MM = pd.read_csv(rootfold+'/output/'+match_file, lineterminator='\n')
         MM['other'] = ((MM.flag > 0) & (MM[flag_types].sum(axis=1) == 0)).astype(int)
@@ -173,9 +179,7 @@ for subm_file, comm_file, match_file in SCM_generator:
                      on = 'comm_id', how = 'left').\
                     reset_index().set_index(['subreddit','subm_id','comm_id','sent_id']).\
                 join(SS.set_index(['subreddit','subm_id']),                 
-                     on = ['subreddit','subm_id'], how = 'left').\
-                join(SR.set_index('subreddit'),
-                     on = 'subreddit', how = 'left')
+                     on = ['subreddit','subm_id'], how = 'left')
         ### Select final columns
         UNTD = UNTD[['month','week','day','subreddit_cat', 'sent', 
                      'flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda','other', 
@@ -223,7 +227,9 @@ AGG_DD.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/ou
 
 ### FLAGS
 FLAGS_day = UNITED.reset_index().\
-                loc[:,['subreddit_cat', 'subreddit', 'subm_covid', 'sent',
+                loc[:,['subreddit_cat', 'subreddit' , 'subm_id', 'subm_covid',
+                       'subm_title','subm_link', 'link_url','subm_removed',
+                       'sent_id','sent',
                        'month', 'week', 'day'] + flag_vars].\
                 sort_values('day', ascending=False)
 LOGU.info('Created flags. Shape: %s', FLAGS_day.shape)
@@ -244,7 +250,6 @@ SUBR_week = COMM_day.groupby(groupby_subr_week)[flag_vars].\
                         sort_values('week', ascending=False)
 LOGU.info('Created subreddits. Shape: %s', SUBR_week.shape)
 
-#flag_vars + count_vars
 
 ### AUTHORS
 AUTH_FLAGGERS_week = removemin(UNITED.\
@@ -298,8 +303,8 @@ LOGU.info('Done writing 6 files.')
 #               columns = 'subm_covid', index = 'subreddit', values = 'perc_del')
 
 
-UNITED.groupby(UNITED.month)\
-   [['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']].agg(sum).T
+#UNITED.groupby(UNITED.month)\
+#   [['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']].agg(sum).T
 #UNITED.groupby(UNITED.subreddit_cat)\
 #    [['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']].agg(sum).T
 

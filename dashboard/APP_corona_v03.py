@@ -4,7 +4,7 @@
 
 #https://plotly.com/javascript/configuration-options/
 
-#python ~/Documents/git/reddit-disinformation/dashboard/APP_corona_v02.py
+#python ~/Documents/git/reddit-disinformation/dashboard/APP_corona_v03.py
 
 import dash
 import dash_core_components as dcc
@@ -26,9 +26,9 @@ rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
 
 df_boundary = pd.read_csv(rootfold+"/dashboard/data/PCA_SUBM_2D_7SR.csv")
 
-df_day = pd.read_csv(rootfold+"/dashboard/data/app_subr_day.csv")
+df_day = pd.read_csv(rootfold+"/dashboard/data/app_subr_week.csv")
 df_subm = pd.read_csv(rootfold+"/dashboard/data/app_subm_day.csv")
-df_flags = pd.read_csv(rootfold+"/dashboard/data/app_flags_large.csv")
+df_flags = pd.read_csv(rootfold+"/dashboard/data/app_flags_day.csv")
 
 
 df_day['ISFLAG'] = df_day['flag']
@@ -43,7 +43,7 @@ min_week, max_week = df_day['week'].min(), df_day['week'].max()
 range_weeks = range(min_week, max_week,4)
 if max_week not in range_weeks:
     range_weeks = [*range_weeks] + [max_week]
-week_day_df = df_day.groupby('week')['day'].agg(['min','max'])
+week_day_df = df_subm.groupby('week')['day'].agg(['min','max'])
 
 top20subreddits = list(df_day.subreddit.value_counts().index[:20])
 
