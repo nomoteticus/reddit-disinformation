@@ -12,10 +12,10 @@ for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
 logging.basicConfig(
     level=logging.CRITICAL,
-    format="%(asctime)s [%(levelname)8s ] %(message)s",
+    format="%(asctime)s <POS> [%(levelname)8s ] %(message)s",
     datefmt='%y-%m-%d %H:%M:%S',
     handlers=[
-        logging.FileHandler(rootfold+"/logs/pos_onetime.log"),
+        logging.FileHandler(rootfold+"/logs/pos_embed_unite.log"),
         logging.StreamHandler()
     ])
 LOG = logging.getLogger('LOG')
@@ -36,7 +36,10 @@ match_files = sorted(re.findall('MATCH_2020_[0-9][0-9].csv', ' '.join(os.listdir
 LOG.debug('COMM_files: %s', comm_files)
 LOG.debug('MATCH_files: %s', match_files)
 
-for comm_file in comm_files:#[-2:]:
+gen_comm_files = comm_files[-2:] if len(match_files)>0 else comm_files
+
+### Create MATCH files
+for comm_file in gen_comm_files:
     match_file = re.sub('COMM','MATCH',comm_file)
     LOG.info('Started comm file: %s',comm_file)
     if match_file not in match_files:
@@ -52,11 +55,14 @@ for comm_file in comm_files:#[-2:]:
     for chunk_id, COMM in enumerate(comm_generator):
         COMM = COMM[['subreddit','link_id','id','parent_id','body']]
         COMM.body = COMM.body.astype(str).str.lower()
+        ### Remove submissions that are specifically on the topic of disinformation
         COMM = COMM[COMM.body.str.contains(fpm.regex_flag)]
-        #remaining_comments = set(COMM.id).difference(existing_comments) #[c for c in COMM.id if c not in set(existing_comments)]
+        ### Remove comments that might be irony or sarcasm: "\s", "fake" news
+        COMM = COMM[~COMM.body.str.contains(fpm.sarcasm_and_irony_regex)]
+        ### Processing only new comments
         remaining_comments = set(COMM.id) - set(existing_comments)
         remaining_comments = [c for c in COMM.id if c in remaining_comments]
-        ### match words 
+        ### Apply matcher
         LOG.debug('Trying %d comments', len(remaining_comments))
         if len(remaining_comments)>0:
             sent_dict = []
@@ -75,7 +81,6 @@ for comm_file in comm_files:#[-2:]:
             sent_df_current = pd.DataFrame(sent_dict, columns = ['comm_id','sent_id','sent']+patterns)
             sent_df_current.iloc[:,3:] = sent_df_current.iloc[:,3:].fillna(0).astype('int64')
             total_sent += sent_df_current.shape[0]
-            #sent_df_current.to_csv(rootfold+'/output/'+match_file, index = False, mode = 'a', header = False)
             if not sent_df_current.empty:
                 ### add to complete dataframe
                 sent_df = sent_df_current.append(sent_df).reset_index(drop=True)                
