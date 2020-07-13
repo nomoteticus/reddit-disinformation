@@ -74,8 +74,6 @@ count_vars = ['n_subm_all', 'n_subm_kept']
 
 ### Functions tp process subm/subr/ 
 
-SS.set_index('subreddit').join(SR_ALL_sh.set_index('subreddit'), how = 'left')
-
 def process_SUBM(SS, SR, col_subm_keep):
     SS['alltexts'] = SS[['title','subreddit','selftext']].fillna('').assign(comb = lambda df: df.title + df.subreddit + df.selftext).comb.astype('str')
     SS['subm_covid'] = SS['alltexts'].str.lower().str.contains(fpm.covid_regex)
