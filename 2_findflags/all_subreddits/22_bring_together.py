@@ -134,7 +134,7 @@ try:
     UNITED = pd.read_csv(rootfold+'/output/UNITED_FLAG.csv', lineterminator='\n').\
                 set_index(groupby_sent)
     AGG_SS = pd.read_csv(rootfold+'/output/UNITED_SUBM.csv', lineterminator='\n').\
-                set_index(groupby_subr_week_cat)
+                set_index(groupby_subr_week)
     AGG_AA = pd.read_csv(rootfold+'/output/UNITED_AUTH.csv', lineterminator='\n').\
                 set_index(groupby_auth_week)
     AGG_DD = pd.read_csv(rootfold+'/output/UNITED_DOM.csv', lineterminator='\n').\
@@ -142,9 +142,9 @@ try:
     SCM_generator = zip(subm_files[-2:], comm_files[-2:], match_files[-2:])
     ##
     ss1,ss2,aa1,aa2,dd1,dd2 = \
-               AGG_SS.index.get_level_values(2).min(), AGG_SS.index.get_level_values(2).max(),\
-               AGG_AA.index.get_level_values(2).min(), AGG_AA.index.get_level_values(2).max(),\
-               AGG_DD.index.get_level_values(2).min(), AGG_DD.index.get_level_values(2).max()
+               AGG_SS.index.get_level_values(3).min(), AGG_SS.index.get_level_values(3).max(),\
+               AGG_AA.index.get_level_values(3).min(), AGG_AA.index.get_level_values(3).max(),\
+               AGG_DD.index.get_level_values(3).min(), AGG_DD.index.get_level_values(3).max()
     max_week = min([ss2,aa2,dd2])    
     LOGU.debug("Last week. SUBM: %d -> %d / AUTH: %d -> %d / DOM: %d -> %d",
                ss1,ss2,aa1,aa2,dd1,dd2)
