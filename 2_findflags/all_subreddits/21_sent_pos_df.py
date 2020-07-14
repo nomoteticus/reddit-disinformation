@@ -23,8 +23,9 @@ LOG.setLevel(logging.DEBUG)
 
 pd.set_option('mode.chained_assignment', None)
 
+LOG.info('----------------------')
 LOG.info('Started Pattern search')
-LOG.debug('PATH: %s',rootfold)
+LOG.info('----------------------')
 
 sys.path.append(rootfold+"/2_findflags/all_subreddits")
 import functions_pos_match as fpm

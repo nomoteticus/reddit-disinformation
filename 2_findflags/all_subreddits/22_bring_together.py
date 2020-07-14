@@ -31,6 +31,7 @@ LOGU.setLevel(logging.DEBUG)
 
 LOGU.info('--------------------')
 LOGU.info('Started unification.')
+LOGU.info('--------------------')
 
 ## Load language model
 module_url = rootfold+"/3_embed/model/universal-sentence-encoder_4"
