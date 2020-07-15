@@ -20,8 +20,8 @@ from spacy.lang.en.stop_words import STOP_WORDS
 import re
 import os
 
-rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
-#rootfold = '/home/ubuntu'
+#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
+rootfold = '/home/ubuntu'
 
 ### Read data
 
@@ -714,4 +714,4 @@ def table_authors(weekrange, flagtypes, coronatopic, ntopauthors, mincasesauthor
 
 ### Run app
 if __name__ == '__main__':
-    app.run_server(host = '0.0.0.0', debug=True)
+    app.run_server(host = '0.0.0.0')#, debug=True)
