@@ -18,34 +18,38 @@ from sklearn.cluster import MiniBatchKMeans
 from collections import Counter
 from spacy.lang.en.stop_words import STOP_WORDS
 import re
+import os
 
 rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation'
-
+#rootfold = '/home/ubuntu'
 
 ### Read data
 
-df_boundary = pd.read_csv(rootfold+"/dashboard/data/PCA_SUBM_2D_7SR.csv")
-
-df_day = pd.read_csv(rootfold+"/dashboard/data/app_subr_week.csv")
+df_subr = pd.read_csv(rootfold+"/dashboard/data/app_subr_week.csv")
 df_subm = pd.read_csv(rootfold+"/dashboard/data/app_subm_day.csv")
 df_flags = pd.read_csv(rootfold+"/dashboard/data/app_flags_day.csv")
 
+df_accuser = pd.read_csv(rootfold+"/dashboard/data/app_authFlaggers_week.csv")
+df_suspect = pd.read_csv(rootfold+"/dashboard/data/app_authFlagged_week.csv")
 
-df_day['ISFLAG'] = df_day['flag']
+df_domain = pd.read_csv(rootfold+"/dashboard/data/app_domain_week.csv")
+
+
+df_subr['ISFLAG'] = df_subr['flag']
 df_subm['ISFLAG'] = df_subm['flag']
 df_subm['cluster'] = '1'
-df_day['week'] = df_day['week'].astype('int')
+df_subr['week'] = df_subr['week'].astype('int')
 
 # Default slider values
-flagtypes = list(df_day.loc[:,"disinformation":"other"].columns)
+flagtypes = list(df_subr.loc[:,"disinformation":"other"].columns)
 
-min_week, max_week = df_day['week'].min(), df_day['week'].max()
+min_week, max_week = df_subr['week'].min(), df_subr['week'].max()
 range_weeks = range(min_week, max_week,4)
 if max_week not in range_weeks:
     range_weeks = [*range_weeks] + [max_week]
 week_day_df = df_subm.groupby('week')['day'].agg(['min','max'])
 
-top20subreddits = list(df_day.subreddit.value_counts().index[:20])
+top20subreddits = list(df_subr.subreddit.value_counts().index[:20])
 
 ### Init APP
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -53,7 +57,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, 
                 external_stylesheets=external_stylesheets,
                 suppress_callback_exceptions=True)
-
+server = app.server
 
 ### Functions
 
@@ -68,6 +72,26 @@ def generate_table(dataframe, max_rows=10):
         ]) for i in range(min(len(dataframe), max_rows))]
     )
 
+
+def user_link(author):
+    return 'http://www.reddit.com/user/'+author
+
+def generate_table_authors(dataframe, max_rows=10, col_link = 'subm_author'):
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr([
+            html.Td(html.A(dataframe.iloc[i][col], href = user_link(dataframe.iloc[i][col]))) \
+                if col==col_link else html.Td(dataframe.iloc[i][col])\
+                for col in dataframe.columns                 
+             ]) for i in range(min(len(dataframe), max_rows))]
+    )
+
+
+
+
 #html.Table(generate_table(y, max_rows=10))
 
 
@@ -81,7 +105,7 @@ slider_week =dcc.RangeSlider(
 
 checklist_flagtypes = dcc.Checklist(
                 id = 'cl_flagtypes', 
-                value=flagtypes,
+                value=['disinformation', 'fakenews', 'unreliable', 'propaganda'],
                 options= [{'label':t,'value':t} for t in flagtypes] )
 
 radio_coronatopic = dcc.RadioItems(
@@ -113,8 +137,15 @@ app.layout = \
                       html.H4('Choose type of flag', style = {'padding-top': '50px'}),
                       checklist_flagtypes,
                       html.H4('Coronavirus only?', style = {'padding-top': '20px'}),
-                      radio_coronatopic
-                      ],
+                      radio_coronatopic,
+                      html.Br(),
+                      html.Div([
+                          html.P('To do list: '),
+                          html.P(' - change week tick marks'),
+                          html.P(' - add logo and change bkgr color'),
+                          html.P(' - more filters? subreddit, karma?'),
+                          html.P(' - add explanations in hover text')
+                          ], style = {'color':'red'})],
                      style={'width': '25%', 'display': 'inline-block',
                             'position': 'fixed', 'padding-top': '50px',
                             'background-color':'lightyellow',
@@ -127,7 +158,8 @@ app.layout = \
                     dcc.Tab(label='Submissions', value='tab-2'),
                     dcc.Tab(label='Subreddits', value='tab-3'),
                     dcc.Tab(label='Clustering', value='tab-4'),
-                    dcc.Tab(label='Boundaries', value='tab-5')
+                    dcc.Tab(label='Domains', value='tab-5'),
+                    dcc.Tab(label='Authors', value='tab-6')
                 ]),
                 html.Div(id='tabs-example-content')],
                 style={'width': '74%', 'display': 'inline-block',
@@ -144,6 +176,7 @@ def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
             html.H5('Number of results to display: ', style = {"margin-top":"75px"}),
+            html.Hr(),
             radio_ntopflags,
             
             html.H3('Most common flags', style = {"margin-top":"50px"}),
@@ -151,7 +184,15 @@ def render_content(tab):
             
             html.H3('Most recent flags', style = {"margin-top":"50px"}),
             drop_subr20,
-            html.Div(id='tbl_flags_recent')
+            html.Div(id='tbl_flags_recent'),
+            
+            html.Br(),
+            html.Div([
+                html.P('To do list: '),
+                html.P(' - add graph with frequency of flag types'),
+                html.P(' - move it to later ?')
+                ], style = {'color':'red'})
+
             #generate_table(df_flags[['sent','subreddit']][:100])
         ])
     
@@ -159,13 +200,21 @@ def render_content(tab):
     elif tab == 'tab-2':
         return html.Div([
                 html.H5('Number of submissions to display: ', style = {"margin-top":"75px"}),
+                html.Hr(),
                 radio_ntopsubs,
                 html.H5('Minimum number of flags: '),
                 drop_min_nflags,
                 html.H5('Subreddits (leave empty if all) '),
                 drop_subr20_subm,
                 html.H4('Most recently flagged submissions:', style = {"margin-top":"30px"}),
-                html.Div(id = 'flagged_subm_list')
+                html.Div(id = 'flagged_subm_list'),
+                
+                html.Br(),
+                html.Div([
+                    html.P('To do list: '),
+                    html.P(' - add possibility to filter by domain'),
+                    html.P(' - add possibility to filter by author')
+                    ], style = {'color':'red'})
                 ],
             style={'width': '75%'})
         
@@ -175,6 +224,7 @@ def render_content(tab):
         return html.Div([
             
             html.H4('Subreddits with most flagged submissions', style = {"margin-top":"75px"}),
+            html.Hr(),
             dcc.Graph(id='plot_subr_treemap'),            
             
             # line plots
@@ -190,31 +240,95 @@ def render_content(tab):
                     radio_subr_20_stat,
                     dcc.Graph(id='plot_subr_line_20') 
                     ], style={'width': '45%', 'display': 'inline-block','float':'right'})
-                ])
+                ]),
+
+            html.Br(),
+            html.Div([
+                html.P('To do list: '),
+                html.P(' - check percentage graphs if they make sense'),
+                html.P(' - change X axis to make clear the dates'),
+                html.P(' - adjust last week to make it comparable to the rest'),
+                html.P(' - ideas for future graphs ?')
+                ], style = {'color':'red'})
+
         ])
 
     ### TAB4 - clustering
     elif tab == 'tab-4':
         return html.Div([
             html.H4('Clustering of flagged submissions', style = {"margin-top":"75px"}),
+            html.Hr(),
             html.H5('Number of clusters (K-means): '),
             html.Div(slider_nclust, style={'width': '50%', "margin-top":"25px"}),
             html.Div(drop_subr20_cluster, style={'width': '50%', "margin-top":"25px"}),
             dcc.Graph(id='plot_kmeans', style={'width': '50%', 'height':'150%'}),
             html.H5('Most common words in each cluster: '),
-            html.Div(id='tbl_topwords')
+            html.Div(id='tbl_topwords'),
+
+            html.Br(),
+            html.Div([
+                html.P('To do list: '),
+                html.P(' - brief explanation of method (5d cluster analysis, 2d display)'),
+                html.P(' - word keyness or TF-IDF instead of frequency to capture unique words'),
+                html.P(' - crosstabulations: cluster x subreddit ?')
+                ], style = {'color':'red'})
             ])
     
-    ### TAB5 - boundary
+    ### TAB5 - domains
     elif tab == 'tab-5':
         return html.Div([
-            html.H4('Boundary plot', style = {"margin-top":"75px"}),
-            html.P('Choose subreddit'),
-            drop_boundary_subr,
-            html.P('Show boundaries?'),
-            show_boundary_lines,
-            dcc.Graph(id = 'plot_boundary'),
-            html.Div(id = 'click_title')
+            html.H4('Most flagged domains', style = {"margin-top":"75px"}),
+            html.Hr(),
+            html.Div([
+                html.Div('Display maximum rows: ', title = 'Number of rows to display'),  
+                radio_ntopdomains],
+                style={'width': '25%', 'display': 'inline-block', 'margin-bottom':'15px'}),
+            html.Div([
+                html.Div('Sort by: ', title = 'Number of times author was flagged or the percentage flagged from each author'),  
+                html.Div(radio_domainspercent)],
+                style={'width': '25%', 'display': 'inline-block','margin-bottom':'15px'}),
+            html.Div([
+                html.Div('Minimum cases for percentage: ', title = 'Only show percentages if number of submissions is at least this number.'),  
+                html.Div(radio_mincasesdomains)],
+                style={'width': '50%', 'display': 'inline-block', 'margin-bottom':'15px'}),
+            html.Br(),
+            drop_subr20_dom,
+            html.Div(id='tbl_domains'),
+            
+            html.Br(),
+            html.Div([
+                html.P('To do list: '),
+                html.P(' - Plot: network analysis of flagged domains'),
+                html.P(' - Plot instead of table for frequencies?')
+                ], style = {'color':'red'})
+            ])
+
+    ### TAB6 - authors
+    elif tab == 'tab-6':
+        return html.Div([
+            html.H4('Most flagged submission authors', style = {"margin-top":"75px"}),
+            html.Hr(),
+            html.Div([
+                html.Div('Display maximum rows: ', title = 'Number of rows to display'),  
+                radio_ntopauthors],
+                style={'width': '25%', 'display': 'inline-block', 'margin-bottom':'15px'}),
+            html.Div([
+                html.Div('Sort by: ', title = 'Number of times it was flagged or the percentage flagged from each source'),  
+                html.Div(radio_authorspercent)],
+                style={'width': '25%', 'display': 'inline-block','margin-bottom':'15px'}),
+            html.Div([
+                html.Div('Minimum cases for percentage: ', title = 'Only show percentages if number of submissions is at least this number.'),  
+                html.Div(radio_mincasesauthors)],
+                style={'width': '50%', 'display': 'inline-block', 'margin-bottom':'15px'}),
+            html.Br(),
+            drop_subr20_auth,
+            html.Div(id='tbl_authors'),
+            
+            html.Br(),
+            html.Div([
+                html.P('To do list: '),
+                html.P(' - Plot: network analysis of flaggers and flagged')
+                ], style = {'color':'red'})
             ])
 
 
@@ -235,14 +349,14 @@ def get_flag_perc(df, groups):
      Input('cl_flagtypes', 'value'),
      Input('rd_coronatopic', 'value')])
 def filter_data(weekrange, flagtypes, coronatopic):
-    filtered_df_day = df_day.copy()
-    filtered_df_day = filtered_df_day[(filtered_df_day['week'].between(*weekrange))]
+    filtered_df_subr = df_subr.copy()
+    filtered_df_subr = filtered_df_subr[(filtered_df_subr['week'].between(*weekrange))]
     if coronatopic=="yes":
-        filtered_df_day = filtered_df_day[filtered_df_day['subm_covid']]
-    filtered_df_day['ISFLAG'] = filtered_df_day[flagtypes].copy().sum(axis=1)
+        filtered_df_subr = filtered_df_subr[filtered_df_subr['subm_covid']]
+    filtered_df_subr['ISFLAG'] = filtered_df_subr[flagtypes].copy().sum(axis=1)
     ## Aggregate by week
     filtered_df_week = get_flag_perc(
-        filtered_df_day,
+        filtered_df_subr,
         groups = ['subreddit_cat','subreddit','week'])
     return filtered_df_week.to_json(orient='split')
         
@@ -456,7 +570,7 @@ def plot_kmeans(nclust, weekrange, flagtypes, coronatopic, subr20):
         filtered = filtered[filtered.subreddit.str.contains('|'.join(subr20))]
     ### Run cluster analysis
     if nclust>1:
-        X = filtered[['PC01', 'PC02']]
+        X = filtered[['PC01', 'PC02', 'PC03', 'PC04', 'PC05']]
         cluster = MiniBatchKMeans(n_clusters=nclust, batch_size=1000)
         cluster.fit(X)
         filtered['cluster'] = (cluster.predict(X)+1).astype(str)
@@ -472,80 +586,132 @@ def plot_kmeans(nclust, weekrange, flagtypes, coronatopic, subr20):
     cw=[]
     for cl in range(1,nclust+1):
         SCL = filtered.subm_title[filtered.cluster==str(cl)]
-        cw.append({'cluster':cl, 'submissions':SCL.shape[0],'kewywords': str(cluster_commonwords(SCL,10)) })        
+        cw.append({'cluster':cl, 'submissions':SCL.shape[0],'kewywords': str(cluster_commonwords(SCL,20)) })        
     return fig, generate_table(pd.DataFrame(cw))
 
-### T5: BOUNDARIES
+### T5: DOMAINS
 
-import statsmodels.api as sm
-def runlogit(df, dv_string, dimnames = ["dim_x_PCA","dim_y_PCA"]):
-    logit_model = sm.Logit(df[dv_string], sm.add_constant(df[dimnames]),disp=0)
-    #logit_model.fit()
-    return logit_model
-def line_equation(x1, logit_model):
-    fit = logit_model.fit(disp=0)
-    intercept, b1, b2 = fit.params
-    return(-1* intercept/b2 - (x1*b1)/b2)
-
-drop_boundary_subr = \
-    dcc.Dropdown(
-        id='dr_boundary_sr', 
-        options=[{'label': i, 'value': i} for i in df_boundary.subreddit.unique()], 
-        value = 'healthIT',
-        multi=False)
-
-show_boundary_lines = \
+radio_ntopdomains = \
     dcc.RadioItems(
-        id='rd_showboundaries', 
-        options=[{'label': 'yes', 'value':'yes'},{'label': 'no','value':'no'}], 
-        value = 'no',
-        labelStyle={'display': 'inline-block'})
+        id = 'rd_ntopdomains',
+        options=[{'label': x, 'value': x} for x in [10,20,50]],
+        value=10,
+        labelStyle={'display': 'inline-block'})  
 
+radio_mincasesdomains = \
+    dcc.RadioItems(
+        id = 'rd_mincasesdomains',
+        options=[{'label': x, 'value': x} for x in [10,20,50]],
+        value=10,
+        labelStyle={'display': 'inline-block'})  
+
+
+radio_domainspercent = \
+    dcc.RadioItems(
+        id = 'rd_domainspercent',
+        options=[{'label': x, 'value': x} for x in ['frequency','percent']],
+        value='percent',
+        labelStyle={'display': 'inline-block'})  
     
+drop_subr20_dom = \
+    dcc.Dropdown(
+        id='dr_subr20_dom', 
+        options=[{'label': i, 'value': i} for i in top20subreddits], 
+        multi=True, placeholder='Filter by subreddit...')
+
+
 @app.callback(
-    Output('plot_boundary','figure'),
-    [Input('dr_boundary_sr','value'),
-     Input('rd_showboundaries','value')])
-def plot_boundary(subreddit, showboundaries):
-    Selection = df_boundary[df_boundary['subreddit']==subreddit].copy()
-    Selection['nplot'] = Selection.month - min(Selection.month) + 1
-    dimnames = ['PC01','PC02']
-    dv_string = 'removed_all'
+    Output('tbl_domains', 'children'),
+    [Input('sl_week', 'value'),
+     Input('cl_flagtypes', 'value'),
+     Input('rd_coronatopic', 'value'),
+     Input('rd_ntopdomains', 'value'),
+     Input('rd_mincasesdomains', 'value'),
+     Input('rd_domainspercent', 'value'),
+     Input('dr_subr20_dom', 'value')])
+def table_domains(weekrange, flagtypes, coronatopic, ntopdomains, mincasesdomains, domainspercent, subr20):
+    filtered = df_domain.copy()
+    filtered = filtered[(filtered['week'].between(*weekrange))]
+    filtered['ISFLAG'] = filtered.copy()[flagtypes].sum(axis=1)
+    filtered = filtered[filtered['ISFLAG']>0]
+    if coronatopic=="yes":
+        filtered = filtered[filtered['subm_covid']]
+    if subr20 is not None:
+        filtered = filtered[filtered.subreddit.str.contains('|'.join(subr20))]
+    top_domains_df = filtered.groupby('link_domain')[['ISFLAG','n_subm_kept']].agg('sum').reset_index()
+    top_domains_df.n_subm_kept[top_domains_df.n_subm_kept<top_domains_df.ISFLAG]=top_domains_df.ISFLAG.copy()[top_domains_df.n_subm_kept<top_domains_df.ISFLAG]
+    top_domains_df['percent'] = (top_domains_df.ISFLAG / top_domains_df.n_subm_kept).round(decimals=3)
     ###
-    fig = px.scatter(Selection, 
-                x='PC01', y='PC02',
-                color=dv_string,
-                title=subreddit + '(' + dv_string + ')',
-                color_discrete_sequence = ['red','blue'],
-                hover_data=['title'],
-                opacity=0.25,
-                facet_col='month')
-    fig.update_traces(marker=dict(size=5))
-    if showboundaries == "yes":
-        shapes = [{'type': 'line', 'line_width': 2, 'line_color': "green",
-                   'x0': min(df[1].PC01), 'y0': line_equation(min(df[1].PC01), logit_model = runlogit(df[1], dv_string +'_c', dimnames)),
-                   'x1': max(df[1].PC01), 'y1': line_equation(max(df[1].PC01), logit_model = runlogit(df[1], dv_string +'_c', dimnames)),
-                   'xref': 'x'+str(min(df[1].nplot)), 'yref': 'y'+str(min(df[1].nplot))}
-                  for df in Selection.groupby('month')]
-        fig['layout'].update(shapes=shapes)
-    return fig
+    top_domains_n = top_domains_df.copy().sort_values('ISFLAG', ascending=False)
+    top_domains_perc = top_domains_df[top_domains_df.n_subm_kept >= mincasesdomains]
+    top_domains_perc = top_domains_perc.sort_values('percent', ascending = False)
+    if domainspercent == 'frequency':
+        return generate_table(top_domains_n, max_rows=ntopdomains)
+    else:
+        return generate_table(top_domains_perc, max_rows=ntopdomains)
+
+
+### T6: AUTHORS
+
+radio_ntopauthors = \
+    dcc.RadioItems(
+        id = 'rd_ntopauthors',
+        options=[{'label': x, 'value': x} for x in [10,20,50]],
+        value=10,
+        labelStyle={'display': 'inline-block'})  
+
+radio_mincasesauthors = \
+    dcc.RadioItems(
+        id = 'rd_mincasesauthors',
+        options=[{'label': x, 'value': x} for x in [10,20,50,100]],
+        value=10,
+        labelStyle={'display': 'inline-block'})  
+
+
+radio_authorspercent = \
+    dcc.RadioItems(
+        id = 'rd_authorspercent',
+        options=[{'label': x, 'value': x} for x in ['frequency','percent']],
+        value='percent',
+        labelStyle={'display': 'inline-block'})  
+    
+drop_subr20_auth = \
+    dcc.Dropdown(
+        id='dr_subr20_auth', 
+        options=[{'label': i, 'value': i} for i in top20subreddits], 
+        multi=True, placeholder='Filter by subreddit...')
+
 
 @app.callback(
-    Output('click_title', 'children'),
-    [Input('plot_boundary','selectedData')])
-def update_output_div2(input_value):
-    if input_value is not None:
-        show_id =[html.P(sel['customdata'][0]) for i, sel in enumerate(input_value['points']) if i <100]
-        #df_flags.set_index('subm_id').loc[show_id]
-        return(show_id)
+    Output('tbl_authors', 'children'),
+    [Input('sl_week', 'value'),
+     Input('cl_flagtypes', 'value'),
+     Input('rd_coronatopic', 'value'),
+     Input('rd_ntopauthors', 'value'),
+     Input('rd_mincasesauthors', 'value'),
+     Input('rd_authorspercent', 'value'),
+     Input('dr_subr20_auth', 'value')])
+def table_authors(weekrange, flagtypes, coronatopic, ntopauthors, mincasesauthors, authorspercent, subr20):
+    filtered = df_suspect.copy()
+    filtered = filtered[(filtered['week'].between(*weekrange))]
+    filtered['ISFLAG'] = filtered.copy()[flagtypes].sum(axis=1)
+    filtered = filtered[filtered['ISFLAG']>0]
+    if coronatopic=="yes":
+        filtered = filtered[filtered['subm_covid']]
+    if subr20 is not None:
+        filtered = filtered[filtered.subreddit.str.contains('|'.join(subr20))]
+    top_authors_df = filtered.groupby('subm_author')[['ISFLAG','n_subm_kept']].agg('sum').reset_index()
+    top_authors_df.n_subm_kept[top_authors_df.n_subm_kept<top_authors_df.ISFLAG]=top_authors_df.ISFLAG.copy()[top_authors_df.n_subm_kept<top_authors_df.ISFLAG]
+    top_authors_df['percent'] = (top_authors_df.ISFLAG / top_authors_df.n_subm_kept).round(3)
+    ###
+    top_authors_n = top_authors_df.copy().sort_values('ISFLAG', ascending=False)
+    top_authors_perc = top_authors_df[top_authors_df.n_subm_kept >= mincasesauthors]
+    top_authors_perc = top_authors_perc.sort_values('percent', ascending = False)
+    if authorspercent == 'frequency':
+        return generate_table_authors(top_authors_n, max_rows=ntopauthors)
     else:
-        return('Click on any point to investigate')
-    #except NameError:
-    #    show_id = False
-    #    return('')
-
-
+        return generate_table_authors(top_authors_perc, max_rows=ntopauthors)
 
 ### Run app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host = '0.0.0.0', debug=True)
