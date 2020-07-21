@@ -83,11 +83,14 @@ MAIN.info('Days since last submission scraped: %d', diff_days)
 subm_new_lst = []
 nrep = 1
 while len(subreddits)>0 and nrep<6:
+    @timeout_decorator.timeout(min(nrep,3)*60) 
+    def extract_subm_timeout(*args, **kwargs):
+       return sc.extract_submissions(*args, **kwargs)
     MAIN_subm.debug('Repetition %1d ', nrep)
     for subr in subreddits:
         subm_lst = []
-        subm_lst = sc.extract_submissions(subr = subr, srt="asc", lim = 1000000,
-                                          bef = "10m", aft = str(diff_days+5)+"d")
+        subm_lst = extract_subm_timeout(subr = subr, srt="asc", lim = 1000000,
+                                        bef = "10m", aft = str(diff_days+5)+"d")
         subm_new_lst+=subm_lst
         MAIN_subm.debug('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
         subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
@@ -95,7 +98,7 @@ while len(subreddits)>0 and nrep<6:
 
 MAIN_subm.info('FINISHED scraping submissions. Repetitions: %d. New submissions: %d', 
                nrep-1, len(subm_new_lst))
-subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
+subreddits = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
 if len(subreddits)>0:
     MAIN_subm.warning('Subreddits not scraped: %d : %s', len(subreddits),subreddits)
 

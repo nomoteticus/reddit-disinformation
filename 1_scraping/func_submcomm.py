@@ -46,7 +46,7 @@ def search_yes(regex, text):
 def remove_spaces(txt):
     return(" ".join(txt.split()))
 
-@timeout_decorator.timeout(45)
+#@timeout_decorator.timeout(45)
 def extract_submissions(subr, lim, bef, aft, srt = 'desc'):
     subm_lst = []
     time.sleep(3)
@@ -64,11 +64,13 @@ def extract_submissions(subr, lim, bef, aft, srt = 'desc'):
         subm_lst = list(corona_generator)
         #SC_subm.debug('Success!')
     except StopIteration:
-        SC_subm.error('StopIterration error')
+        SC_subm.error(subr + ': StopIterrationError')
     except RuntimeError:
-        SC_subm.error('Runtime error')
+        SC_subm.error(subr + ': RuntimeError')
+    except timeout_decorator.timeout_decorator.TimeoutError:
+        SC_subm.error(subr + ': TimeoutError')
     except:
-        SC_subm.error('Other error')
+        SC_subm.error(subr + ': OtherError')
         pass
     return(subm_lst)
 
@@ -117,6 +119,8 @@ def scrape_chunk(id_chunk, keep_columns_comm, subm_limit):
         SC_comm.error('StopIterration error')
     except RuntimeError:
         SC_comm.error('Runtime error')
+    except timeout_decorator.timeout_decorator.TimeoutError:
+        SC_subm.error('TimeoutError')
     except:
         SC_comm.error('Other error')
         pass
