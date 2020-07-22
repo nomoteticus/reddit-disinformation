@@ -440,8 +440,8 @@ structurematcher.add("svsav",None,pattern_svsav)
 #structurematcher.add("aost",None,pattern_aost)
 
 
-objects = v.obj.disinfo + v.obj.clickbait + v.obj.falsehood + v.obj.propaganda + v.obj.bs
-attributes = v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs 
+#objects = v.obj.disinfo + v.obj.clickbait + v.obj.falsehood + v.obj.propaganda + v.obj.bs
+#attributes = v.attr.false + v.attr.misleading + v.attr.unreliable + v.attr.propaganda + v.attr.bs 
 
 
 #nlp = spacy.load('en_core_web_sm', disable = ['parser','tagger','ner'])
@@ -485,16 +485,16 @@ Span.set_extension("isflagmatched", getter=isflagmatched, force=True)
 
 # Disinformation, fake news, clickbait, unreliable sources
 regex_flag = re.compile('|'.join([r'\b'+o for o in objects_all+attributes]))             
-fake_regex = re.compile('|'.join([r'\b'+o for o in objects_all+attributes]))             
+fake_regex = re.compile('|'.join([r'\b'+o for o in objects_full+attributes+['conspir']]))             
 
 # Sarcasm and irony
 sarcasm_regex = "\\\s\\b|\\/s\\b"  
-irony_regex = '|'.join(["[*'\"]" + s for s in voc.attr.false + voc.obj.disinfo + voc.attr.propaganda])
+irony_regex = '|'.join(["[*'\"“”‘’`´˝˶]" + s for s in voc.attr.false + voc.obj.disinfo + voc.attr.propaganda])
 joking_regex = '\\bjk\\b'
 sarcasm_and_irony_regex = sarcasm_regex + '|' + irony_regex + '|' + joking_regex 
 
 # Bot
-bot_body_regex = "([iI] am a bot)|(bot just does our dirty work)"
+bot_body_regex = "([iI] am a bot)|([iI]'m a bot)|(bot just does our dirty work)"
 bot_author_regex = "bot$|automod"
 
 ### set regexes
