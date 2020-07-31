@@ -57,26 +57,39 @@ for match_file, comm_file, subm_file in zip(match_files, comm_files, subm_files)
 COMMBODY = COMMALL.groupby('comm_body')[flagwords].agg('sum').\
                join(COMMALL.groupby('comm_body')[['subm_title', 'domain']].agg('first')).\
             reset_index()
-
-
 COMMBODY['nchar'] = [len(t) for t in COMMBODY.comm_body]
 COMMBODY = COMMBODY[COMMBODY.nchar < COMMBODY.nchar.quantile(.95)]
 
+#COMMBODY[COMMBODY.fakenews>0].sort_values('fakenews', ascending = False).reset_index().loc[:10,['comm_body','fakenews']]         
 
-COMMBODY[COMMBODY.fakenews>0].sort_values('fakenews', ascending = False).reset_index().loc[:10,['comm_body','fakenews']]         
 
 TOCLASSIFY = pd.DataFrame()  
 for word in flagwords[1:]:
-    np.random.seed(0)  
     SLICE = COMMBODY[COMMBODY[word]>0]
     SLICE['word'] = word
     SLICE['prop'] = SLICE[word]/sum(SLICE[word])
     SLICE['class'] = ''
-    index_word = np.random.choice(SLICE.index, size=100, replace=False, p=SLICE.prop)
-    TOCLASSIFY = TOCLASSIFY.append(SLICE.loc[index_word])
+    ### Sample all
+    np.random.seed(777)  
+    index_word_all = np.random.choice(SLICE.index, size=100, replace=False, p=SLICE.prop)
+    SLICE1 = SLICE.loc[index_word_all]
+    SLICE1['sample'] = 'all'
+    ### Sample POS
+    SLICE_REDUCED = SLICE.loc[SLICE.index.difference(SLICE1.index)].query('flag>0')
+    SLICE_REDUCED['prop'] = SLICE_REDUCED[word]/sum(SLICE_REDUCED[word])
+    np.random.seed(777) 
+    index_word_pos = np.random.choice(SLICE_REDUCED.index, size=100, replace=False, p=SLICE_REDUCED.prop)
+    SLICE2 = SLICE.loc[index_word_pos]
+    SLICE2['sample'] = 'pos'
+    ##
+    np.random.seed(777) 
+    SLICE12 = pd.concat([SLICE1, SLICE2]).sample(frac=1)
+    TOCLASSIFY = TOCLASSIFY.append(SLICE12)
+TOCLASSIFY = TOCLASSIFY[['word','subm_title','domain','comm_body','class'] + flagwords[1:] + ['sample','flag']]
 
 COMMBODY.to_csv("4_check/data/COMMBODY.csv")
-TOCLASSIFY[['word','comm_body','class']].to_csv("4_check/data/to_classify_regex.csv")
+TOCLASSIFY.to_csv("4_check/data/to_classify_regex_labeled.csv")
+TOCLASSIFY[['word','subm_title','domain','comm_body','class']].to_csv("4_check/data/to_classify_regex.csv")
 
 #x = pd.melt(           value_vars = flagwords, var_name="flagtype", value_name="nflags").\
 
