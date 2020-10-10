@@ -124,7 +124,7 @@ def removemin(DF, col, min_val):
     return DF[DF[col].isin(val_counts[val_counts >= min_val].index)]
 
 
-SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv')
+SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv').dropna()
 SR_ALL_sh = SR_ALL[['subreddit','category']].\
         rename(columns = {'category':'subreddit_cat'})
 SR = SR_ALL.query('keep')[['subreddit','category']].\
@@ -161,7 +161,7 @@ except FileNotFoundError:
 
 for subm_file, comm_file, match_file in SCM_generator:
     SS = pd.read_csv(rootfold+'/output/'+subm_file, lineterminator='\n', parse_dates=['created_utc'])
-    SS = SS[SS.created_utc.dt.week > max_week-2]
+    SS = SS[SS.created_utc.dt.week > max_week-3]
     if not SS.empty:
         SS = process_SUBM(SS, SR_ALL_sh, col_subm_keep)
         ##
