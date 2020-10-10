@@ -83,7 +83,7 @@ MAIN.info('Days since last submission scraped: %d', diff_days)
 subm_new_lst = []
 nrep = 1
 while len(subreddits)>0 and nrep<6:
-    @timeout_decorator.timeout(min(nrep,3)*60) 
+    @timeout_decorator.timeout(min(nrep,4)*60) 
     def extract_subm_timeout(*args, **kwargs):
        return sc.extract_submissions(*args, **kwargs)
     MAIN_subm.debug('Repetition %1d ', nrep)

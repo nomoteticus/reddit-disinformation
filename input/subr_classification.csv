@@ -207,6 +207,9 @@ indianpeoplefacebook,False,local,en,521,0.8,95.3,12.0,14.0,0.0,2.3,11.3,5.0
 viral,False,entertainment,en,1,0.1,80.9,36.0,64.0,0.0,3.8,32.7,5.0
 EvolveSustain,False,science,en,1,0.0,0.0,0.0,22.0,0.0,6.3,11.9,5.0
 anime_titties,True,generic_politics,en,30,11.7,6.7,15.0,37.0,28.0,1.1,11.4,5.0
-konachan,False,entertainment,en,1,1.8,6.0,92.0,89.0,29.0,3.5,48.1
-texas,True,local,en,207,22.9,23.8,17.0,20.0,16.0,5.5,11.6
-Austin,True,local,en,174,34.6,24.3,20.0,25.0,25.0,6.8,14.7
+konachan,False,entertainment,en,1,1.8,6.0,92.0,89.0,29.0,3.5,48.1,6.0
+texas,True,local,en,207,22.9,23.8,17.0,20.0,16.0,5.5,11.6,6.0
+Austin,True,local,en,174,34.6,24.3,20.0,25.0,25.0,6.8,14.7,6.0
+newsfeedmedia,False,bot_news,en,1,0.0,0.0,7.0,10.0,9.0,1.2,10.1,6.0
+StonkFeed,False,business_economics,en,1,0.0,0.0,15.0,11.0,5.0,1.2,10.1,6.0
+ConservativeNewsWeb,False,ideological,en,1,0.0,3.0,19.0,21.0,12.0,0.4,11.3,7.0
