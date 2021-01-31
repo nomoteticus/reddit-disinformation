@@ -32,8 +32,8 @@ import functions_pos_match as fpm
 
 patterns = [fpm.nlp.vocab.strings[match_id] for match_id in fpm.flagtypematcher._patterns.keys()]
 
-comm_files = sorted(re.findall('COMM_2020_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-match_files = sorted(re.findall('MATCH_2020_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
+comm_files = sorted(re.findall('COMM_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
+match_files = sorted(re.findall('MATCH_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
 LOG.debug('COMM_files: %s', comm_files)
 LOG.debug('MATCH_files: %s', match_files)
 
@@ -67,7 +67,7 @@ for comm_file in gen_comm_files:
         LOG.debug('Trying %d comments', len(remaining_comments))
         if len(remaining_comments)>0:
             sent_dict = []
-            total_sent = 0
+            #total_sent = 0
             COMM = COMM[COMM.id.isin(remaining_comments)]
             for doc_index, doc in enumerate(fpm.nlp.pipe(COMM.body, n_process=10, n_threads = 20, disable = ["ner"])):
                 for sent_id, sent in enumerate(doc.sents):

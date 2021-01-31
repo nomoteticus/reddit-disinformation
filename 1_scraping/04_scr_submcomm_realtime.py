@@ -14,7 +14,8 @@ import logging
 
 api = PushshiftAPI()
 
-rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
+rootfold = re.match('^.*reddit-disinformation', os.path.dirname(os.path.realpath(__file__))).group(0)
+#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
 with open('cwd.txt','r') as file:
     rootfold = file.read().rstrip()+'/'
 
@@ -36,6 +37,7 @@ SUBREDDITS
 """
 
 subreddits_df = pd.read_csv(rootfold+'input/subr_classification.csv')
+#subreddits_df = pd.read_csv(rootfold+'input/subr_classification_miss.csv')
 subreddits = subreddits_df[~subreddits_df.keep.isna()]
 subreddits = subreddits[subreddits.keep].subreddit
 ###
@@ -49,12 +51,19 @@ SUBMISSIONS
 
 MAIN.info('Started scraping new Submissions' )
 
-subm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('SUBM_2020_[0-9][0-9].csv',filename)], reverse = True)
+subm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('SUBM_20[0-9][0-9]_[0-9][0-9].csv',filename)], reverse = True)
 MAIN.info('Files: %s', subm_files)
 
+current_year  = datetime.now().year
 current_month = datetime.now().month
-current_month_file_subm = 'SUBM_2020_%02d.csv' % current_month
-previous_month_file_subm = 'SUBM_2020_%02d.csv' % (datetime.now().month-1)
+previous_month_year  = current_year if current_month>1 else current_year-1
+previous_month_month = current_month-1 if current_month>1 else 12
+
+
+current_month_file_subm = 'SUBM_%d_%02d.csv' % (current_year, current_month)
+current_month_file_comm = current_month_file_subm.replace('SUBM','COMM')
+
+previous_month_file_subm = 'SUBM_%d_%02d.csv' % (previous_month_year, previous_month_month)
 previous_month_file_comm = previous_month_file_subm.replace('SUBM','COMM')
 
 
@@ -90,7 +99,7 @@ while len(subreddits)>0 and nrep<6:
     for subr in subreddits:
         subm_lst = []
         subm_lst = extract_subm_timeout(subr = subr, srt="asc", lim = 1000000,
-                                        bef = "10m", aft = str(diff_days+5)+"d")
+                                        bef = "10m", aft = str(diff_days+3)+"d")
         subm_new_lst+=subm_lst
         MAIN_subm.debug('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
         subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
@@ -115,9 +124,10 @@ if len(subm_new_lst)>0:
     MAIN_subm.info('PROCESSED submissions. Date min: %20s ; Date max %20s', \
           min(subm_allnew_df.created_utc), max(subm_allnew_df.created_utc))
     ###
-    subm_pre_df = subm_allnew_df[subm_allnew_df.created_utc.dt.month==current_month-1]
-    subm_new_df = subm_allnew_df[subm_allnew_df.created_utc.dt.month==current_month]
+    subm_pre_df = subm_allnew_df[(subm_allnew_df.created_utc.dt.year==previous_month_year) & (subm_allnew_df.created_utc.dt.month==previous_month_month)]
+    subm_new_df = subm_allnew_df[(subm_allnew_df.created_utc.dt.year==current_year) & (subm_allnew_df.created_utc.dt.month==current_month)]
     ###
+    ### Add submissions to current month dataframe
     if subm_new_df.shape[0]>0:
         subm_unite_df = sc.add_to_old_df(subm_new_df, subm_current_df, sort_var = 'created_utc')
         subm_unite_df.to_csv(rootfold+'output/'+current_month_file_subm, index = False)
@@ -125,6 +135,7 @@ if len(subm_new_lst)>0:
         del(subm_unite_df, subm_current_df)
     else:
         MAIN_subm.warning('No new submissions to add')
+    ### Add comments to previous month dataframe
     if subm_pre_df.shape[0]>0:
         subm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_subm, lineterminator='\n')
         subm_previous_df.created_utc = pd.to_datetime(subm_previous_df.created_utc)
@@ -138,8 +149,8 @@ if len(subm_new_lst)>0:
 else:
     MAIN_subm.warning('No new submissions to add')
 
-
 MAIN_comm.info('FINISHED SUBMISSIONS.\n')
+
 
 
 """
@@ -156,7 +167,7 @@ if subm_allnew_df.shape[0]>0:
                         'author', 
                         'collapsed', 'no_follow', 'score', 'distinguished']
     
-    comm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('^COMM_2020_[0-9][0-9].csv',filename)], reverse = True)
+    comm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('^COMM_20[0-9][0-9]_[0-9][0-9].csv',filename)], reverse = True)
     current_month_file_comm = current_month_file_subm.replace('SUBM','COMM')    
     
     ### Read last comments file
