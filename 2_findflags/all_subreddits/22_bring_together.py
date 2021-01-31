@@ -42,9 +42,9 @@ def embed(input):
 ##
 
 
-subm_files = sorted(re.findall('SUBM_2020_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-comm_files = sorted(re.findall('COMM_2020_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-match_files = sorted(re.findall('MATCH_2020_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
+subm_files  = sorted(re.findall('SUBM_20[0-9][0-9]_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
+comm_files  = sorted(re.findall('COMM_20[0-9][0-9]_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
+match_files = sorted(re.findall('MATCH_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
 
 #re.findall(fake_regex, 'this flake news is fake disinfrormation')
 
@@ -124,10 +124,9 @@ def removemin(DF, col, min_val):
     return DF[DF[col].isin(val_counts[val_counts >= min_val].index)]
 
 
-SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv').dropna()
-SR_ALL_sh = SR_ALL[['subreddit','category']].\
-        rename(columns = {'category':'subreddit_cat'})
-SR = SR_ALL.query('keep')[['subreddit','category']].\
+SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv')
+SR_nona = SR_ALL[~SR_ALL.keep.isna()]
+SR = SR_nona.query('keep')[['subreddit','category']].\
         rename(columns = {'category':'subreddit_cat'})
 
 ### Check if United files exist
@@ -163,7 +162,7 @@ for subm_file, comm_file, match_file in SCM_generator:
     SS = pd.read_csv(rootfold+'/output/'+subm_file, lineterminator='\n', parse_dates=['created_utc'])
     SS = SS[SS.created_utc.dt.week > max_week-3]
     if not SS.empty:
-        SS = process_SUBM(SS, SR_ALL_sh, col_subm_keep)
+        SS = process_SUBM(SS, SR, col_subm_keep)
         ##
         CC = pd.read_csv(rootfold+'/output/'+comm_file, lineterminator='\n')
         CC = process_COMM(CC, col_comm_keep)
@@ -309,20 +308,20 @@ LOGU.info('Done writing 6 files.')
 
 
 
-"""
-SUBR: subr, subr_cat
-SUBM: covid_related : Y/N, date ; RM: fake_news_related,
-COMM: rating: positive; RM: body: bot, sarcasm ; RM: link_id: t1
-SENT: flag + 6 flags, method: regex, pos ; flagging: multiple
-AUTHOR: ...
-
-1. Do we know comment is flag ? pos regex (+)
-2. Do we trust the flag ? author, multiple flagged
-3. Is it really disinformation ? (cluster, fact checking validation)
-
-https://mediabiasfactcheck.com/left/
-
-Top flaggers
-PCA: flags
-Monthly comparison + weekly slider
-"""
+#"""
+#SUBR: subr, subr_cat
+#SUBM: covid_related : Y/N, date ; RM: fake_news_related,
+#COMM: rating: positive; RM: body: bot, sarcasm ; RM: link_id: t1
+#SENT: flag + 6 flags, method: regex, pos ; flagging: multiple
+#AUTHOR: ...
+#
+#1. Do we know comment is flag ? pos regex (+)
+#2. Do we trust the flag ? author, multiple flagged
+#3. Is it really disinformation ? (cluster, fact checking validation)
+#
+#https://mediabiasfactcheck.com/left/
+#
+#Top flaggers
+#PCA: flags
+#Monthly comparison + weekly slider
+#"""
