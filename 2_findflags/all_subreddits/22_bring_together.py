@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA
 import logging
 
 rootfold = re.match('^.*reddit-disinformation', os.path.dirname(os.path.realpath(__file__))).group(0)
+#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
 
 sys.path.append(rootfold+"/2_findflags/all_subreddits")
 import functions_pos_match as fpm
@@ -42,21 +43,21 @@ def embed(input):
 ##
 
 
-subm_files  = sorted(re.findall('SUBM_20[0-9][0-9]_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
-comm_files  = sorted(re.findall('COMM_20[0-9][0-9]_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
-match_files = sorted(re.findall('MATCH_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
+subm_files  = sorted(re.findall('SUBM_2021_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
+comm_files  = sorted(re.findall('COMM_2021_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
+match_files = sorted(re.findall('MATCH_2021_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
 
 #re.findall(fake_regex, 'this flake news is fake disinfrormation')
 
 ### Set defaults for filtering / grouping 
 
-col_subm_keep = ['subreddit','id','title','month','week','day',
+col_subm_keep = ['subreddit','id','title','year','month','week','day',
                  'full_link','url','domain','removed_by_category',
                  'subm_covid', 'subm_fake', 'author', 'num_comments']
 col_comm_keep = ['subreddit','parent_id','link_id','id','score','body','author']
 
 #groupby_subr = ['subreddit','subm_covid','month','week','day']
-groupby_subr = ['subreddit_cat','subreddit','subm_covid','month','week','day']
+groupby_subr = ['subreddit_cat','subreddit','subm_covid','year','month','week','day']
 #groupby_subr_week = ['subreddit','subm_covid','week']
 groupby_subr_week = ['subreddit_cat','subreddit','subm_covid','week']
 ##
@@ -81,8 +82,9 @@ def process_SUBM(SS, SR, col_subm_keep):
     SS['subm_fake'] = SS['alltexts'].str.lower().str.contains(fpm.fake_regex)
     SS['removed_by_category'] = SS['removed_by_category'].fillna('visible').astype('str')
     SS['created_utc'] = pd.to_datetime(SS['created_utc'])
+    SS['year'] = SS.created_utc.dt.year
     SS['month'] = SS.created_utc.dt.month
-    SS['week'] = SS.created_utc.dt.week
+    SS['week'] = SS.created_utc.dt.week.replace(53,0)
     SS['day'] = pd.to_datetime(SS.created_utc).dt.date
     return SS[col_subm_keep].\
              rename(columns = {'id':'subm_id','title':'subm_title','author':'subm_author',
@@ -131,13 +133,13 @@ SR = SR_nona.query('keep')[['subreddit','category']].\
 
 ### Check if United files exist
 try:
-    UNITED = pd.read_csv(rootfold+'/output/UNITED_FLAG.csv', lineterminator='\n').\
+    UNITED = pd.read_csv(rootfold+'/output/UNITED_2021_FLAG.csv', lineterminator='\n').\
                 set_index(groupby_sent)
-    AGG_SS = pd.read_csv(rootfold+'/output/UNITED_SUBM.csv', lineterminator='\n').\
+    AGG_SS = pd.read_csv(rootfold+'/output/UNITED_2021_SUBM.csv', lineterminator='\n').\
                 set_index(groupby_subr_week)
-    AGG_AA = pd.read_csv(rootfold+'/output/UNITED_AUTH.csv', lineterminator='\n').\
+    AGG_AA = pd.read_csv(rootfold+'/output/UNITED_2021_AUTH.csv', lineterminator='\n').\
                 set_index(groupby_auth_week)
-    AGG_DD = pd.read_csv(rootfold+'/output/UNITED_DOM.csv', lineterminator='\n').\
+    AGG_DD = pd.read_csv(rootfold+'/output/UNITED_2021_DOM.csv', lineterminator='\n').\
                 set_index(groupby_dom_week)
     SCM_generator = zip(subm_files[-2:], comm_files[-2:], match_files[-2:])
     ##
@@ -179,7 +181,7 @@ for subm_file, comm_file, match_file in SCM_generator:
                 join(SS.set_index(['subreddit','subm_id']),                 
                      on = ['subreddit','subm_id'], how = 'left')
         ### Select final columns
-        UNTD = UNTD[['month','week','day','subreddit_cat', 'sent', 
+        UNTD = UNTD[['year','month','week','day','subreddit_cat', 'sent', 
                      'flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda','other', 
                      'subm_title', 'subm_removed', 'subm_covid', 'subm_fake',
                      'subm_link', 'link_url', 'link_domain', 'subm_ncomments', 'subm_author',
@@ -211,11 +213,11 @@ UNITED = UNITED[~(UNITED.comm_body.str.lower().str.contains(fpm.bot_body_regex) 
                   UNITED.comm_author.str.lower().str.contains(fpm.bot_author_regex))]
 
 ## Saving to dataset
-UNITED.to_csv(rootfold+"/output/UNITED_FLAG.csv", index=False)
+UNITED.to_csv(rootfold+"/output/UNITED_2021_FLAG.csv", index=False)
 ##
-AGG_SS.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_SUBM.csv", index=False)
-AGG_AA.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_AUTH.csv", index=False)
-AGG_DD.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_DOM.csv", index=False)
+AGG_SS.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_SUBM.csv", index=False)
+AGG_AA.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_AUTH.csv", index=False)
+AGG_DD.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_DOM.csv", index=False)
 
 
 #pd.crosstab(index = COMM_week.subreddit, columns = COMM_week.is_bot)
@@ -228,7 +230,7 @@ FLAGS_day = UNITED.reset_index().\
                 loc[:,['subreddit_cat', 'subreddit' , 'subm_id', 'subm_covid',
                        'subm_title','subm_link', 'link_url','subm_removed',
                        'sent_id','sent',
-                       'month', 'week', 'day'] + flag_vars].\
+                       'year', 'month', 'week', 'day'] + flag_vars].\
                 sort_values('day', ascending=False)
 LOGU.info('Created flags. Shape: %s', FLAGS_day.shape)
 
@@ -288,12 +290,12 @@ LOGU.info('Created domains. Shape: %s', DOM_week.shape)
 
 ### WRITE FILES
 
-FLAGS_day.to_csv(rootfold+"/dashboard/data/app_flags_day.csv", index = False)
-SUBM_day.to_csv(rootfold+"/dashboard/data/app_subm_day.csv", index = False)
-SUBR_week.to_csv(rootfold+"/dashboard/data/app_subr_week.csv", index = False)
-AUTH_FLAGGERS_week.to_csv(rootfold+"/dashboard/data/app_authFlaggers_week.csv", index = False)
-AUTH_FLAGGED_week.to_csv(rootfold+"/dashboard/data/app_authFlagged_week.csv", index = False)
-DOM_week.to_csv(rootfold+"/dashboard/data/app_domain_week.csv", index = False)
+FLAGS_day.to_csv(rootfold+"/dashboard/data/app_2021_flags_day.csv", index = False)
+SUBM_day.to_csv(rootfold+"/dashboard/data/app_2021_subm_day.csv", index = False)
+SUBR_week.to_csv(rootfold+"/dashboard/data/app_2021_subr_week.csv", index = False)
+AUTH_FLAGGERS_week.to_csv(rootfold+"/dashboard/data/app_2021_authFlaggers_week.csv", index = False)
+AUTH_FLAGGED_week.to_csv(rootfold+"/dashboard/data/app_2021_authFlagged_week.csv", index = False)
+DOM_week.to_csv(rootfold+"/dashboard/data/app_2021_domain_week.csv", index = False)
 
 LOGU.info('Done writing 6 files.')
 #AGG_SS['perc_del'] = AGG_SS.n_subm_kept / AGG_SS.n_subm_all
