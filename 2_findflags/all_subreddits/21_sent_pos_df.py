@@ -39,12 +39,14 @@ LOG.debug('MATCH_files: %s', match_files)
 
 gen_comm_files = comm_files[-2:] if len(match_files)>0 else comm_files
 
+total_sent = 0
+
 ### Create MATCH files
 for comm_file in gen_comm_files:
     match_file = re.sub('COMM','MATCH',comm_file)
     LOG.info('Started comm file: %s',comm_file)
     if match_file not in match_files:
-        total_sent = 0
+        total_nanosent = 0
         sent_df = pd.DataFrame([], columns = ['comm_id','sent_id','sent']+patterns)
         sent_df.to_csv(rootfold+'/output/'+match_file, index = False)
         existing_comments = []
