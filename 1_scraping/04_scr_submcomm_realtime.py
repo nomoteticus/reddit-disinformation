@@ -99,7 +99,7 @@ while len(subreddits)>0 and nrep<6:
     for subr in subreddits:
         subm_lst = []
         subm_lst = extract_subm_timeout(subr = subr, srt="asc", lim = 1000000,
-                                        bef = "10m", aft = str(diff_days+3)+"d")
+                                        bef = "10m", aft = str(diff_days+5)+"d")
         subm_new_lst+=subm_lst
         MAIN_subm.debug('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
         subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
