@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb  2 15:32:57 2021
+
+@author: j0hndoe
+"""
+
+
+.js-plotly-plot .plotly .modebar {
+  padding-top: 5%;
+  margin-right: 3.5%;
+}
+
+.tab_div{
+    margin-left:15px;
+}
+
+body {
+  background-color: #f2f2f2;
+  margin: 5%;
+}
+
+
+h6 {
+    size:50%;
+    margin-top:10px;
+}
+
+h5 {
+    size:50%;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+.dates_banner {
+    font-size: 150%;
+    padding: 70px 0;
+}
+
+.dates_banner_bold {
+    color: red;
+    font-weight: bold;
+    font-size: 125%;
+}
+
+div .float_left{
+    size:100%;
+    margin-top:10px;
+    margin-bottom:20px;
+}
+
+.time_slider{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  width: 750px;
+}
+
+.two.columns {
+  width: 16.25%;
+}
+
+.column,
+.columns {
+  margin-left: 0.5%;
+}
+
+.pretty_container {
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 10px;
+  padding: 15px;
+  position: relative;
+  box-shadow: 2px 2px 2px lightgrey;
+}
+
+.bare_container {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+
+.dcc_control {
+  margin: 0;
+  padding: 5px;
+  width: calc(100%-40px);
+}
+
+.control_label {
+  margin: 0;
+  padding: 10px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  width: calc(100%-40px);
+}
+
+.font30{
+  height:-50px;
+}
+
+.rc-slider-track {
+  background-color: red;
+}
+
+.rc-slider-dot-active {  
+  border: solid 2px red;
+}
+
+.rc-slider-handle {
+  background-color: white;
+  border-color: red;
+}
+
+.rc.slider-handle:hover {
+  border-color: red;
+}
+
+.rc.slider-handle-active:active {
+  border-color: red;
+}
+
+
+
+/* For flag types ul.checkbox li*/
+div.cl_flagtypes label { 
+  border: 1px transparent solid; 
+  display:inline-block;
+  width:12em;
+}
+
+.two_column { 
+  border: 1px transparent solid; 
+  display:inline-block;
+  width:12em;
+}
+
+
+.width30{
+  max-width:425px;
+}
+
+
+
+.flex-display {
+  display: flex;
+}
+
+.container-display {
+  display: flex;
+}
+
+#individual_graph,
+#aggregate_graph {
+  width: calc(100% - 30px);
+  position: absolute;
+}
+
+#count_graph {
+  position: absolute;
+  height: calc(100% - 30px);
+  width: calc(100% - 30px);
+}
+
+#countGraphContainer {
+  flex: 5;
+  position: relative;
+}
+
+#header {
+  align-items: center;
+}
+
+#learn-more-button {
+  text-align: center;
+  height: 100%;
+  padding: 0 20px;
+  text-transform: none;
+  font-size: 15px;
+  float: right;
+  margin-right: 10px;
+  margin-top: 30px;
+}
+#title {
+  text-align: center;
+}
+
+.mini_container {
+  min-width:100px,
+  max-width:200px,
+  border-radius: 5px;
+  background-color: LightGoldenRodYellow;
+  margin: 10px;
+  padding: 15px;
+  position: relative;
+  box-shadow: 2px 2px 2px orange;
+}
+
+#right-column {
+  display: flex;
+  flex-direction: column;
+}
+
+#wells {
+  flex: 1;
+}
+
+#gas {
+  flex: 1;
+}
+
+#aggregate_data {
+  align-items: center;
+}
+
+#oil {
+  flex: 1;
+}
+
+#water {
+  flex: 1;
+}
+
+#tripleContainer {
+  display: flex;
+  flex: 3;
+}
+
+#mainContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+#pie_graph > div > div > svg:nth-child(3) > g.infolayer > g.legend {
+  pointer-events: all;
+  transform: translate(30px, 349px);
+}
