@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Feb  1 17:04:31 2021
+
+@author: j0hndoe
+"""
+
+def generate_slider(df_subr, df_subm):
+    min_week, max_week = int(df_subr['week'].min()), int(df_subr['week'].max())
+    n_weeks = max_week - min_week
+    n_step = 1 + n_weeks // 14
+    range_weeks = range(min_week, max_week, n_step)
+    if max_week not in range_weeks:
+        range_weeks = [*range_weeks] + [max_week]
+    week_day_df = df_subm.groupby('week')['day'].agg(['min','max'])
+    week_day_df['label'] = [r[1]['min'][5:7] + '/' + r[1]['min'][8:10]
+                            for r in week_day_df.iterrows()]
+    return week_day_df

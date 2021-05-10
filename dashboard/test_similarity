@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Feb 22 19:08:03 2021
+
+@author: j0hndoe
+"""
+
+
+from sklearn.metrics.pairwise import euclidean_distances
+import pandas as pd
+
+df_subm = pd.read_csv(rootfold+"/data/app_2021_subm_day.csv")
+
+pca = df_subm[['PC01', 'PC02', 'PC03', 'PC04', 'PC05']]
+
+ed = euclidean_distances(df_subm[['PC01', 'PC02', 'PC03', 'PC04', 'PC05']])
+
+#.head(10))
+
+min(euclidean_distances(pca.head(10)))
+
+df_subm.subm_title[3]
+df_subm.subm_title[5]
+df_subm.subm_title[7]
+
+i=1
+
+threshold = 0.005
+for j in range(100,1000):
+    similar = pd.DataFrame(ed)[j].sort_values().head(10)
+    top5 = df_subm[['subreddit','subm_id','day','subm_title']].loc[similar[similar<threshold].index]
+    if len(similar[similar<threshold])>1:
+        print(j)    
+        for s in top5.iterrows():        
+                print(s)
+        print('\n\n')
+    
+df_subm['subm_title'].iloc([1,2,3,5],:)

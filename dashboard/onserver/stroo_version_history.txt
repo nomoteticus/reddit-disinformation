@@ -1,0 +1,10 @@
+0.0.5
+Data: 2021
+Default flag: disinformation, fakenews, misleading, unreliable, propaganda
+Default Corona only: no
+
+0.0.4
+Data: Jan-Dec 2020
+Tabs: Flags, Submissions, Subreddits, Clustering, Domains, Authors
+Default flag: disinformation, fakenews, unreliable, propaganda
+Default Corona only: yes
