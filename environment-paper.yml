@@ -1,0 +1,18 @@
+# Library versions of the paper (2020). Use this environment only to reproduce
+# the published flag-matching results exactly:
+#   conda env create -f environment-paper.yml && conda activate stroo-paper
+#   python scripts/check_paper_reproduction.py
+#
+# Newer spaCy language models parse some sentences differently, so results
+# with current versions are close to, but not identical with, the 2020 output.
+name: stroo-paper
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+      - --only-binary=:all:
+      - spacy==2.3.5
+      - pandas==1.1.5
+      - https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.1/en_core_web_sm-2.3.1.tar.gz

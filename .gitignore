@@ -27,3 +27,6 @@ dist/
 .DS_Store
 Thumbs.db
 .~lock.*#
+
+# Local tool configuration
+.claude/
