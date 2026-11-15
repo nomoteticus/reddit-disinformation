@@ -1,46 +1,148 @@
 # reddit-disinformation
 
-Code for the data processing pipeline and dashboard behind:
+Code for the data pipeline and dashboard behind:
 
 > Achimescu, V., & Chachev, P. D. (2021). **Raising the Flag: Monitoring User Perceived Disinformation on Reddit.** *Information*, 12(1), 4. https://doi.org/10.3390/info12010004
 
-The paper uses *informal flags* — Reddit comments such as "this is fake news" or "not a reliable source" — as a signal of which posts users perceive as false information. A rule-based matcher (keywords + part-of-speech tags + dependency parsing, built with spaCy) finds these flags in millions of comments, and the flagged posts are shown in an interactive Plotly/Dash dashboard ("STROO?", short for "Is it true?"). An extended version of the paper is Chapter 4 of my PhD dissertation (University of Mannheim, 2021).
-
-## Pipeline
-
-The numbered folders run in order. Each step reads from and writes to monthly CSV files in an `output/` folder (not in this repository; see *Data* below), so the pipeline could be re-run daily and only process what is new.
+The paper uses *informal flags* — Reddit comments such as "this is fake news" or "not a reliable source" — as a signal of which posts users perceive as false information. A rule-based matcher (keywords + part-of-speech tags + dependency parsing, built with spaCy) finds these flags in millions of comments, and the flagged posts are shown in an interactive Plotly/Dash dashboard, **STROO?** (short for "Is it true?"). An extended version of the paper is Chapter 4 of my PhD dissertation (University of Mannheim, 2021).
 
 ```
-1_scraping  →  2_findflags  →  3_embed  →  dashboard
- (collect)      (detect)       (cluster)    (explore)
-                    ↓
-                4_check, 6_disinfo (validate)
+collect  →  detect  →  aggregate  →  dashboard
+(Reddit)    (flags)    (tables +     (explore)
+                        embeddings)
+                ↓
+            validation (manual labels, ML baselines, fact-checker list)
 ```
 
-| Folder | What it does |
+## Quick start
+
+```bash
+conda env create -f environment.yml
+```
+
+```bash
+conda activate stroo
+```
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+Download the six `app_*.csv` tables from [Figshare](https://doi.org/10.6084/m9.figshare.13174136) into `data/dashboard/`, then:
+
+```bash
+stroo dashboard
+```
+
+and open http://127.0.0.1:8050.
+
+## Repository layout
+
+| Path | Contents |
 |---|---|
-| `input/` | Configuration: COVID-19 search keywords, the list of tracked subreddits with their manual classification (`subr_classification.csv`: category, language, keep/drop), and the codebook used for manual annotation. |
-| `1_scraping/` | Data collection from Reddit through the Pushshift API (`psaw`). `01_*` scripts discover subreddits that share news links about COVID-19, tabulate their daily activity and metadata (subscribers, comments per post, share of removed posts), and support the manual classification that decides which subreddits to track. `02_*` and `03_*` back-fill past submissions and comments; `04_scr_submcomm_realtime.py` is the daily job that appends new submissions (`SUBM_yyyy_mm.csv`) and comments (`COMM_yyyy_mm.csv`), with retries, timeouts and logging. `func_submcomm.py` holds the shared helpers; `praw/` contains earlier experiments with the official Reddit API. |
-| `2_findflags/` | Flag detection. `all_subreddits/functions_pos_match.py` defines the vocabulary (six flag types: disinformation/misinformation, fake news, misleading/clickbait, unreliable, propaganda, bullshit), the 21 syntactic patterns of the POS matcher, and the regular expressions that filter out sarcasm, bots, and posts that are themselves about fake news; `test_func_pos_match.py` tests the patterns on example sentences. `21_sent_pos_df.py` pre-filters comments by keyword, parses them with spaCy, and writes every matching sentence to `MATCH_yyyy_mm.csv`. `22_bring_together.py` joins matches, comments, and submissions and builds the weekly aggregates the dashboard reads (by flag, submission, subreddit, author, and linked web domain). `news_subreddits/` holds the first prototype on a smaller set of news subreddits. |
-| `3_embed/` | Computes Universal Sentence Encoder embeddings of post titles and reduces them with PCA. The dashboard uses these for "similar posts" and for k-means topic clustering. The notebooks check flag frequencies by pattern and type. |
-| `4_check/` | Validation of the POS matcher. `41_*` scripts draw stratified samples of comments for manual annotation by two coders; `42_*` scripts train baseline machine-learning classifiers (TF-IDF + random forest, scikit-learn) on the annotated comments and compare them with the rule-based matcher (precision, recall, F1) on a later, unseen test period. `july/` holds the first annotation round. |
-| `6_disinfo/` | Notebooks comparing the web domains flagged by Reddit users with an external list of unreliable news sources compiled by fact-checkers. |
-| `dashboard/` | The Plotly/Dash app. `APP_corona_v0xx.py` files are successive versions; `func_dashboard.py` holds the data-preparation and plotting functions and `assets/` the CSS and images. `onserver/` is the deployed version (Flask app served with Gunicorn and Nginx on an Ubuntu VM: `wsgi.py`, `runapp.py`, version history). Left panel: filters for period, flag type, minimum number of flags, subreddit, and source reliability. Tabs: highlights, flagged posts (with similar-post search), topic clustering, and method. |
-| `analysis/` | Exploratory notebooks and R scripts that go beyond the published paper (comment embeddings, similarity between subreddits, moderator deletions). Work in progress; not needed to reproduce the paper. |
-| `art/` | Logo files for the dashboard. |
+| `src/stroo/` | The Python package (see below). |
+| `config/` | COVID-19 search keywords, the tracked subreddits with their manual classification (`subreddits.csv`), the codebook of the joined table. |
+| `notebooks/paper_results.ipynb` | The paper's tables and figures recomputed from the published data, next to the published values. |
+| `scripts/` | `check_paper_reproduction.py` (exact reproduction of the 2020 matching) and `build_paper_notebook.py`. |
+| `tests/` | Unit tests, and tests that compare the code with the original scripts and with the paper. |
+| `deploy/` | Gunicorn/systemd/Nginx files and a deployment guide for the dashboard. |
+| `docs/reference/` | Field lists of the Pushshift API and pattern frequencies from July 2020. |
+
+### The package
+
+| Module | What it does | Paper |
+|---|---|---|
+| `stroo.collect` | Selects subreddits that share news links about COVID-19; daily scrape of their posts and of the comments on link posts, via the Pushshift API. | Section 3 |
+| `stroo.flags` | The vocabulary (`vocabulary.py`), the 21 syntactic patterns (`patterns.py`), the matcher, the keyword/sarcasm/bot filters, and the job that writes matched sentences to `MATCH_yyyy_mm.csv`. | Section 4, Appendix B |
+| `stroo.embed` | Universal Sentence Encoder embeddings of post titles, reduced with PCA. | Section 7.3 |
+| `stroo.aggregate` | Joins flags, comments and posts; builds the six tables read by the dashboard. | Appendix A |
+| `stroo.validation` | Sampling of comments for manual annotation, precision/recall of the matcher, machine-learning baselines, comparison with a fact-checker's list. | Sections 4.4, 5.5 |
+| `stroo.dashboard` | The Dash app. | Section 7 |
+
+Paths are set in `stroo/settings.py`. By default data is read from and written to `data/` in the repository; set `STROO_DATA_DIR` to use another folder.
+
+## Running the pipeline
+
+```bash
+stroo collect
+```
+
+```bash
+stroo detect
+```
+
+```bash
+stroo aggregate 2020
+```
+
+Each step reads and writes monthly CSV files, so it can run daily and only process what is new:
+
+| Step | Reads | Writes |
+|---|---|---|
+| `collect` | Pushshift API | `data/raw/SUBM_yyyy_mm.csv`, `COMM_yyyy_mm.csv` |
+| `detect` | `COMM_*.csv` | `data/processed/MATCH_yyyy_mm.csv` |
+| `aggregate` | `SUBM_*`, `COMM_*`, `MATCH_*` | `data/processed/UNITED_yyyy_*.csv`, `data/dashboard/app_*.csv` |
+
+The same functions can be used from Python:
+
+```python
+from stroo.flags import get_matcher
+
+matcher = get_matcher()
+matcher.comment_is_flag("This is fake news.")                # True
+matcher.comment_is_flag("Fake news is an overused trope.")   # False
+```
+
+### Collecting new data
+
+`stroo collect` uses the public Pushshift API through `psaw`. Pushshift closed that API in 2023, so the collection code documents how the data of the paper were gathered but cannot run as it is. A replacement data source has not been added yet.
+
+### Embeddings
+
+`stroo aggregate` needs the Universal Sentence Encoder (version 4) and TensorFlow (`pip install -e ".[embed]"`). Download the model from https://tfhub.dev/google/universal-sentence-encoder/4 and unpack it into `data/models/universal-sentence-encoder_4/`.
+
+## The dashboard
+
+Left panel: filters for the period, the type and number of flags, the subreddit, and COVID-19 related posts. Tabs:
+
+| Tab | Shows |
+|---|---|
+| Highlights | Headline numbers, trend of flagged posts, latest flagged posts, frequent title words. |
+| Flags | Most common and most recent flag sentences. |
+| Submissions | Flagged posts with their flags, removal status and similar posts. |
+| Subreddits | Treemap of flags per subreddit; weekly trend per subreddit category, as counts or percent. |
+| Clustering | K-means topics of post titles, with keywords and the posts of each cluster. |
+| Domains, Authors | Most flagged linked websites and post authors. |
+| Method | A short description of the method. |
+
+The app is the 2021 redesign of the dashboard (v0.1.2) with the tabs of the version described in the paper added back. To put it on a server, see [`deploy/README.md`](deploy/README.md).
 
 ## Data
 
-The raw and processed data are too large for GitHub. The datasets, annotated samples, and a snapshot of the dashboard source used in the paper are archived on Figshare:
+The raw and processed data are too large for GitHub and contain user names and comment text. Archived on Figshare:
 
-- Data collection and analysis: https://doi.org/10.6084/m9.figshare.13174145.v1
-- Dashboard of flagged Reddit posts: https://doi.org/10.6084/m9.figshare.13174136.v1
+- Dashboard tables and source snapshot: https://doi.org/10.6084/m9.figshare.13174136
+- Descriptive analyses: https://doi.org/10.6084/m9.figshare.13174145
+- Manual annotations: https://doi.org/10.6084/m9.figshare.13315259
 
-## Status
+## Reproducing the paper
 
-This is research code from 2020–2021, kept as it was when the paper and the dissertation were written. The dashboard was publicly hosted and updated daily during that period and is no longer online. The scraping scripts rely on the public Pushshift API, which has since been restricted, so they document the method rather than run as-is. Paths are set through a `cwd.txt` file or the repository root.
+| What | How | Notes |
+|---|---|---|
+| Flag matching | `environment-paper.yml` + `scripts/check_paper_reproduction.py` | Identical to the 2020 output with spaCy 2.3.5. Newer spaCy models parse some sentences differently, so current versions give close but not identical results. |
+| Tables 1 to 5, Sections 5 and 5.5 | `notebooks/paper_results.ipynb` | Recomputed from the published data with the package functions. The machine-learning baselines of Table 4 depend on library versions. |
 
-Main tools: Python 3.6, pandas, spaCy, scikit-learn, TensorFlow Hub (Universal Sentence Encoder), Plotly/Dash, Flask, Gunicorn, Nginx; R (tidyverse) for some analyses.
+## Tests
+
+```bash
+pytest
+```
+
+Tests marked `data` compare the code with the original scripts and with the paper. They need the local `data/` folder and are skipped without it.
+
+## History
+
+The code was written in 2020-2021 and restructured in 2026 into the package described here. The original scripts, including every earlier version of the dashboard and the exploratory analyses that are not part of the paper, are kept under the git tag `archive/pre-cleanup`.
 
 ## Citation
 
