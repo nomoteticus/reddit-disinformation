@@ -1,102 +1,145 @@
-import sys
+"""Find informal flags in the monthly comment files.
+
+For every ``COMM_yyyy_mm.csv`` in ``data/raw`` this writes a
+``MATCH_yyyy_mm.csv`` to ``data/processed`` with one row per sentence that
+contains a flag-type keyword, and indicator columns telling whether the
+sentence matches a pattern (``flag``) and which keywords it contains.
+
+Steps, per comment (Section 4 of the paper):
+
+1. keyword filter - keep comments containing a flag-related word;
+2. sarcasm filter - drop comments with ``/s``, scare quotes or "jk";
+3. split into sentences and parse each with spaCy;
+4. apply the patterns to every sentence.
+
+The job is incremental: when MATCH files already exist only the two most
+recent months are revisited, and comments already present in a MATCH file are
+not parsed again.
+"""
+
+from __future__ import annotations
+
 import re
-import os
+from pathlib import Path
+
 import pandas as pd
-import logging
 
-rootfold = re.match('^.*reddit-disinformation', 
-                    os.path.dirname(os.path.realpath(__file__))).group(0)
+from .. import settings
+from ..io import write_csv
+from .filters import KEYWORD_REGEX, SARCASM_REGEX
+from .matcher import LABELS, FlagMatcher, get_matcher
 
-### Setup logging
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(
-    level=logging.CRITICAL,
-    format="%(asctime)s <POS> [%(levelname)8s ] %(message)s",
-    datefmt='%y-%m-%d %H:%M:%S',
-    handlers=[
-        logging.FileHandler(rootfold+"/logs/pos_embed_unite.log"),
-        logging.StreamHandler()
-    ])
-LOG = logging.getLogger('LOG')
-LOG.setLevel(logging.DEBUG)
+MATCH_COLUMNS = ["comm_id", "sent_id", "sent"] + LABELS
+COMMENT_COLUMNS = ["subreddit", "link_id", "id", "parent_id", "body"]
+CHUNK_SIZE = 100_000
 
-pd.set_option('mode.chained_assignment', None)
+log = settings.get_logger("stroo.detect", "pos_embed_unite.log")
 
-LOG.info('----------------------')
-LOG.info('Started Pattern search')
-LOG.info('----------------------')
 
-sys.path.append(rootfold+"/2_findflags/all_subreddits")
-import functions_pos_match as fpm
+def monthly_files(folder: Path, prefix: str) -> list[str]:
+    """Sorted names of the ``<prefix>_yyyy_mm.csv`` files in ``folder``."""
+    if not folder.exists():
+        return []
+    pattern = re.compile(rf"{prefix}_20\d\d_\d\d\.csv")
+    return sorted(path.name for path in folder.iterdir() if pattern.fullmatch(path.name))
 
-patterns = [fpm.nlp.vocab.strings[match_id] for match_id in fpm.flagtypematcher._patterns.keys()]
 
-comm_files = sorted(re.findall('COMM_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-match_files = sorted(re.findall('MATCH_20[0-9][0-9]_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-LOG.debug('COMM_files: %s', comm_files)
-LOG.debug('MATCH_files: %s', match_files)
+def prefilter_comments(comments: pd.DataFrame) -> pd.DataFrame:
+    """Lower-case the comment text and apply the keyword and sarcasm filters."""
+    comments = comments.assign(body=comments["body"].astype(str).str.lower())
+    comments = comments[comments["body"].str.contains(KEYWORD_REGEX)]
+    return comments[~comments["body"].str.contains(SARCASM_REGEX)]
 
-gen_comm_files = comm_files[-2:] if len(match_files)>0 else comm_files
 
-total_sent = 0
+def match_comments(
+    comment_ids, bodies, matcher: FlagMatcher | None = None, n_process: int = 1
+) -> pd.DataFrame:
+    """Parse comments and return one row per sentence with a flag-type keyword.
 
-### Create MATCH files
-for comm_file in gen_comm_files:
-    match_file = re.sub('COMM','MATCH',comm_file)
-    LOG.info('Started comm file: %s',comm_file)
-    if match_file not in match_files:
-        total_nanosent = 0
-        sent_df = pd.DataFrame([], columns = ['comm_id','sent_id','sent']+patterns)
-        sent_df.to_csv(rootfold+'/output/'+match_file, index = False)
-        existing_comments = []
+    ``bodies`` are expected lower-cased (see ``prefilter_comments``).
+    """
+    matcher = matcher or get_matcher()
+    docs = matcher.nlp.pipe(bodies, n_process=n_process, disable=["ner"])
+    rows = []
+    # No `strict=`: this module also runs on Python 3.8 (environment-paper.yml).
+    for comment_id, doc in zip(comment_ids, docs):  # noqa: B905
+        for sentence_id, sentence in enumerate(doc.sents):
+            labels = matcher.labels(sentence)
+            if labels:
+                row = {"comm_id": comment_id, "sent_id": sentence_id, "sent": sentence.text}
+                row.update(dict.fromkeys(labels, 1))
+                rows.append(row)
+    matches = pd.DataFrame(rows, columns=MATCH_COLUMNS)
+    matches[LABELS] = matches[LABELS].fillna(0).astype("int64")
+    return matches
+
+
+def update_match_file(
+    comment_file: Path,
+    match_file: Path,
+    matcher: FlagMatcher | None = None,
+    n_process: int = 1,
+    chunk_size: int = CHUNK_SIZE,
+) -> int:
+    """Add the flags of comments not yet in ``match_file``; return sentences added."""
+    if match_file.exists():
+        matches = pd.read_csv(match_file)
     else:
-        sent_df = pd.read_csv(rootfold+'/output/'+match_file)
-        existing_comments = sent_df.comm_id
-    ### Start scraping
-    comm_generator = pd.read_csv(rootfold+'/output/'+comm_file, chunksize=100000)
-    for chunk_id, COMM in enumerate(comm_generator):
-        COMM = COMM[['subreddit','link_id','id','parent_id','body']]
-        COMM.body = COMM.body.astype(str).str.lower()
-        ### Remove submissions that are specifically on the topic of disinformation
-        COMM = COMM[COMM.body.str.contains(fpm.regex_flag)]
-        ### Remove comments that might be irony or sarcasm: "\s", "fake" news
-        COMM = COMM[~COMM.body.str.contains(fpm.sarcasm_and_irony_regex)]
-        ### Processing only new comments
-        remaining_comments = set(COMM.id) - set(existing_comments)
-        remaining_comments = [c for c in COMM.id if c in remaining_comments]
-        ### Apply matcher
-        LOG.debug('Trying %d comments', len(remaining_comments))
-        if len(remaining_comments)>0:
-            sent_dict = []
-            #total_sent = 0
-            COMM = COMM[COMM.id.isin(remaining_comments)]
-            for doc_index, doc in enumerate(fpm.nlp.pipe(COMM.body, n_process=10, n_threads = 20, disable = ["ner"])):
-                for sent_id, sent in enumerate(doc.sents):
-                    matched_keywords = sent._.flagtypematched
-                    if matched_keywords:
-                        sent_dict_entry = dict(zip(matched_keywords, [1]*len(matched_keywords)))
-                        sent_dict_entry['comm_id']=COMM.id.iloc[doc_index]
-                        sent_dict_entry['sent_id']=sent_id
-                        sent_dict_entry['sent']=sent.text
-                        sent_dict.append(sent_dict_entry)
-            ### add to current dataframe
-            sent_df_current = pd.DataFrame(sent_dict, columns = ['comm_id','sent_id','sent']+patterns)
-            sent_df_current.iloc[:,3:] = sent_df_current.iloc[:,3:].fillna(0).astype('int64')
-            total_sent += sent_df_current.shape[0]
-            if not sent_df_current.empty:
-                ### add to complete dataframe
-                sent_df = sent_df_current.append(sent_df).reset_index(drop=True)                
-                LOG.debug('%5dK. Done: %4d comments, %4d sent / %6d total sent. Flags: %s', 
-                          (chunk_id+1)*100, len(set(sent_df_current.comm_id)), sent_df_current.shape[0], total_sent, 
-                          sent_df_current.flag.agg(sum))
-            else:
-                LOG.warning('%5dK. No new sentences.', (chunk_id+1)*100)
-                break            
-        else:
-            LOG.warning('No new comments in comm file: %s',comm_file)
+        matches = pd.DataFrame(columns=MATCH_COLUMNS)
+        write_csv(matches, match_file)
+    already_matched = set(matches["comm_id"])
+
+    n_added = 0
+    chunks = pd.read_csv(comment_file, chunksize=chunk_size, usecols=COMMENT_COLUMNS)
+    for chunk_number, chunk in enumerate(chunks, start=1):
+        comments = prefilter_comments(chunk)
+        comments = comments[~comments["id"].isin(already_matched)]
+        log.debug("Trying %d comments", len(comments))
+        if comments.empty:
+            # Nothing new in this chunk: stop scanning this file.
+            log.warning("No new comments in comm file: %s", comment_file.name)
             break
-        if not sent_df.empty:
-            sent_df.to_csv(rootfold+'/output/'+match_file, index = False)
-            LOG.info('Saved match file: %s',match_file)
-    LOG.info('Finished comm file: %s',comm_file)
+
+        new_matches = match_comments(comments["id"], comments["body"], matcher, n_process)
+        if new_matches.empty:
+            log.warning("%5dK. No new sentences.", chunk_number * chunk_size // 1000)
+            break
+
+        n_added += len(new_matches)
+        matches = pd.concat([new_matches, matches], ignore_index=True)
+        log.debug(
+            "%5dK. Done: %4d comments, %4d sentences. Flags: %s",
+            chunk_number * chunk_size // 1000,
+            new_matches["comm_id"].nunique(),
+            len(new_matches),
+            new_matches["flag"].sum(),
+        )
+        write_csv(matches, match_file)
+        log.info("Saved match file: %s", match_file.name)
+    return n_added
+
+
+def run(raw_dir: Path | None = None, processed_dir: Path | None = None, n_process: int = 1) -> None:
+    """Update the MATCH files for the comment files that may have changed."""
+    raw_dir = raw_dir or settings.RAW_DIR
+    processed_dir = processed_dir or settings.PROCESSED_DIR
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    comment_files = monthly_files(raw_dir, "COMM")
+    match_files = monthly_files(processed_dir, "MATCH")
+    log.info("Started pattern search")
+    log.debug("COMM files: %s", comment_files)
+    log.debug("MATCH files: %s", match_files)
+
+    # First run: every month. Later runs: only the two most recent months.
+    to_process = comment_files[-2:] if match_files else comment_files
+    matcher = get_matcher()
+    for comment_file in to_process:
+        log.info("Started comm file: %s", comment_file)
+        update_match_file(
+            raw_dir / comment_file,
+            processed_dir / comment_file.replace("COMM", "MATCH"),
+            matcher,
+            n_process,
+        )
+        log.info("Finished comm file: %s", comment_file)
