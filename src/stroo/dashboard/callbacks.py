@@ -13,18 +13,18 @@ from .data import (
     COMPONENTS,
     DashboardData,
     Filters,
-    filter_aggregate,
     filter_flags,
+    filter_subreddits,
     flag_rate,
+    flagged_domains,
     flagged_share,
     from_json,
-    most_flagged,
     shorten,
     to_json,
 )
 
 CARD_CLASS = "shadow_container container_subm"
-KEYWORDS_COMPARED = ("trump", "biden")
+N_KEYWORDS_OVER_TIME = 3
 CLUSTER_SEED = 777
 
 
@@ -76,9 +76,11 @@ def register_callbacks(app: Dash, data: DashboardData) -> None:  # noqa: C901 - 
 
     @app.callback(Output("tab-content", "children"), Input("tabs", "value"))
     def render_tab(tab):
+        first, last = weeks["min"].min(), weeks["max"].max()
+        period = f"{_pretty_date(first, True)} to {_pretty_date(last, True)}"
+        if tab == "highlights":
+            return layout.highlights_tab(period)
         if tab == "method":
-            first, last = weeks["min"].min(), weeks["max"].max()
-            period = f"{_pretty_date(first, True)} to {_pretty_date(last, True)}"
             return layout.method_tab(
                 app.get_asset_url("method_pipeline.png"),
                 app.get_asset_url("method_patterns.png"),
@@ -115,9 +117,10 @@ def register_callbacks(app: Dash, data: DashboardData) -> None:  # noqa: C901 - 
         Output("plot_evol_line_n", "figure"),
         Input("subm_filt_json", "data"),
         Input("rd_evo_week", "value"),
+        Input("filters", "data"),
     )
-    def flagged_over_time(posts_json, statistic):
-        by_week = flagged_share(from_json(posts_json), data, by=["week"])
+    def flagged_over_time(posts_json, statistic, stored):
+        by_week = flagged_share(from_json(posts_json), data, _filters(stored))
         return figures.flagged_over_time(by_week, weeks, statistic, data.year)
 
     @app.callback(Output("highl_subm_detail", "children"), Input("flag_filt_json", "data"))
@@ -136,17 +139,13 @@ def register_callbacks(app: Dash, data: DashboardData) -> None:  # noqa: C901 - 
         words = components.common_words(posts["subm_title"], n_words=10) if len(posts) else posts
         return figures.word_frequencies(words.sort_values("freq") if len(words) else words)
 
-    @app.callback(Output("plot_two_keywords", "figure"), Input("subm_filt_json", "data"))
-    def two_keywords_over_time(posts_json):
+    @app.callback(Output("plot_keywords_time", "figure"), Input("subm_filt_json", "data"))
+    def keywords_over_time(posts_json):
         posts = from_json(posts_json)
         if posts.empty:
-            return figures.two_keywords(posts, weeks)
-        by_week = pd.concat(
-            components.common_words(titles).assign(week=week)
-            for week, titles in posts.groupby("week")["subm_title"]
-        )
-        by_week = by_week[by_week["word"].isin(KEYWORDS_COMPARED)]
-        return figures.two_keywords(by_week, weeks)
+            return figures.keywords_over_time(posts, weeks)
+        trends = components.keyword_trends(posts, n_keywords=N_KEYWORDS_OVER_TIME)
+        return figures.keywords_over_time(trends, weeks)
 
     # --- Flags ----------------------------------------------------------------------
 
@@ -179,7 +178,7 @@ def register_callbacks(app: Dash, data: DashboardData) -> None:  # noqa: C901 - 
     # --- Subreddits -------------------------------------------------------------------
 
     def _subreddit_weeks(stored) -> pd.DataFrame:
-        table = filter_aggregate(data.subreddits, _filters(stored), drop_unflagged=False)
+        table = filter_subreddits(data, _filters(stored))
         return flag_rate(table, ["subreddit_cat", "subreddit", "week"])
 
     @app.callback(Output("plot_subr_treemap", "figure"), Input("filters", "data"))
@@ -253,33 +252,12 @@ def register_callbacks(app: Dash, data: DashboardData) -> None:  # noqa: C901 - 
         )
         return figure, words, components.table(in_cluster, max_rows=30, class_name="small")
 
-    # --- Domains and authors ------------------------------------------------------------
+    # --- Domains ----------------------------------------------------------------------
 
     @app.callback(
         Output("tbl_domains", "children"),
-        Input("filters", "data"),
+        Input("flag_filt_json", "data"),
         Input("rd_ntopdomains", "value"),
-        Input("rd_mincasesdomains", "value"),
-        Input("rd_domainspercent", "value"),
     )
-    def domain_table(stored, n_rows, min_posts, sort_by):
-        table = filter_aggregate(data.domains, _filters(stored))
-        return components.table(
-            most_flagged(table, "link_domain", min_posts, sort_by), max_rows=n_rows
-        )
-
-    @app.callback(
-        Output("tbl_authors", "children"),
-        Input("filters", "data"),
-        Input("rd_ntopauthors", "value"),
-        Input("rd_mincasesauthors", "value"),
-        Input("rd_authorspercent", "value"),
-    )
-    def author_table(stored, n_rows, min_posts, sort_by):
-        table = filter_aggregate(data.flagged_authors, _filters(stored))
-        return components.table(
-            most_flagged(table, "subm_author", min_posts, sort_by),
-            max_rows=n_rows,
-            link_column="subm_author",
-            link_prefix="https://www.reddit.com/user/",
-        )
+    def domain_table(flags_json, n_rows):
+        return components.table(flagged_domains(from_json(flags_json)), max_rows=n_rows)

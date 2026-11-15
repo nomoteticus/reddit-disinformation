@@ -1,7 +1,7 @@
 # Deploying the dashboard
 
 The dashboard is a Flask (Dash) application. As in the paper (Section 7.1) it
-is served by Gunicorn behind Nginx on an Ubuntu machine. It only needs the six
+is served by Gunicorn behind Nginx on an Ubuntu machine. It only needs three
 `app_*.csv` tables; the rest of the pipeline can run elsewhere.
 
 Memory: about 300 MB per worker after start-up with the 2020 data (measured on
@@ -22,17 +22,20 @@ repository, because Nginx serves the stylesheets from `src/stroo/dashboard/asset
 
 ## 2. Data
 
-Put the six tables in `/var/lib/stroo/data/dashboard/`:
+Put the three tables the dashboard reads in `/var/lib/stroo/data/dashboard/`:
 
 ```bash
 sudo mkdir -p /var/lib/stroo/data/dashboard
-# copy app_flags_day.csv, app_subm_day.csv, app_subr_week.csv,
-#      app_authFlaggers_week.csv, app_authFlagged_week.csv, app_domain_week.csv
+# copy app_flags_day.csv, app_subm_day.csv, app_subr_week.csv
 sudo chown -R stroo /var/lib/stroo
 ```
 
 The 2020 tables used in the paper are on Figshare:
 https://doi.org/10.6084/m9.figshare.13174136
+
+The dashboard shows no user names and leaves out posts that were removed or
+deleted. The two author tables (`app_authFlaggers_week.csv`,
+`app_authFlagged_week.csv`) are not needed; do not copy them to a public server.
 
 ## 3. Check it starts
 

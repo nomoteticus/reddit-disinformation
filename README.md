@@ -28,7 +28,7 @@ conda activate stroo
 python -m spacy download en_core_web_sm
 ```
 
-Download the six `app_*.csv` tables from [Figshare](https://doi.org/10.6084/m9.figshare.13174136) into `data/dashboard/`, then:
+Download `app_flags_day.csv`, `app_subm_day.csv` and `app_subr_week.csv` from [Figshare](https://doi.org/10.6084/m9.figshare.13174136) into `data/dashboard/`, then:
 
 ```bash
 stroo dashboard
@@ -55,7 +55,7 @@ and open http://127.0.0.1:8050.
 | `stroo.collect` | Selects subreddits that share news links about COVID-19; daily scrape of their posts and of the comments on link posts, via the Pushshift API. | Section 3 |
 | `stroo.flags` | The vocabulary (`vocabulary.py`), the 21 syntactic patterns (`patterns.py`), the matcher, the keyword/sarcasm/bot filters, and the job that writes matched sentences to `MATCH_yyyy_mm.csv`. | Section 4, Appendix B |
 | `stroo.embed` | Universal Sentence Encoder embeddings of post titles, reduced with PCA. | Section 7.3 |
-| `stroo.aggregate` | Joins flags, comments and posts; builds the six tables read by the dashboard. | Appendix A |
+| `stroo.aggregate` | Joins flags, comments and posts; builds the tables read by the dashboard. | Appendix A |
 | `stroo.validation` | Sampling of comments for manual annotation, precision/recall of the matcher, machine-learning baselines, comparison with a fact-checker's list. | Sections 4.4, 5.5 |
 | `stroo.dashboard` | The Dash app. | Section 7 |
 
@@ -112,10 +112,12 @@ Left panel: filters for the period, the type and number of flags, the subreddit,
 | Submissions | Flagged posts with their flags, removal status and similar posts. |
 | Subreddits | Treemap of flags per subreddit; weekly trend per subreddit category, as counts or percent. |
 | Clustering | K-means topics of post titles, with keywords and the posts of each cluster. |
-| Domains, Authors | Most flagged linked websites and post authors. |
+| Domains | Websites linked by the flagged posts. |
 | Method | A short description of the method. |
 
-The app is the 2021 redesign of the dashboard (v0.1.2) with the tabs of the version described in the paper added back. To put it on a server, see [`deploy/README.md`](deploy/README.md).
+The dashboard is an archive of the 2020 data, not a live monitor. It shows no user names: the author tables are not loaded, user mentions in comments and titles are masked, and posts removed by moderators or deleted by their authors are left out (set `STROO_SHOW_REMOVED=1` to include them for research use).
+
+The app is the 2021 redesign of the dashboard (v0.1.2) with tabs of the version described in the paper added back. To put it on a server, see [`deploy/README.md`](deploy/README.md).
 
 ## Data
 

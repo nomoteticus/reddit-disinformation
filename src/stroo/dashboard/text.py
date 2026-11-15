@@ -2,7 +2,7 @@
 
 HIGHLIGHTS = [
     "This dashboard shows Reddit posts flagged by Reddit users as false information in the "
-    "comments.",
+    "comments. It is an archive of the data collected from {period}; it is no longer updated.",
     'The rule-based method of identifying user flags is described in the "Method" tab.',
 ]
 
@@ -18,6 +18,16 @@ SUBMISSIONS = [
 
 AGGREGATE_NOTE = 'The "Flag count" filter does not apply to this tab.'
 
+DOMAINS = [
+    "Websites linked by the flagged posts of the current selection. A flagged website is not "
+    "necessarily unreliable: the flags express what Reddit users thought of a post.",
+]
+
+PRIVACY = [
+    "No user names are shown. Mentions of users in comments and titles are masked, and posts "
+    "that were removed by moderators or deleted by their authors are left out.",
+]
+
 METHOD_INTRO = [
     "This dashboard was created by a team at the University of Mannheim, Germany (School of "
     "Social Sciences, Department of Statistics and Methodology).",
@@ -29,7 +39,8 @@ METHOD_INTRO = [
 METHOD_COLLECTION = [
     "Submissions and comments are collected from Reddit via the Pushshift API with the Python "
     "package PSAW.",
-    "Collection started in March 2020 and was updated daily; data shown here: {period}.",
+    "Collection started in March 2020 and ran daily while the project was active. This "
+    "dashboard is an archive of the data from {period}.",
     "Subreddits were chosen to satisfy the following criteria:",
 ]
 SUBREDDIT_CRITERIA = [
