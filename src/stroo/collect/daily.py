@@ -1,247 +1,147 @@
-from psaw import PushshiftAPI
-from datetime import datetime, timedelta
-from collections import Counter
+"""Daily collection of new submissions and comments from the tracked subreddits.
+
+Run once a day (Section 3 of the paper). It appends to the monthly files
+``SUBM_yyyy_mm.csv`` and ``COMM_yyyy_mm.csv`` in ``data/raw``. Because the
+number of comments and the removal status of a post change after it is
+published, each run goes back ``DAYS_BEHIND`` days before the last scraped
+submission and overwrites what it finds.
+
+Failed subreddits and comment batches are retried, with longer time limits and
+smaller batches on each round.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 import timeout_decorator
-import time
-import os
-import re
-import sys
-import numpy as np
-import logging
 
-#%pwd
+from .. import settings
+from ..aggregate.tables import load_tracked_subreddits
+from ..flags.detect import monthly_files
+from ..io import read_csv, write_csv
+from . import pushshift
+from .cleaning import (
+    COMMENT_FIELDS,
+    chunked,
+    clean_comments,
+    collapse_whitespace,
+    merge_new_rows,
+    news_link_ids,
+    to_datetime,
+)
 
-api = PushshiftAPI()
+log = settings.get_logger("stroo.collect", "subm_comm_realtime.log")
 
-rootfold = re.match('^.*reddit-disinformation', os.path.dirname(os.path.realpath(__file__))).group(0)
-#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
-with open('cwd.txt','r') as file:
-    rootfold = file.read().rstrip()+'/'
-
-sys.path.append(rootfold+"1_scraping")
-import func_submcomm as sc
-
-MAIN = logging.getLogger('MAIN')
-MAIN.setLevel(logging.DEBUG)
-MAIN_subm = logging.getLogger('MAIN.subm')
-MAIN_comm = logging.getLogger('MAIN.comm')
-
-
-###
-MAIN.info('Started syntax to extract new submissions and comments')
-### 
-
-"""
-SUBREDDITS
-"""
-
-subreddits_df = pd.read_csv(rootfold+'input/subr_classification.csv')
-#subreddits_df = pd.read_csv(rootfold+'input/subr_classification_miss.csv')
-subreddits = subreddits_df[~subreddits_df.keep.isna()]
-subreddits = subreddits[subreddits.keep].subreddit
-###
-MAIN.info('Relevant subreddits: %3d\n', len(subreddits))
+#: "We always scrape three days behind every day" (Section 3.2).
+DAYS_BEHIND = 3
+SUBMISSION_ROUNDS = 5
+#: Submissions per comment request, per retry round.
+COMMENT_BATCH_SIZES = [200, 100, 100, 50, 10, 5]
 
 
-"""
-SUBMISSIONS
-"""
+def _month_file(kind: str, year: int, month: int) -> str:
+    return f"{kind}_{year}_{month:02d}.csv"
 
 
-MAIN.info('Started scraping new Submissions' )
-
-subm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('SUBM_20[0-9][0-9]_[0-9][0-9].csv',filename)], reverse = True)
-MAIN.info('Files: %s', subm_files)
-
-current_year  = datetime.now().year
-current_month = datetime.now().month
-previous_month_year  = current_year if current_month>1 else current_year-1
-previous_month_month = current_month-1 if current_month>1 else 12
+def _previous_month(year: int, month: int) -> tuple[int, int]:
+    return (year, month - 1) if month > 1 else (year - 1, 12)
 
 
-current_month_file_subm = 'SUBM_%d_%02d.csv' % (current_year, current_month)
-current_month_file_comm = current_month_file_subm.replace('SUBM','COMM')
-
-previous_month_file_subm = 'SUBM_%d_%02d.csv' % (previous_month_year, previous_month_month)
-previous_month_file_comm = previous_month_file_subm.replace('SUBM','COMM')
-
-
-## Create or import dataframe and go back 3 days since last submission
-
-if current_month_file_subm in subm_files:
-    subm_current_df = pd.read_csv(rootfold+'output/'+current_month_file_subm, lineterminator='\n')
-    subm_current_df.created_utc = pd.to_datetime(subm_current_df.created_utc)
-    ### calculate difference from last scraping day
-    max_day = pd.to_datetime(subm_current_df.created_utc).max()
-    MAIN.info('Last submission file: %s', current_month_file_subm)
-else:
-    subm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_subm, lineterminator='\n')
-    subm_current_df = pd.DataFrame({},columns = subm_previous_df.columns)
-    ### calculate difference from last scraping day
-    max_day = pd.to_datetime(subm_previous_df.created_utc).max()
-    MAIN.info('Last submission file: %s', previous_month_file_subm)
-    MAIN.info('Added new submission file: %s', current_month_file_subm)
-
-diff_days = (datetime.now() - max_day).days
-MAIN.info('Days since last submission scraped: %d', diff_days)
+def scrape_submissions(subreddits, days_back: int) -> list:
+    """Scrape every subreddit, retrying the ones that returned nothing."""
+    remaining, found = set(subreddits), []
+    for round_number in range(1, SUBMISSION_ROUNDS + 1):
+        if not remaining:
+            break
+        fetch = timeout_decorator.timeout(min(round_number, 4) * 60)(pushshift.fetch_submissions)
+        log.debug("Round %d", round_number)
+        for subreddit in sorted(remaining):
+            new = fetch(subreddit, sort="asc", before="10m", after=f"{days_back}d")
+            found += new
+            log.debug("Finished: %30s. Cases: %5d. Overall: %6d", subreddit, len(new), len(found))
+        remaining -= {submission.subreddit for submission in found}
+    if remaining:
+        log.warning("Subreddits not scraped: %d: %s", len(remaining), sorted(remaining))
+    return found
 
 
-### Scrape and add new submissions to dataframe
-
-subm_new_lst = []
-nrep = 1
-while len(subreddits)>0 and nrep<6:
-    @timeout_decorator.timeout(min(nrep,4)*60) 
-    def extract_subm_timeout(*args, **kwargs):
-       return sc.extract_submissions(*args, **kwargs)
-    MAIN_subm.debug('Repetition %1d ', nrep)
-    for subr in subreddits:
-        subm_lst = []
-        subm_lst = extract_subm_timeout(subr = subr, srt="asc", lim = 1000000,
-                                        bef = "10m", aft = str(diff_days+5)+"d")
-        subm_new_lst+=subm_lst
-        MAIN_subm.debug('Finished: %30s. Cases: %5d .Overall: %6d', subr, len(subm_lst), len(subm_new_lst))
-        subreddits  = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
-    nrep+=1
-
-MAIN_subm.info('FINISHED scraping submissions. Repetitions: %d. New submissions: %d', 
-               nrep-1, len(subm_new_lst))
-subreddits = set(subreddits).difference(set([s.subreddit for s in subm_new_lst]))
-if len(subreddits)>0:
-    MAIN_subm.warning('Subreddits not scraped: %d : %s', len(subreddits),subreddits)
+def scrape_comments(submission_ids: pd.Series) -> pd.DataFrame:
+    """Scrape comments in batches, retrying missing submissions with smaller batches."""
+    comments = pd.DataFrame(columns=COMMENT_FIELDS)
+    remaining = submission_ids
+    for round_number, batch_size in enumerate(COMMENT_BATCH_SIZES, start=1):
+        if len(remaining) == 0:
+            break
+        log.debug("Round %d", round_number)
+        for batch in chunked(remaining, batch_size):
+            comments = pd.concat([comments, pushshift.fetch_comments(batch)])
+            log.debug("%10d comments so far", len(comments))
+        remaining = remaining[~remaining.isin(set(comments["link_id"]))]
+    if len(remaining) > 0:
+        log.warning("Submissions not scraped: %d", len(remaining))
+    return clean_comments(comments)
 
 
-### Process and write to file
-
-if len(subm_new_lst)>0:
-    subm_allnew_df = pd.DataFrame([s.d_ for s in subm_new_lst])
-    subm_allnew_df['id'] = 't3_' + subm_allnew_df['id']
-    subm_allnew_df['created_utc'] = subm_allnew_df['created_utc'].apply(sc.conv_utc)
-    subm_allnew_df['title'] = subm_allnew_df['title'].astype('str').apply(sc.remove_spaces)
-    subm_allnew_df = subm_allnew_df[subm_current_df.columns]
-    ###
-    MAIN_subm.info('PROCESSED submissions. Date min: %20s ; Date max %20s', \
-          min(subm_allnew_df.created_utc), max(subm_allnew_df.created_utc))
-    ###
-    subm_pre_df = subm_allnew_df[(subm_allnew_df.created_utc.dt.year==previous_month_year) & (subm_allnew_df.created_utc.dt.month==previous_month_month)]
-    subm_new_df = subm_allnew_df[(subm_allnew_df.created_utc.dt.year==current_year) & (subm_allnew_df.created_utc.dt.month==current_month)]
-    ###
-    ### Add submissions to current month dataframe
-    if subm_new_df.shape[0]>0:
-        subm_unite_df = sc.add_to_old_df(subm_new_df, subm_current_df, sort_var = 'created_utc')
-        subm_unite_df.to_csv(rootfold+'output/'+current_month_file_subm, index = False)
-        MAIN_subm.info('WROTE %d submissions to file: %s', subm_new_df.shape[0], current_month_file_subm)
-        del(subm_unite_df, subm_current_df)
-    else:
-        MAIN_subm.warning('No new submissions to add')
-    ### Add comments to previous month dataframe
-    if subm_pre_df.shape[0]>0:
-        subm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_subm, lineterminator='\n')
-        subm_previous_df.created_utc = pd.to_datetime(subm_previous_df.created_utc)
-        ###
-        subm_unite_df = sc.add_to_old_df(subm_pre_df, subm_previous_df, sort_var = 'created_utc')
-        subm_unite_df.to_csv(rootfold+'output/'+previous_month_file_subm, index = False)
-        MAIN_subm.info('WROTE %d submissions to file: %s', subm_pre_df.shape[0], previous_month_file_subm)
-        del(subm_unite_df, subm_previous_df)
-    else:
-        MAIN_subm.warning('No new submissions to add for previous month')
-else:
-    MAIN_subm.warning('No new submissions to add')
-
-MAIN_comm.info('FINISHED SUBMISSIONS.\n')
+def _update_month(new: pd.DataFrame, path: Path, sort_by: str, template: pd.DataFrame) -> None:
+    """Merge ``new`` rows into a monthly file (created if missing)."""
+    if new.empty:
+        log.info("Nothing to add to %s", path.name)
+        return
+    old = read_csv(path, parse_dates=[sort_by]) if path.exists() else template.iloc[:0]
+    write_csv(merge_new_rows(new, old, sort_by=sort_by), path)
+    log.info("Wrote %d rows to %s", len(new), path.name)
 
 
+def run(raw_dir: Path | None = None, now: datetime | None = None) -> None:
+    """Collect new submissions and their comments and update the monthly files."""
+    raw_dir = raw_dir or settings.RAW_DIR
+    now = now or datetime.now()
+    current = (now.year, now.month)
+    previous = _previous_month(*current)
 
-"""
-COMMENTS
-"""
+    subreddits = load_tracked_subreddits()["subreddit"]
+    log.info("Tracked subreddits: %d", len(subreddits))
 
-MAIN_comm.info('Starting scraping COMMENTS')
+    # Where did the last run stop? Look in this month's file, else last month's.
+    existing = monthly_files(raw_dir, "SUBM")
+    last_file = _month_file("SUBM", *(current if _month_file("SUBM", *current) in existing
+                                      else previous))  # fmt: skip
+    last_submissions = read_csv(raw_dir / last_file, parse_dates=["created_utc"])
+    days_since_last = (now - last_submissions["created_utc"].max()).days
+    log.info("Days since last submission scraped: %d", days_since_last)
 
-if subm_allnew_df.shape[0]>0:
-    
-    keep_columns_comm = ['id', 'created',
-                        'subreddit', 'link_id', 'parent_id',
-                        'body', 'edited',
-                        'author', 
-                        'collapsed', 'no_follow', 'score', 'distinguished']
-    
-    comm_files = sorted([filename for filename in os.listdir(rootfold+'output') if re.search('^COMM_20[0-9][0-9]_[0-9][0-9].csv',filename)], reverse = True)
-    current_month_file_comm = current_month_file_subm.replace('SUBM','COMM')    
-    
-    ### Read last comments file
-    
-    if current_month_file_comm in comm_files:
-        comm_current_df = pd.read_csv(rootfold+'output/'+current_month_file_comm, lineterminator='\n')
-        comm_current_df.created = pd.to_datetime(comm_current_df.created)
-    else:
-        comm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_comm, lineterminator='\n')
-        comm_current_df = pd.DataFrame(columns = comm_previous_df.columns)
-    
-    subm_toscrape = sc.get_submission_ids(subm_allnew_df, exclude = set())
+    # --- Submissions
+    scraped = scrape_submissions(subreddits, days_back=days_since_last + DAYS_BEHIND)
+    if not scraped:
+        log.warning("No new submissions; nothing to do")
+        return
+    submissions = pd.DataFrame([submission.d_ for submission in scraped])
+    submissions = submissions.assign(
+        id="t3_" + submissions["id"],
+        created_utc=submissions["created_utc"].apply(to_datetime),
+        title=submissions["title"].astype(str).apply(collapse_whitespace),
+    )[last_submissions.columns]
 
-    MAIN_comm.info('Submissions to scrape for comments: %d\n', len(subm_toscrape))
-    
-    comm_new_df = pd.DataFrame({}, columns = keep_columns_comm)
-    
-    comm_finished = 0
-    subm_limit = 1000000
-    chunk_sizes = [200,100,100,50,10,5]
-    nrep_comm = 1
-    
-    while len(subm_toscrape)>0 and nrep_comm<7:
-        MAIN_comm.debug('Repetition %1d ', nrep_comm)
-        current_subreddit = 'NoneYet'
-        subm_finished = 0
-        for id_chunk in sc.chunk_generator(subm_toscrape,chunk_sizes[nrep_comm-1]):
-             comm_new_df = comm_new_df.\
-                 append(sc.scrape_chunk(id_chunk, keep_columns_comm, subm_limit))
-             comm_finished=comm_new_df.shape[0]
-             subm_finished+=chunk_sizes[nrep_comm-1]
-             if comm_new_df.shape[0] > 0:
-                 current_subreddit = comm_new_df.iloc[-1].subreddit
-             MAIN_comm.debug('%7d / %7d submissions | %10d comments | r/%s',
-                            subm_finished, len(subm_toscrape), comm_finished, current_subreddit)
-             time.sleep(2)
-        subm_toscrape = subm_toscrape[~subm_toscrape.isin(set(comm_new_df.link_id))]
-        nrep_comm+=1
-    
-    MAIN_comm.info('FINISHED scraping comments. Repetitions: %d. New comments: %d', 
-                   nrep_comm-1, comm_new_df.shape[0])
-    subm_toscrape = subm_toscrape[~subm_toscrape.isin(set(comm_new_df.link_id))]
-    
-    if len(subm_toscrape)>0:
-        MAIN_subm.warning('Submissions not scraped: %d', len(subm_toscrape))
-    
-    comm_new_df = sc.process_com_df(comm_new_df, keep_columns_comm)
-    MAIN_comm.info('PROCESSED comments. Date min: %20s ; Date max %20s', \
-               min(comm_new_df.created), max(comm_new_df.created))
+    by_month = {}
+    for year, month in (current, previous):
+        created = submissions["created_utc"].dt
+        by_month[year, month] = submissions[(created.year == year) & (created.month == month)]
+        _update_month(
+            by_month[year, month], raw_dir / _month_file("SUBM", year, month),
+            "created_utc", last_submissions,
+        )  # fmt: skip
 
-    comm_pre_df = comm_new_df[comm_new_df['link_id'].isin(set(subm_pre_df['id']))]
-    comm_new_df = comm_new_df[comm_new_df['link_id'].isin(set(subm_new_df['id']))]
-
-    ### Add comments to current month dataframe
-    if comm_new_df.shape[0]>0:
-        comm_unite_df = sc.add_to_old_df(comm_new_df, comm_current_df, sort_var = 'created')
-        comm_unite_df.to_csv(rootfold+'output/'+current_month_file_comm, index = False)
-        MAIN_comm.info('WROTE %d comments to file: %s', comm_new_df.shape[0], current_month_file_comm)
-        del(comm_unite_df, comm_current_df)
-    else:
-        MAIN_comm.info('No new comments to add')
-    ### Add comments to previous month dataframe
-    if comm_pre_df.shape[0]>0:
-        comm_previous_df = pd.read_csv(rootfold+'output/'+previous_month_file_comm, lineterminator='\n')
-        comm_previous_df.created = pd.to_datetime(comm_previous_df.created)
-        ###
-        comm_unite_df = sc.add_to_old_df(comm_pre_df, comm_previous_df, sort_var = 'created')
-        comm_unite_df.to_csv(rootfold+'output/'+previous_month_file_comm, index = False)
-        MAIN_comm.info('WROTE %d comments to file: %s', comm_pre_df.shape[0], previous_month_file_comm)
-        del(comm_unite_df, comm_previous_df)
-    else:
-        MAIN_comm.info('No new comments to add in previous month')
-
-else:
-    MAIN_comm.info('No new comments to add')
-
-MAIN_comm.info('FINISHED.\n\n\n')
+    # --- Comments, only for submissions that share a link to a website
+    to_scrape = news_link_ids(submissions)
+    log.info("Submissions to scrape for comments: %d", len(to_scrape))
+    comments = scrape_comments(to_scrape)
+    for (year, month), month_submissions in by_month.items():
+        _update_month(
+            comments[comments["link_id"].isin(set(month_submissions["id"]))],
+            raw_dir / _month_file("COMM", year, month),
+            "created", comments,
+        )  # fmt: skip
+    log.info("Finished")
