@@ -1,0 +1,230 @@
+"""Loading and filtering the six tables behind the dashboard.
+
+The tables are produced by ``stroo.aggregate`` (see Appendix A of the paper):
+
+==============================  ==============================================
+``app_flags_day.csv``           one row per flag sentence
+``app_subm_day.csv``            flagged posts, with five title-embedding columns
+``app_subr_week.csv``           flags and number of posts per subreddit and week
+``app_authFlaggers_week.csv``   users who flag
+``app_authFlagged_week.csv``    authors of flagged posts
+``app_domain_week.csv``         linked web domains of flagged posts
+==============================  ==============================================
+"""
+
+from __future__ import annotations
+
+import io
+import re
+from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from .. import settings
+
+FLAG_TYPE_LABELS = {
+    "disinformation": "Dis/Misinfo",
+    "fakenews": "Fake news",
+    "misleading": "Clickbait",
+    "unreliable": "Unreliable",
+    "propaganda": "Propaganda",
+    "bs": "Bullshit",
+    "other": "Other",
+}
+DEFAULT_FLAG_TYPES = ["disinformation", "fakenews", "misleading", "unreliable", "propaganda"]
+COMPONENTS = ["PC01", "PC02", "PC03", "PC04", "PC05"]
+N_TOP_SUBREDDITS = 20
+
+
+def domain_of(url: str) -> str:
+    """The web domain of a link, without scheme and ``www.`` (``-`` if not a link)."""
+    found = re.search(r"^.+?[a-z]\/", url, re.IGNORECASE)
+    if not found:
+        return "-"
+    domain = re.sub(r"https?\:\/\/", "", found.group(0)[:-1])
+    domain = re.sub(r"www\.", "", domain)
+    return re.sub("/.*", "", domain)
+
+
+@dataclass
+class DashboardData:
+    flags: pd.DataFrame
+    submissions: pd.DataFrame
+    subreddits: pd.DataFrame
+    flaggers: pd.DataFrame
+    flagged_authors: pd.DataFrame
+    domains: pd.DataFrame
+    #: All scraped posts per subreddit and week: denominators for "percent flagged".
+    all_posts: pd.DataFrame
+    #: First day, last day, number of days and slider label of each week.
+    weeks: pd.DataFrame
+    top_subreddits: list[str]
+
+    @property
+    def week_range(self) -> tuple[int, int]:
+        return int(self.subreddits["week"].min()), int(self.subreddits["week"].max())
+
+    @property
+    def year(self) -> str:
+        """Year(s) covered by the data, for labels."""
+        years = sorted({day[:4] for day in (self.weeks["min"].min(), self.weeks["max"].max())})
+        return "-".join(years)
+
+
+def load_data(data_dir: Path | None = None) -> DashboardData:
+    data_dir = data_dir or settings.DASHBOARD_DATA_DIR
+    flags = pd.read_csv(data_dir / "app_flags_day.csv")
+    submissions = pd.read_csv(data_dir / "app_subm_day.csv")
+    subreddits = pd.read_csv(data_dir / "app_subr_week.csv")
+
+    subreddits["week"] = subreddits["week"].astype(int)
+    subreddits["ISFLAG"] = subreddits["flag"]
+    submissions["ISFLAG"] = submissions["flag"]
+    submissions["cluster"] = "1"
+
+    # The linked domain is taken from the first flag of each post.
+    flags["domain"] = [domain_of(url) for url in flags["link_url"]]
+    first_domain = flags.groupby("subm_id")["domain"].first()
+    submissions = submissions.set_index("subm_id").join(first_domain).reset_index()
+
+    weeks = submissions.groupby("week")["day"].agg(["min", "max", "nunique"])
+    weeks["label"] = weeks["max"].str[5:7] + "/" + weeks["max"].str[8:10]
+
+    top = subreddits.groupby("subreddit")["ISFLAG"].sum().sort_values(ascending=False)
+    return DashboardData(
+        flags=flags,
+        submissions=submissions,
+        subreddits=subreddits,
+        flaggers=pd.read_csv(data_dir / "app_authFlaggers_week.csv"),
+        flagged_authors=pd.read_csv(data_dir / "app_authFlagged_week.csv"),
+        domains=pd.read_csv(data_dir / "app_domain_week.csv"),
+        all_posts=subreddits.groupby(["subreddit", "week"])[["n_subm_all", "n_subm_kept"]]
+        .sum()
+        .reset_index(),
+        weeks=weeks,
+        top_subreddits=list(top.head(N_TOP_SUBREDDITS).index),
+    )
+
+
+# --- Filters (left-hand panel) ------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Filters:
+    weeks: tuple[int, int]
+    flag_types: tuple[str, ...]
+    min_flags: int = 1
+    subreddits: tuple[str, ...] = ()
+    covid_only: bool = False
+
+
+def _common_filters(
+    table: pd.DataFrame, filters: Filters, drop_unflagged: bool = True
+) -> pd.DataFrame:
+    """Week, flag type, COVID-19 topic and subreddit; shared by every table.
+
+    ``ISFLAG`` is the number of flags of the selected types in each row.
+    """
+    table = table[table["week"].between(*filters.weeks)].copy()
+    table["ISFLAG"] = table[list(filters.flag_types)].sum(axis=1)
+    if drop_unflagged:
+        table = table[table["ISFLAG"] > 0]
+    if filters.covid_only:
+        table = table[table["subm_covid"]]
+    if filters.subreddits:
+        table = table[table["subreddit"].str.contains("|".join(filters.subreddits))]
+    return table
+
+
+def filter_flags(data: DashboardData, filters: Filters) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Flag sentences and flagged posts that pass the filters.
+
+    A post is kept if it has at least ``min_flags`` flag sentences of the
+    selected types.
+    """
+    flags = _common_filters(data.flags, filters)
+    flags["ISFLAG"] = np.sign(flags["ISFLAG"])
+    n_flags = flags.groupby("subm_id").agg(nflags=("ISFLAG", "sum"))
+    n_flags = n_flags[n_flags["nflags"] >= filters.min_flags]
+    submissions = data.submissions.set_index("subm_id").join(n_flags, how="inner").reset_index()
+    return flags[flags["subm_id"].isin(submissions["subm_id"])], submissions
+
+
+def filter_aggregate(
+    table: pd.DataFrame, filters: Filters, drop_unflagged: bool = True
+) -> pd.DataFrame:
+    """Filter a subreddit, domain or author table (``min_flags`` does not apply).
+
+    For the subreddit table pass ``drop_unflagged=False``: weeks without flags
+    still count in the denominator of "percent of posts flagged".
+    """
+    return _common_filters(table, filters, drop_unflagged)
+
+
+def to_json(table: pd.DataFrame) -> str:
+    return table.to_json(orient="split")
+
+
+def from_json(text: str) -> pd.DataFrame:
+    return pd.read_json(io.StringIO(text), orient="split")
+
+
+# --- Derived tables -----------------------------------------------------------
+
+
+def flagged_share(posts: pd.DataFrame, data: DashboardData, by: list[str]) -> pd.DataFrame:
+    """Flagged posts per group: count, per day, and as a percentage of all posts."""
+    all_posts = data.all_posts.groupby(by)[["n_subm_all", "n_subm_kept"]].sum()
+    table = (
+        posts.groupby(by).agg(n_flags=("ISFLAG", "sum"))
+        .join(all_posts)
+        .join(data.weeks["nunique"])
+        .reset_index()
+    )  # fmt: skip
+    table["n_day"] = (table["n_flags"] / table["nunique"]).round().astype(int)
+    table["perc_FLAG"] = table["n_flags"] / table["n_subm_kept"]
+    table["perc_FLAG_pr"] = (100 * table["perc_FLAG"]).round(1)
+    return table
+
+
+def flag_rate(table: pd.DataFrame, by: list[str]) -> pd.DataFrame:
+    """Flags and share of flagged posts per group, for subreddit-level tables."""
+    table = table.groupby(by)[["n_subm_kept", "ISFLAG"]].sum().sort_index().reset_index()
+    return table.assign(perc_FLAG=table["ISFLAG"] / table["n_subm_kept"])
+
+
+def most_flagged(table: pd.DataFrame, by: str, min_posts: int, sort_by: str) -> pd.DataFrame:
+    """Domains or authors ranked by number of flags or by percent of posts flagged.
+
+    Percentages are only shown for groups with at least ``min_posts`` posts.
+    """
+    table = table.groupby(by)[["ISFLAG", "n_subm_kept"]].sum().reset_index()
+    # A group cannot have fewer posts than flags (posts can be missing from the counts).
+    table["n_subm_kept"] = table[["n_subm_kept", "ISFLAG"]].max(axis=1)
+    table["percent"] = (table["ISFLAG"] / table["n_subm_kept"]).round(3)
+    if sort_by == "frequency":
+        return table.sort_values("ISFLAG", ascending=False)
+    return table[table["n_subm_kept"] >= min_posts].sort_values("percent", ascending=False)
+
+
+def similar_posts(
+    data: DashboardData, subm_id: str, threshold: float = 0.005, max_posts: int = 20
+) -> pd.DataFrame:
+    """Flagged posts whose titles are close to this one in embedding space.
+
+    Distances are computed for this post only, so no post-by-post distance
+    matrix has to be kept in memory.
+    """
+    posts = data.submissions
+    this = posts.loc[posts["subm_id"] == subm_id, COMPONENTS].to_numpy()[0]
+    distance = np.sqrt(((posts[COMPONENTS].to_numpy() - this) ** 2).sum(axis=1))
+    nearest = pd.Series(distance, index=posts.index).sort_values(kind="stable").head(max_posts)
+    similar = posts.loc[nearest[nearest < threshold].index, ["day", "subm_title", "subreddit",
+                                                             "domain"]]  # fmt: skip
+    return similar.assign(subm_title=shorten(similar["subm_title"], 60)).sort_values("day")
+
+
+def shorten(titles, n_characters: int) -> list[str]:
+    return [title[:n_characters] + "..." for title in titles]
