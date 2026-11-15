@@ -39,13 +39,8 @@ def tiny(tmp_path):
     subreddits = flags.groupby(["subreddit_cat", "subreddit", "subm_covid", "week"])[
         ["flag", *TYPES]
     ].sum().reset_index().assign(n_subm_all=20, n_subm_kept=10)  # fmt: skip
-    domains = subreddits.assign(link_domain=["x.com", "y.com"], index=0)
-    authors = subreddits.assign(subm_author=["u1", "u2"], index=0, month=7, day="2020-07-07")
-    flaggers = subreddits.assign(comm_author=["f1", "f2"], index=0)
     for name, table in {
         "app_flags_day": flags, "app_subm_day": posts, "app_subr_week": subreddits,
-        "app_domain_week": domains, "app_authFlagged_week": authors,
-        "app_authFlaggers_week": flaggers,
     }.items():  # fmt: skip
         table.to_csv(tmp_path / f"{name}.csv", index=False)
     return dd.load_data(tmp_path)
@@ -97,12 +92,42 @@ def test_json_round_trip_keeps_rows(tiny):
     assert len(dd.from_json(dd.to_json(flags))) == len(flags)
 
 
-def test_most_flagged(tiny):
-    table = dd.filter_aggregate(tiny.domains, _filters())
-    by_count = dd.most_flagged(table, "link_domain", min_posts=10, sort_by="frequency")
-    assert set(by_count["link_domain"]) == {"x.com", "y.com"}
-    by_percent = dd.most_flagged(table, "link_domain", min_posts=50, sort_by="percent")
-    assert by_percent.empty  # no domain reaches 50 posts
+def test_subreddit_filter_matches_whole_names(tiny):
+    _, posts = dd.filter_flags(tiny, _filters(subreddits=("news",)))
+    assert set(posts["subreddit"]) == {"news"}
+
+
+def test_flagged_share_uses_posts_of_the_selection(tiny):
+    filters = _filters(subreddits=("worldnews",))
+    _, posts = dd.filter_flags(tiny, filters)
+    share = dd.flagged_share(posts, tiny, filters).set_index("week")
+    assert share.loc[29, "n_flags"] == 2  # posts b and c
+    assert share.loc[29, "n_subm_kept"] == 10  # worldnews only, not all subreddits
+    assert share.loc[29, "perc_FLAG_pr"] == 20.0
+
+
+def test_flagged_domains_counts_posts_and_sentences(tiny):
+    flags, _ = dd.filter_flags(tiny, _filters())
+    table = dd.flagged_domains(flags).set_index("website")
+    assert table.loc["site-a.com"].tolist() == [1, 2]
+    assert table.loc["site-b.com"].tolist() == [1, 1]
+
+
+def test_no_user_names_are_shown(tmp_path, tiny):
+    assert dd.mask_users(pd.Series(["as u/some_user said", "see /u/Other-1!"])).tolist() == [
+        "as u/[user] said",
+        "see u/[user]!",
+    ]
+    columns = {c for table in (tiny.flags, tiny.submissions, tiny.subreddits) for c in table}
+    assert not {c for c in columns if "author" in c}
+
+
+def test_removed_posts_are_hidden_by_default(tmp_path, tiny):
+    flags = pd.read_csv(tmp_path / "app_flags_day.csv")
+    flags.loc[flags["subm_id"] == "b", "subm_removed"] = "moderator"
+    flags.to_csv(tmp_path / "app_flags_day.csv", index=False)
+    assert "b" not in set(dd.load_data(tmp_path).submissions["subm_id"])
+    assert "b" in set(dd.load_data(tmp_path, show_removed=True).submissions["subm_id"])
 
 
 def test_similar_posts_match_the_full_distance_matrix(tiny):
@@ -125,8 +150,9 @@ def test_app_serves_layout_and_every_tab(tiny, tmp_path):
     assert client.get("/").status_code == 200
     assert client.get("/_dash-layout").status_code == 200
     for tab in layout.TABS:
-        if tab != "method":
+        if tab not in ("method", "highlights"):
             assert getattr(layout, f"{tab}_tab")() is not None
+    assert "authors" not in layout.TABS
 
 
 @pytest.mark.data

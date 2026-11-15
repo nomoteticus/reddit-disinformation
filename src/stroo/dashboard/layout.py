@@ -20,7 +20,6 @@ TABS = {
     "subreddits": "Subreddits",
     "clustering": "Clustering",
     "domains": "Domains",
-    "authors": "Authors",
     "method": "Method",
 }
 
@@ -121,8 +120,8 @@ def page(data: DashboardData, logo_url: str, version: str) -> html.Div:
                         children=[
                             html.Div(
                                 [
-                                    html.Span("Monitoring perceived disinformation on Reddit ",
-                                              className="dates_banner"),
+                                    html.Span(f"Perceived disinformation on Reddit, {data.year} "
+                                              "archive ", className="dates_banner"),
                                     html.Span(id="show_dates", className="dates_banner_bold"),
                                 ],
                                 className="title_ne",
@@ -162,10 +161,10 @@ def page(data: DashboardData, logo_url: str, version: str) -> html.Div:
 # --- Tabs -----------------------------------------------------------------------
 
 
-def highlights_tab() -> html.Div:
+def highlights_tab(period: str) -> html.Div:
     return html.Div([
         html.Br(),
-        paragraphs(text.HIGHLIGHTS),
+        paragraphs([line.format(period=period) for line in text.HIGHLIGHTS]),
         html.H5("Posts flagged by Reddit users as false information"),
         row([
             row([
@@ -186,7 +185,7 @@ def highlights_tab() -> html.Div:
         html.H5("Common keywords in titles of flagged posts"),
         row([
             item(dcc.Graph(id="plot_highl_word_count"), shadow=True),
-            item(dcc.Graph(id="plot_two_keywords"), shadow=True),
+            item(dcc.Graph(id="plot_keywords_time"), shadow=True),
         ]),
     ])  # fmt: skip
 
@@ -277,33 +276,16 @@ def clustering_tab() -> html.Div:
     ])  # fmt: skip
 
 
-def _ranking_tab(title: str, prefix: str, min_cases: list[int]) -> html.Div:
-    """Shared layout of the Domains and Authors tabs."""
+def domains_tab() -> html.Div:
     return html.Div([
         html.Br(),
-        html.P(text.AGGREGATE_NOTE),
-        html.H5(title),
-        row([
-            column([html.Div("Display maximum rows:"),
-                    _radio(f"rd_ntop{prefix}", [10, 20, 50], 10)], size=3),
-            column([html.Div("Sort by:"),
-                    _radio(f"rd_{prefix}percent", ["frequency", "percent"], "percent")], size=3),
-            column([html.Div("Minimum cases for percentage:",
-                             title="Only show percentages if the number of submissions is at "
-                                   "least this number."),
-                    _radio(f"rd_mincases{prefix}", min_cases, 10)], size=5),
-        ]),
+        paragraphs(text.DOMAINS),
+        html.H5("Most flagged websites"),
+        row([item("Number of websites to display:", size=3),
+             item(_radio("rd_ntopdomains", [10, 20, 50], 10), size=4)]),
         html.Br(),
-        html.Div(id=f"tbl_{prefix}"),
+        html.Div(id="tbl_domains"),
     ])  # fmt: skip
-
-
-def domains_tab() -> html.Div:
-    return _ranking_tab("Most flagged domains", "domains", [10, 20, 50])
-
-
-def authors_tab() -> html.Div:
-    return _ranking_tab("Most flagged submission authors", "authors", [10, 20, 50, 100])
 
 
 def method_tab(pipeline_image: str, patterns_image: str, period: str) -> html.Div:
@@ -339,6 +321,9 @@ def method_tab(pipeline_image: str, patterns_image: str, period: str) -> html.Di
         paragraphs(text.METHOD_PATTERNS_END),
         html.H5("3. Clustering submissions"),
         paragraphs(text.METHOD_CLUSTERING),
+        html.Br(),
+        html.H5("4. Privacy"),
+        paragraphs(text.PRIVACY),
         html.Br(),
         paragraphs(text.METHOD_END),
         html.P(["Read more: ", html.A(text.PAPER_CITATION, href=text.PAPER_URL)]),

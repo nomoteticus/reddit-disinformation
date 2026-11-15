@@ -102,6 +102,21 @@ def common_words(texts, n_words: int = 100) -> pd.DataFrame:
     return pd.DataFrame({"word": share.index, "freq": (100 * share.to_numpy()).round(2)})
 
 
+def keyword_trends(posts: pd.DataFrame, n_keywords: int = 3) -> pd.DataFrame:
+    """Weekly frequency (percent of title words) of the selection's top keywords."""
+    keywords = list(common_words(posts["subm_title"], n_words=n_keywords)["word"])
+    rows = []
+    for week, titles in posts.groupby("week")["subm_title"]:
+        words = _words(titles)
+        counts = Counter(words)
+        rows += [
+            {"week": week, "word": word, "freq": round(100 * counts[word] / len(words), 2)}
+            for word in keywords
+            if words
+        ]
+    return pd.DataFrame(rows, columns=["week", "word", "freq"])
+
+
 def cluster_words(posts: pd.DataFrame, cluster: int, n_words: int = 5):
     """A line of badges with the most frequent title words of one cluster."""
     titles = posts.loc[posts["cluster"] == str(cluster), "subm_title"]
@@ -172,8 +187,11 @@ def post_card_with_analysis(flags: pd.DataFrame, data: DashboardData, class_name
                             extra="cont_subm_title",
                         )
                     ),
-                    html.Div("Deletion status: " + str(post.subm_removed),
-                             className="cont_subm_flags left"),
+                    *(
+                        [html.Div("Deletion status: " + str(post.subm_removed),
+                                  className="cont_subm_flags left")]
+                        if data.show_removed else []
+                    ),
                     _flag_list(flags),
                     html.Div("Similar posts on Reddit flagged as false information:",
                              className="subm_title"),
@@ -194,6 +212,6 @@ def latest_posts(flags: pd.DataFrame, n_posts: int) -> list[pd.DataFrame]:
 
 __all__ = [
     "badge", "bullets", "cluster_words", "column", "common_words", "info_box", "item",
-    "latest_posts", "paragraphs", "post_card", "post_card_with_analysis", "row", "shorten",
-    "table",
+    "keyword_trends", "latest_posts", "paragraphs", "post_card", "post_card_with_analysis",
+    "row", "shorten", "table",
 ]  # fmt: skip

@@ -75,10 +75,10 @@ def word_frequencies(words: pd.DataFrame) -> go.Figure:
     return _style(fig)
 
 
-def two_keywords(words_by_week: pd.DataFrame, weeks: pd.DataFrame) -> go.Figure:
-    """Weekly frequency of two keywords in the titles of flagged posts."""
+def keywords_over_time(words_by_week: pd.DataFrame, weeks: pd.DataFrame) -> go.Figure:
+    """Weekly frequency of the top keywords in the titles of flagged posts."""
     if words_by_week.empty:
-        return _empty("Neither keyword occurs in this selection")
+        return _empty()
     fig = px.line(words_by_week, x="week", y="freq", color="word", height=300, width=300)
     fig.update_layout(
         xaxis=_week_ticks(fig, weeks), xaxis_title="Week ending", yaxis_title="Word frequency (%)"
