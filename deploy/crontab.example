@@ -1,0 +1,8 @@
+# Daily pipeline, as it ran while the dashboard was live (times in server time).
+# Collection needs a working Reddit data source; see README, "Collecting new data".
+STROO_DATA_DIR=/var/lib/stroo/data
+STROO=/opt/stroo/venv/bin/stroo
+
+0 0 * * *  $STROO collect   >> /var/log/stroo/collect.log 2>&1
+0 3 * * *  $STROO detect    >> /var/log/stroo/detect.log 2>&1
+0 5 * * *  $STROO aggregate $(date +\%Y) >> /var/log/stroo/aggregate.log 2>&1 && systemctl restart stroo-dashboard

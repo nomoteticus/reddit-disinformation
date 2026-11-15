@@ -1,0 +1,24 @@
+# systemd unit for the STROO dashboard (Gunicorn behind Nginx).
+# Install:  sudo cp deploy/stroo-dashboard.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now stroo-dashboard
+[Unit]
+Description=STROO dashboard (Gunicorn)
+After=network.target
+
+[Service]
+User=stroo
+Group=www-data
+WorkingDirectory=/opt/stroo
+# Folder holding dashboard/app_*.csv (see README, "Data").
+Environment=STROO_DATA_DIR=/var/lib/stroo/data
+RuntimeDirectory=stroo
+ExecStart=/opt/stroo/venv/bin/gunicorn \
+    --workers 2 \
+    --timeout 120 \
+    --bind unix:/run/stroo/dashboard.sock \
+    --umask 007 \
+    stroo.dashboard.wsgi:server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
