@@ -1,329 +1,352 @@
-# -*- coding: utf-8 -*-
+"""Join flags, comments and submissions and build the dashboard tables.
 
-import re
-import os
-import sys
+Input, for one calendar year (``data/raw`` and ``data/processed``)::
+
+    SUBM_yyyy_mm.csv   submissions        COMM_yyyy_mm.csv   comments
+    MATCH_yyyy_mm.csv  matched sentences (from ``stroo.flags.detect``)
+
+Output:
+
+* ``data/processed/UNITED_yyyy_FLAG.csv`` - one row per flag sentence with its
+  comment and submission; ``UNITED_yyyy_SUBM/AUTH/DOM.csv`` - counts of all
+  submissions per subreddit, author and linked domain (the denominators for
+  "percent flagged").
+* ``data/dashboard/app_*.csv`` - the six tables the dashboard reads, aggregated
+  by flag, submission, subreddit, author (flaggers and flagged) and domain
+  (Appendix A of the paper).
+
+The job is incremental. If the UNITED files exist, only the two most recent
+months are read and only submissions from the last three weeks are refreshed.
+
+Weeks are ISO week numbers within one year (week 53 is recoded to 0); the
+tables are built one year at a time.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
-import tensorflow as tf
-import tensorflow_hub as hub
-from sklearn.decomposition import PCA
-import logging
 
-rootfold = re.match('^.*reddit-disinformation', os.path.dirname(os.path.realpath(__file__))).group(0)
-#rootfold = '/home/j0hndoe/Documents/git/reddit-disinformation/'
+from .. import settings
+from ..embed.encoder import Encoder, add_title_components, load_encoder
+from ..flags import FLAG_TYPES
+from ..flags.filters import ABOUT_FAKE_NEWS_REGEX, BOT_AUTHOR_REGEX, BOT_BODY_REGEX, COVID_REGEX
+from ..io import read_csv, write_csv
 
-sys.path.append(rootfold+"/2_findflags/all_subreddits")
-import functions_pos_match as fpm
+log = settings.get_logger("stroo.aggregate", "pos_embed_unite.log")
 
-### Setup logging
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(
-    level=logging.CRITICAL,
-    format="%(asctime)s <UTD> [%(levelname)8s ] %(message)s",
-    datefmt='%y-%m-%d %H:%M:%S',
-    handlers=[
-        logging.FileHandler(rootfold+"/logs/pos_embed_unite.log"),
-        logging.StreamHandler()
-    ])
-LOGU = logging.getLogger('LOGU')
-LOGU.setLevel(logging.DEBUG)
+FLAG_COLUMNS = ["flag"] + FLAG_TYPES + ["other"]
 
-LOGU.info('--------------------')
-LOGU.info('Started unification.')
-LOGU.info('--------------------')
+SUBMISSION_COLUMNS = {
+    "subreddit": "subreddit",
+    "id": "subm_id",
+    "title": "subm_title",
+    "year": "year",
+    "month": "month",
+    "week": "week",
+    "day": "day",
+    "full_link": "subm_link",
+    "url": "link_url",
+    "domain": "link_domain",
+    "removed_by_category": "subm_removed",
+    "subm_covid": "subm_covid",
+    "subm_fake": "subm_fake",
+    "author": "subm_author",
+    "num_comments": "subm_ncomments",
+}
+COMMENT_COLUMNS = {
+    "subreddit": "subreddit",
+    "parent_id": "comm_parent_id",
+    "link_id": "subm_id",
+    "id": "comm_id",
+    "score": "comm_score",
+    "body": "comm_body",
+    "author": "comm_author",
+}
+UNITED_COLUMNS = [
+    "year", "month", "week", "day", "subreddit_cat", "sent",
+    *FLAG_COLUMNS,
+    "subm_title", "subm_removed", "subm_covid", "subm_fake",
+    "subm_link", "link_url", "link_domain", "subm_ncomments", "subm_author",
+    "comm_parent_id", "comm_body", "comm_author",
+]  # fmt: skip
 
-## Load language model
-module_url = rootfold+"/3_embed/model/universal-sentence-encoder_4"
-ebmeddingmodel = hub.load(module_url)
-LOGU.debug("module %s loaded", module_url[-43:])
-def embed(input):
-  return ebmeddingmodel(input)
-##
+# Grouping keys.
+BY_SENTENCE = ["subreddit", "subm_id", "comm_id", "sent_id"]
+BY_SUBREDDIT_DAY = ["subreddit_cat", "subreddit", "subm_covid", "year", "month", "week", "day"]
+BY_SUBREDDIT_WEEK = ["subreddit_cat", "subreddit", "subm_covid", "week"]
+BY_SUBMISSION_DAY = BY_SUBREDDIT_DAY + ["subm_id", "subm_title"]
+BY_COMMENT_DAY = BY_SUBMISSION_DAY + ["comm_id", "comm_body"]
+BY_AUTHOR_WEEK = BY_SUBREDDIT_WEEK + ["subm_author"]
+BY_DOMAIN_WEEK = BY_SUBREDDIT_WEEK + ["link_domain"]
 
-
-subm_files  = sorted(re.findall('SUBM_2021_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
-comm_files  = sorted(re.findall('COMM_2021_[0-9][0-9].csv',  ' '.join(os.listdir(rootfold+'/output'))))
-match_files = sorted(re.findall('MATCH_2021_[0-9][0-9].csv', ' '.join(os.listdir(rootfold+'/output'))))
-
-#re.findall(fake_regex, 'this flake news is fake disinfrormation')
-
-### Set defaults for filtering / grouping 
-
-col_subm_keep = ['subreddit','id','title','year','month','week','day',
-                 'full_link','url','domain','removed_by_category',
-                 'subm_covid', 'subm_fake', 'author', 'num_comments']
-col_comm_keep = ['subreddit','parent_id','link_id','id','score','body','author']
-
-#groupby_subr = ['subreddit','subm_covid','month','week','day']
-groupby_subr = ['subreddit_cat','subreddit','subm_covid','year','month','week','day']
-#groupby_subr_week = ['subreddit','subm_covid','week']
-groupby_subr_week = ['subreddit_cat','subreddit','subm_covid','week']
-##
-groupby_subm = groupby_subr + ['subm_id','subm_title']#,'subm_link', 'link_url','subm_removed']
-groupby_comm = groupby_subm + ['comm_id','comm_body']
-groupby_sent = ['subreddit', 'subm_id', 'comm_id','sent_id']
-
-groupby_subm_week = groupby_subr_week + ['subm_id','subm_title']
-groupby_auth_week = groupby_subr_week + ['subm_author']
-groupby_dom_week = groupby_subr_week + ['link_domain']
+#: A flagger, flagged author or domain needs at least this many rows to be listed.
+MIN_ROWS = 2
+#: On an incremental run, submissions up to this many weeks back are refreshed.
+WEEKS_REFRESHED = 3
 
 
-flag_types = ['disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']
-flag_vars = ['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda','other']
-count_vars = ['n_subm_all', 'n_subm_kept']
-
-### Functions tp process subm/subr/ 
-
-def process_SUBM(SS, SR, col_subm_keep):
-    SS['alltexts'] = SS[['title','subreddit','selftext']].fillna('').assign(comb = lambda df: df.title + df.subreddit + df.selftext).comb.astype('str')
-    SS['subm_covid'] = SS['alltexts'].str.lower().str.contains(fpm.covid_regex)
-    SS['subm_fake'] = SS['alltexts'].str.lower().str.contains(fpm.fake_regex)
-    SS['removed_by_category'] = SS['removed_by_category'].fillna('visible').astype('str')
-    SS['created_utc'] = pd.to_datetime(SS['created_utc'])
-    SS['year'] = SS.created_utc.dt.year
-    SS['month'] = SS.created_utc.dt.month
-    SS['week'] = SS.created_utc.dt.week.replace(53,0)
-    SS['day'] = pd.to_datetime(SS.created_utc).dt.date
-    return SS[col_subm_keep].\
-             rename(columns = {'id':'subm_id','title':'subm_title','author':'subm_author',
-                               'full_link':'subm_link','url':'link_url','domain':'link_domain',
-                               'removed_by_category':'subm_removed', 'num_comments':'subm_ncomments'}).\
-             set_index('subreddit').join(SR.set_index('subreddit'), how = 'left').\
-             reset_index()
-
-def agg_SUBM(SS, grvars):
-    SS.day = SS.day.astype('str')
-    return SS.reset_index().\
-            groupby(grvars).\
-                agg(n_subm_all = ('subm_id','count'),
-                    n_subm_kept = ('subm_removed', lambda x: (x=='visible').sum()))
-     
-
-    
-def process_COMM(CC, col_comm_keep):
-    CC = CC[col_comm_keep].\
-         rename(columns = {'link_id':'subm_id','id':'comm_id',
-                           'parent_id':'comm_parent_id','score':'comm_score',
-                           'body':'comm_body', 'author':'comm_author'})
-    return CC
-
-def embed_SUBM(SUBM, Ncomp=5):
-    embeddings=np.empty((0, 512))
-    for strings in np.array_split(SUBM.subm_title, 1+SUBM.shape[0]/10000 ):
-        embeddings = np.vstack((embeddings, embed(strings).numpy() ))
-        print('#',end='')        
-    pcamodel = PCA(n_components=Ncomp).fit(embeddings.T)
-    category_vectors = pcamodel.components_.T
-    embeddings_pca_df = pd.DataFrame(category_vectors, columns = ["PC"+str(100+x)[1:] for x in range(1,Ncomp+1)])
-    SUBM = pd.concat([SUBM, embeddings_pca_df], axis = 1)
-    return SUBM
-
-def removemin(DF, col, min_val):
-    DF = DF.reset_index()
-    val_counts = DF[col].value_counts()
-    return DF[DF[col].isin(val_counts[val_counts >= min_val].index)]
+# --- Reading and preparing the monthly files --------------------------------
 
 
-SR_ALL = pd.read_csv(rootfold+'/input/subr_classification.csv')
-SR_nona = SR_ALL[~SR_ALL.keep.isna()]
-SR = SR_nona.query('keep')[['subreddit','category']].\
-        rename(columns = {'category':'subreddit_cat'})
-
-### Check if United files exist
-try:
-    UNITED = pd.read_csv(rootfold+'/output/UNITED_2021_FLAG.csv', lineterminator='\n').\
-                set_index(groupby_sent)
-    AGG_SS = pd.read_csv(rootfold+'/output/UNITED_2021_SUBM.csv', lineterminator='\n').\
-                set_index(groupby_subr_week)
-    AGG_AA = pd.read_csv(rootfold+'/output/UNITED_2021_AUTH.csv', lineterminator='\n').\
-                set_index(groupby_auth_week)
-    AGG_DD = pd.read_csv(rootfold+'/output/UNITED_2021_DOM.csv', lineterminator='\n').\
-                set_index(groupby_dom_week)
-    SCM_generator = zip(subm_files[-2:], comm_files[-2:], match_files[-2:])
-    ##
-    ss1,ss2,aa1,aa2,dd1,dd2 = \
-               AGG_SS.index.get_level_values(3).min(), AGG_SS.index.get_level_values(3).max(),\
-               AGG_AA.index.get_level_values(3).min(), AGG_AA.index.get_level_values(3).max(),\
-               AGG_DD.index.get_level_values(3).min(), AGG_DD.index.get_level_values(3).max()
-    max_week = min([ss2,aa2,dd2])    
-    LOGU.debug("Last week. SUBM: %d -> %d / AUTH: %d -> %d / DOM: %d -> %d",
-               ss1,ss2,aa1,aa2,dd1,dd2)
-except FileNotFoundError:
-    UNITED = pd.DataFrame([])
-    AGG_SS = pd.DataFrame([])
-    AGG_AA = pd.DataFrame([])
-    AGG_DD = pd.DataFrame([])
-    SCM_generator = zip(subm_files, comm_files, match_files) #[:-1]
-    LOGU.debug("Created: SUBM / AGG_SS, AUTH / AGG_AA, DOM / AGG_DD")
-    max_week = 0
+def week_of_year(dates: pd.Series) -> pd.Series:
+    """ISO week number, with week 53 recoded to 0."""
+    return dates.dt.isocalendar().week.astype("int64").replace(53, 0)
 
 
-for subm_file, comm_file, match_file in SCM_generator:
-    SS = pd.read_csv(rootfold+'/output/'+subm_file, lineterminator='\n', parse_dates=['created_utc'])
-    SS = SS[SS.created_utc.dt.week > max_week-3]
-    if not SS.empty:
-        SS = process_SUBM(SS, SR, col_subm_keep)
-        ##
-        CC = pd.read_csv(rootfold+'/output/'+comm_file, lineterminator='\n')
-        CC = process_COMM(CC, col_comm_keep)
-        LOGU.debug('Opened: %s & %s', subm_file, comm_file)
-        LOGU.info('Updating weeks: %s',list(sorted(SS.week.value_counts().index)))
-        ##
-        MM = pd.read_csv(rootfold+'/output/'+match_file, lineterminator='\n')
-        MM['other'] = ((MM.flag > 0) & (MM[flag_types].sum(axis=1) == 0)).astype(int)
-        ### Join
-        UNTD = MM.query('flag>0').set_index('comm_id').\
-                join(CC.set_index('comm_id'), 
-                     on = 'comm_id', how = 'left').\
-                    reset_index().set_index(['subreddit','subm_id','comm_id','sent_id']).\
-                join(SS.set_index(['subreddit','subm_id']),                 
-                     on = ['subreddit','subm_id'], how = 'left')
-        ### Select final columns
-        UNTD = UNTD[['year','month','week','day','subreddit_cat', 'sent', 
-                     'flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda','other', 
-                     'subm_title', 'subm_removed', 'subm_covid', 'subm_fake',
-                     'subm_link', 'link_url', 'link_domain', 'subm_ncomments', 'subm_author',
-                     'comm_parent_id', 'comm_body', 'comm_author']]
-        UNITED = UNTD.combine_first(UNITED) if UNITED.shape[0]>0 else UNTD
-        ### Update aggregates
-        AGG_SS = agg_SUBM(SS, groupby_subr_week).combine_first(AGG_SS) if AGG_SS.shape[0]>0 else agg_SUBM(SS, groupby_subr_week).copy()
-        AGG_AA = agg_SUBM(SS, groupby_auth_week).combine_first(AGG_AA) if AGG_AA.shape[0]>0 else agg_SUBM(SS, groupby_auth_week).copy()
-        AGG_DD = agg_SUBM(SS, groupby_dom_week).combine_first(AGG_DD) if AGG_DD.shape[0]>0 else agg_SUBM(SS, groupby_dom_week).copy()
-        LOGU.info('Finished: %s . Current: %s. Total shape: %s' % (match_file, MM.shape, UNITED.shape))
+def load_tracked_subreddits(subreddits_file: Path | None = None) -> pd.DataFrame:
+    """Subreddits marked ``keep`` in the classification file, with their category."""
+    subreddits = pd.read_csv(subreddits_file or settings.SUBREDDITS_FILE)
+    kept = subreddits[subreddits["keep"].notna() & subreddits["keep"].astype(bool)]
+    return kept[["subreddit", "category"]].rename(columns={"category": "subreddit_cat"})
+
+
+def prepare_submissions(submissions: pd.DataFrame, subreddits: pd.DataFrame) -> pd.DataFrame:
+    """Add topic indicators, calendar fields and the subreddit category."""
+    parts = submissions[["title", "subreddit", "selftext"]].fillna("").astype(str)
+    text = (parts["title"] + parts["subreddit"] + parts["selftext"]).str.lower()
+    created = pd.to_datetime(submissions["created_utc"])
+    submissions = submissions.assign(
+        subm_covid=text.str.contains(COVID_REGEX),
+        subm_fake=text.str.contains(ABOUT_FAKE_NEWS_REGEX),
+        removed_by_category=submissions["removed_by_category"].fillna("visible").astype(str),
+        year=created.dt.year,
+        month=created.dt.month,
+        week=week_of_year(created),
+        day=created.dt.date,
+    )
+    return (
+        submissions[list(SUBMISSION_COLUMNS)]
+        .rename(columns=SUBMISSION_COLUMNS)
+        .set_index("subreddit")
+        .join(subreddits.set_index("subreddit"), how="left")
+        .reset_index()
+    )
+
+
+def prepare_comments(comments: pd.DataFrame) -> pd.DataFrame:
+    return comments[list(COMMENT_COLUMNS)].rename(columns=COMMENT_COLUMNS)
+
+
+def prepare_matches(matches: pd.DataFrame) -> pd.DataFrame:
+    """Add ``other``: a pattern matched but none of the six type keywords occurs."""
+    is_other = (matches["flag"] > 0) & (matches[FLAG_TYPES].sum(axis=1) == 0)
+    return matches.assign(other=is_other.astype(int))
+
+
+def count_submissions(submissions: pd.DataFrame, by: list[str]) -> pd.DataFrame:
+    """Number of submissions, in total and not removed, per group."""
+    submissions = submissions.assign(day=submissions["day"].astype(str))
+    return submissions.groupby(by).agg(
+        n_subm_all=("subm_id", "count"),
+        n_subm_kept=("subm_removed", lambda removed: (removed == "visible").sum()),
+    )
+
+
+def join_flags(
+    matches: pd.DataFrame, comments: pd.DataFrame, submissions: pd.DataFrame
+) -> pd.DataFrame:
+    """One row per flag sentence, with its comment and submission attached."""
+    united = (
+        matches.query("flag > 0")
+        .set_index("comm_id")
+        .join(comments.set_index("comm_id"), on="comm_id", how="left")
+        .reset_index()
+        .set_index(BY_SENTENCE)
+        .join(submissions.set_index(["subreddit", "subm_id"]), on=["subreddit", "subm_id"],
+              how="left")
+    )  # fmt: skip
+    return united[UNITED_COLUMNS]
+
+
+def _update(new: pd.DataFrame, old: pd.DataFrame) -> pd.DataFrame:
+    """Rows of ``new`` take precedence; rows only in ``old`` are kept."""
+    return new.combine_first(old) if len(old) > 0 else new
+
+
+# --- The joined table --------------------------------------------------------
+
+
+def clean_united(united: pd.DataFrame) -> pd.DataFrame:
+    """Final filtering of the joined flag table (step 2 of the pipeline, Section 4.3).
+
+    Removed: flags without a known submission, replies to other comments,
+    submissions that are themselves about false information, and bots.
+    """
+    united = united.reset_index()
+    united["day"] = united["day"].astype(str)
+    united = united.sort_values("day", ascending=False)
+    united = united[~united["day"].isna()]
+    united = united[united["comm_parent_id"].str.contains("^t3_")]
+    united = united[~united["subm_fake"].astype(bool)]
+    is_bot = united["comm_body"].str.lower().str.contains(BOT_BODY_REGEX) | united[
+        "comm_author"
+    ].str.lower().str.contains(BOT_AUTHOR_REGEX)
+    return united[~is_bot]
+
+
+def build_united(
+    year: int, raw_dir: Path, processed_dir: Path, subreddits: pd.DataFrame
+) -> dict[str, pd.DataFrame]:
+    """Create or update the UNITED tables for one year.
+
+    Returns the cleaned flag table (``flags``) and the submission counts per
+    subreddit, author and domain (``subreddit``, ``author``, ``domain``).
+    """
+    files = {
+        "flags": (processed_dir / f"UNITED_{year}_FLAG.csv", BY_SENTENCE),
+        "subreddit": (processed_dir / f"UNITED_{year}_SUBM.csv", BY_SUBREDDIT_WEEK),
+        "author": (processed_dir / f"UNITED_{year}_AUTH.csv", BY_AUTHOR_WEEK),
+        "domain": (processed_dir / f"UNITED_{year}_DOM.csv", BY_DOMAIN_WEEK),
+    }
+    months = sorted(
+        path.name[-6:-4] for path in raw_dir.glob(f"SUBM_{year}_[0-9][0-9].csv")
+        if (raw_dir / path.name.replace("SUBM", "COMM")).exists()
+        and (processed_dir / path.name.replace("SUBM", "MATCH")).exists()
+    )  # fmt: skip
+
+    try:
+        tables = {name: read_csv(path).set_index(index) for name, (path, index) in files.items()}
+    except FileNotFoundError:
+        tables = {name: pd.DataFrame() for name in files}
+        last_week = 0
+        log.debug("No UNITED files for %d yet: building from all months", year)
     else:
-        LOGU.info('Nothing to add: %s', subm_file)
+        months = months[-2:]
+        last_week = min(
+            tables[name].index.get_level_values("week").max()
+            for name in ("subreddit", "author", "domain")
+        )
+        log.debug("UNITED files found; last complete week: %d", last_week)
 
-del(SS,CC,MM)
-#SS.title[:10].str.lower().str.contains(covid_regex)
-#SS['subm_covid'].str.lower().str.contains(covid_regex)
+    for month in months:
+        submissions = read_csv(raw_dir / f"SUBM_{year}_{month}.csv", parse_dates=["created_utc"])
+        recent = submissions["created_utc"].dt.isocalendar().week > last_week - WEEKS_REFRESHED
+        submissions = submissions[recent]
+        if submissions.empty:
+            log.info("Nothing to add: SUBM_%d_%s.csv", year, month)
+            continue
 
+        submissions = prepare_submissions(submissions, subreddits)
+        comments = prepare_comments(read_csv(raw_dir / f"COMM_{year}_{month}.csv"))
+        matches = prepare_matches(read_csv(processed_dir / f"MATCH_{year}_{month}.csv"))
+        log.info("Updating weeks: %s", sorted(submissions["week"].unique()))
 
-## Final cleaning
-UNITED = UNITED.reset_index()
-UNITED['day'] = UNITED['day'].astype('str')
-UNITED = UNITED.sort_values('day', ascending = False)
-## Remove missing data, replies to comments (instead of submissions), 
-## submissions on the topic of disinformation and comments made by bots
-UNITED = UNITED[~UNITED.day.isna()]
-UNITED = UNITED[UNITED.comm_parent_id.str.contains('^t3_')]
-UNITED = UNITED[~UNITED.subm_fake.astype('bool')]
-UNITED = UNITED[~(UNITED.comm_body.str.lower().str.contains(fpm.bot_body_regex) | \
-                  UNITED.comm_author.str.lower().str.contains(fpm.bot_author_regex))]
+        tables["flags"] = _update(join_flags(matches, comments, submissions), tables["flags"])
+        for name, by in [
+            ("subreddit", BY_SUBREDDIT_WEEK),
+            ("author", BY_AUTHOR_WEEK),
+            ("domain", BY_DOMAIN_WEEK),
+        ]:
+            tables[name] = _update(count_submissions(submissions, by), tables[name])
+        log.info("Finished month %s. Flag sentences so far: %d", month, len(tables["flags"]))
 
-## Saving to dataset
-UNITED.to_csv(rootfold+"/output/UNITED_2021_FLAG.csv", index=False)
-##
-AGG_SS.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_SUBM.csv", index=False)
-AGG_AA.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_AUTH.csv", index=False)
-AGG_DD.reset_index().sort_values('week', ascending = False).to_csv(rootfold+"/output/UNITED_2021_DOM.csv", index=False)
+    tables["flags"] = clean_united(tables["flags"])
 
-
-#pd.crosstab(index = COMM_week.subreddit, columns = COMM_week.is_bot)
-#pd.set_option('display.max_rows', 500) ; pd.reset_option('all')
-
-
-
-### FLAGS
-FLAGS_day = UNITED.reset_index().\
-                loc[:,['subreddit_cat', 'subreddit' , 'subm_id', 'subm_covid',
-                       'subm_title','subm_link', 'link_url','subm_removed',
-                       'sent_id','sent',
-                       'year', 'month', 'week', 'day'] + flag_vars].\
-                sort_values('day', ascending=False)
-LOGU.info('Created flags. Shape: %s', FLAGS_day.shape)
-
-### COMMENTS
-COMM_day = UNITED.groupby(groupby_comm)[flag_vars].agg(np.sum).reset_index()
-COMM_day.loc[:,flag_vars] = COMM_day.loc[:,flag_vars]>0
+    for name, (path, _) in files.items():
+        table = tables[name]
+        if name != "flags":
+            table = table.reset_index().sort_values("week", ascending=False)
+        write_csv(table, path)
+    return tables
 
 
-#### SUBMISSIONS
-SUBM_day = COMM_day.groupby(groupby_subm)[flag_vars].agg(np.sum).reset_index()
-SUBM_day = embed_SUBM(SUBM_day, Ncomp=5).sort_values('day', ascending = False)
-LOGU.info('Created submissions. Shape: %s', SUBM_day.shape)
-
-### SUBREDDIT
-SUBR_week = COMM_day.groupby(groupby_subr_week)[flag_vars].\
-                    agg(np.sum).join(AGG_SS).reset_index().\
-                        sort_values('week', ascending=False)
-LOGU.info('Created subreddits. Shape: %s', SUBR_week.shape)
+# --- The dashboard tables -----------------------------------------------------
 
 
-### AUTHORS
-AUTH_FLAGGERS_week = removemin(UNITED.\
-                               groupby(groupby_subr + ['comm_author'])[flag_vars].\
-                               agg(np.sum).reset_index(), 
-                               'comm_author', 2).\
-                        sort_values('week', ascending=False)
-                     
-
-AUTH_FLAGGED_week = removemin(UNITED.\
-                               groupby(groupby_subr + ['subm_author'])[flag_vars].\
-                               agg(np.sum).reset_index(), 
-                               'subm_author', 2).\
-                        set_index(groupby_auth_week).\
-                        join(AGG_AA, how = 'left').\
-                        reset_index().\
-                        sort_values('week', ascending=False)
-                    
-LOGU.info('Created authors. Flaggers shape: %s; Flagged shape: %s', 
-          AUTH_FLAGGERS_week.shape, AUTH_FLAGGED_week.shape)
+def _at_least(table: pd.DataFrame, column: str, min_rows: int) -> pd.DataFrame:
+    """Keep rows whose value in ``column`` occurs at least ``min_rows`` times."""
+    table = table.reset_index()
+    counts = table[column].value_counts()
+    return table[table[column].isin(counts[counts >= min_rows].index)]
 
 
-### DOMAINS
-DOM_week = removemin(UNITED.groupby(groupby_dom_week)[flag_vars].\
-                     agg(np.sum).reset_index(),
-                     'link_domain', 2).\
-                  set_index(groupby_dom_week).\
-                  join(AGG_DD, how = 'left').\
-                  reset_index().\
-                  sort_values('week', ascending=False)
+def build_dashboard_tables(
+    united: dict[str, pd.DataFrame], encode: Encoder
+) -> dict[str, pd.DataFrame]:
+    """Aggregate the joined flag table at the levels shown in the dashboard."""
+    flags = united["flags"]
 
-LOGU.info('Created domains. Shape: %s', DOM_week.shape)
+    flags_day = flags.reset_index().loc[
+        :,
+        ["subreddit_cat", "subreddit", "subm_id", "subm_covid", "subm_title", "subm_link",
+         "link_url", "subm_removed", "sent_id", "sent", "year", "month", "week", "day",
+         *FLAG_COLUMNS],
+    ].sort_values("day", ascending=False)  # fmt: skip
 
-#x = DOM_week.groupby('link_domain')['disinformation','n_subm_all'].agg('sum')
-#x['proc'] = x['disinformation']/x['n_subm_all'].round(3)
-#x[x.n_subm_all>=10].sort_values('proc', ascending = False).head(30)
+    # A comment counts once per flag type, however many of its sentences match.
+    comments_day = flags.groupby(BY_COMMENT_DAY)[FLAG_COLUMNS].sum().reset_index()
+    comments_day[FLAG_COLUMNS] = comments_day[FLAG_COLUMNS] > 0
+
+    # Submissions: number of flagging comments, plus title embeddings.
+    submissions_day = comments_day.groupby(BY_SUBMISSION_DAY)[FLAG_COLUMNS].sum().reset_index()
+    submissions_day = add_title_components(submissions_day, encode, n_components=5).sort_values(
+        "day", ascending=False
+    )
+
+    subreddits_week = (
+        comments_day.groupby(BY_SUBREDDIT_WEEK)[FLAG_COLUMNS].sum()
+        .join(united["subreddit"])
+        .reset_index()
+        .sort_values("week", ascending=False)
+    )  # fmt: skip
+
+    flaggers = _at_least(
+        flags.groupby(BY_SUBREDDIT_DAY + ["comm_author"])[FLAG_COLUMNS].sum().reset_index(),
+        "comm_author", MIN_ROWS,
+    ).sort_values("week", ascending=False)  # fmt: skip
+
+    flagged_authors = (
+        _at_least(
+            flags.groupby(BY_SUBREDDIT_DAY + ["subm_author"])[FLAG_COLUMNS].sum().reset_index(),
+            "subm_author", MIN_ROWS,
+        )
+        .set_index(BY_AUTHOR_WEEK)
+        .join(united["author"], how="left")
+        .reset_index()
+        .sort_values("week", ascending=False)
+    )  # fmt: skip
+
+    domains_week = (
+        _at_least(
+            flags.groupby(BY_DOMAIN_WEEK)[FLAG_COLUMNS].sum().reset_index(),
+            "link_domain", MIN_ROWS,
+        )
+        .set_index(BY_DOMAIN_WEEK)
+        .join(united["domain"], how="left")
+        .reset_index()
+        .sort_values("week", ascending=False)
+    )  # fmt: skip
+
+    return {
+        "app_flags_day.csv": flags_day,
+        "app_subm_day.csv": submissions_day,
+        "app_subr_week.csv": subreddits_week,
+        "app_authFlaggers_week.csv": flaggers,
+        "app_authFlagged_week.csv": flagged_authors,
+        "app_domain_week.csv": domains_week,
+    }
 
 
-### WRITE FILES
+def run(
+    year: int,
+    encode: Encoder | None = None,
+    raw_dir: Path | None = None,
+    processed_dir: Path | None = None,
+    dashboard_dir: Path | None = None,
+    subreddits_file: Path | None = None,
+) -> None:
+    """Build the UNITED tables and the six dashboard tables for ``year``."""
+    raw_dir = raw_dir or settings.RAW_DIR
+    processed_dir = processed_dir or settings.PROCESSED_DIR
+    dashboard_dir = dashboard_dir or settings.DASHBOARD_DATA_DIR
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    dashboard_dir.mkdir(parents=True, exist_ok=True)
 
-FLAGS_day.to_csv(rootfold+"/dashboard/data/app_2021_flags_day.csv", index = False)
-SUBM_day.to_csv(rootfold+"/dashboard/data/app_2021_subm_day.csv", index = False)
-SUBR_week.to_csv(rootfold+"/dashboard/data/app_2021_subr_week.csv", index = False)
-AUTH_FLAGGERS_week.to_csv(rootfold+"/dashboard/data/app_2021_authFlaggers_week.csv", index = False)
-AUTH_FLAGGED_week.to_csv(rootfold+"/dashboard/data/app_2021_authFlagged_week.csv", index = False)
-DOM_week.to_csv(rootfold+"/dashboard/data/app_2021_domain_week.csv", index = False)
-
-LOGU.info('Done writing 6 files.')
-#AGG_SS['perc_del'] = AGG_SS.n_subm_kept / AGG_SS.n_subm_all
-#pd.pivot_table(AGG_SS.reset_index(), 
-#               columns = 'subm_covid', index = 'subreddit', values = 'perc_del')
-
-
-#UNITED.groupby(UNITED.month)\
-#   [['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']].agg(sum).T
-#UNITED.groupby(UNITED.subreddit_cat)\
-#    [['flag', 'disinformation', 'fakenews', 'bs', 'misleading', 'unreliable', 'propaganda']].agg(sum).T
-
-
-
-#"""
-#SUBR: subr, subr_cat
-#SUBM: covid_related : Y/N, date ; RM: fake_news_related,
-#COMM: rating: positive; RM: body: bot, sarcasm ; RM: link_id: t1
-#SENT: flag + 6 flags, method: regex, pos ; flagging: multiple
-#AUTHOR: ...
-#
-#1. Do we know comment is flag ? pos regex (+)
-#2. Do we trust the flag ? author, multiple flagged
-#3. Is it really disinformation ? (cluster, fact checking validation)
-#
-#https://mediabiasfactcheck.com/left/
-#
-#Top flaggers
-#PCA: flags
-#Monthly comparison + weekly slider
-#"""
+    log.info("Started unification for %d", year)
+    encode = encode or load_encoder()
+    united = build_united(year, raw_dir, processed_dir, load_tracked_subreddits(subreddits_file))
+    for file_name, table in build_dashboard_tables(united, encode).items():
+        write_csv(table, dashboard_dir / file_name)
+        log.info("Wrote %s. Shape: %s", file_name, table.shape)
