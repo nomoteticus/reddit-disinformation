@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stroo"
+version = "0.2.0"
+description = "Detecting and monitoring user-perceived disinformation on Reddit (Achimescu & Chachev, 2021)."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Vlad Achimescu" }, { name = "Pavel Dimitrov Chachev" }]
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "spacy>=3.7",
+    "scikit-learn>=1.4",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "dash>=2.17",
+    "plotly>=5.20",
+    "gunicorn>=22; sys_platform != 'win32'",
+    "waitress>=3; sys_platform == 'win32'",
+]
+embed = ["tensorflow>=2.15", "tensorflow-hub>=0.16"]
+collect = ["psaw>=0.1", "timeout-decorator>=0.5"]
+dev = ["pytest>=8", "ruff>=0.6", "nbformat>=5.10", "nbclient>=0.10", "ipykernel>=6"]
+
+[project.scripts]
+stroo = "stroo.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"stroo.dashboard" = ["assets/*"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["notebooks", "tests/legacy", "article and figshare"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "PD"]
+ignore = [
+    "SIM300", # constant-on-the-left false positives in tests
+    "PD010",  # pivot/unstack kept as in the original analysis
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "data: needs the local, git-ignored data/ folder (skipped when absent)",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/build_paper_notebook.py" = ["E501"]  # notebook cells are kept as written

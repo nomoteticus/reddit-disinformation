@@ -1,0 +1,11 @@
+# Environment for running the cleaned code:
+#   conda env create -f environment.yml && conda activate stroo
+#   python -m spacy download en_core_web_sm
+name: stroo
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - -e .[dashboard,dev]
