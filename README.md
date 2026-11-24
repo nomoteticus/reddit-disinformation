@@ -46,7 +46,7 @@ and open http://127.0.0.1:8050.
 | `scripts/` | `check_paper_reproduction.py` (exact reproduction of the 2020 matching) and `build_paper_notebook.py`. |
 | `tests/` | Unit tests, and tests that compare the code with the original scripts and with the paper. |
 | `deploy/` | Gunicorn/systemd/Nginx files and a deployment guide for the dashboard. |
-| `docs/reference/` | Field lists of the Pushshift API and pattern frequencies from July 2020. |
+| `docs/reference/` | Pattern frequencies and the most frequent matched sentences, July 2020. |
 
 ### The package
 
