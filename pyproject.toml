@@ -7,6 +7,8 @@ name = "stroo"
 version = "0.2.0"
 description = "Detecting and monitoring user-perceived disinformation on Reddit (Achimescu & Chachev, 2021)."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Vlad Achimescu" }, { name = "Pavel Dimitrov Chachev" }]
 dependencies = [

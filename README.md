@@ -149,3 +149,7 @@ The code was written in 2020-2021 and restructured in 2026 into the package desc
 ## Citation
 
 If you use this code or the method, please cite the paper above.
+
+## Licence
+
+The code is released under the [MIT Licence](LICENSE). The data on Figshare and the article have their own licences.
